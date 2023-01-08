@@ -1,15 +1,15 @@
 import { Result, Err, Ok } from "../components/result";
 
 describe("Result Constructor Tests", () => {
-	test("Print preview of my data", () => {
-		console.log(new Err(Error(), "Big mistake happened"));
-		console.log(new Err(Error("OH NO!")));
+	// test("Print preview of my data", () => {
+	// 	console.log(new Err(Error(), "Big mistake happened"));
+	// 	console.log(new Err(Error("OH NO!")));
 
-		console.log(new Ok("lol"));
-		console.log(new Ok({ data: "some data", arrayData: [1, 2, 3], nestedData: { data: "even more data" } }));
+	// 	console.log(new Ok("lol"));
+	// 	console.log(new Ok({ data: "some data", arrayData: [1, 2, 3], nestedData: { data: "even more data" } }));
 
-		expect(true).toBe(true);
-	});
+	// 	expect(true).toBe(true);
+	// });
 
 	test("result.isErr() should return true on a result with an Err inside.", () => {
 		const result = new Err(Error("Big issues here!"), "This is an Err!");
@@ -45,5 +45,89 @@ describe("Result Constructor Tests", () => {
 		const result = new Err(err, detail);
 
 		expect(result.unwrap).toThrowError("Attempted to unwrap an Err.");
+	});
+
+	test("result.unwrapErr() should return the it's Error when called on an Err", () => {
+		const err = "SuperBadError";
+		const detail = "Error was thrown here today!";
+
+		const result = new Err(err, detail);
+
+		expect(result.unwrapErr()).toStrictEqual({ err, detail });
+	});
+
+	test("result.unwrapErr() should throw error: 'Attempted to unwrapErr an Ok' when called on an Ok.", () => {
+		const data = { stuff: "sample data", moreStuff: [1, 2, 3] };
+		const result = new Ok(data);
+
+		expect(result.unwrapErr).toThrowError("Attempted to unwrapErr an Ok.");
+	});
+});
+
+describe("Result chaining tests", () => {
+	const validateStringType = (data: any): Ok<string> | Err<string, string> => {
+		if (typeof data === "string") {
+			return new Ok(data);
+		} else {
+			return new Err(
+				"InvalidDataType",
+				`The datatype provided was supposed to be 'string' but was given: '${typeof data}'`
+			);
+		}
+	};
+
+	const capitalizeFirstLetter = (chars: string): Ok<string> | Err<string, string> => {
+		try {
+			const updatedChars = chars.charAt(0).toUpperCase() + chars.slice(1);
+			return new Ok(updatedChars);
+		} catch (error) {
+			return new Err(error);
+		}
+	};
+
+	const validateCorrectChars = (chars: string): Ok<string> | Err<string, string> => {
+		if (chars === "Banana") {
+			return new Ok(chars);
+		} else {
+			return new Err("InvalidCharSequenceError", `The word: '${chars}' was not correct!`);
+		}
+	};
+
+	const returnErrorUnreasonably = (item: unknown): Ok<string> | Err<string, string> => {
+		return new Err("UnreasonableError", `An unreasonable error has been encountered! ${item}`);
+	};
+
+	test(".andThen() Should return an Ok with the string 'Banana' inside at end of the chain.", () => {
+		const result = validateStringType("banana").andThen(capitalizeFirstLetter).andThen(validateCorrectChars);
+
+		expect(result.isOk()).toBe(true);
+		expect(result.unwrap()).toBe("Banana");
+	});
+
+	test(".andThen() Should return an Err with the error: 'InvalidDataType', halting execution early.", () => {
+		const result = validateStringType(12345).andThen(capitalizeFirstLetter).andThen(validateCorrectChars);
+
+		console.log(result);
+
+		expect(result.isErr()).toBe(true);
+		expect(result.unwrapErr()).toStrictEqual({
+			err: "InvalidDataType",
+			detail: "The datatype provided was supposed to be 'string' but was given: 'number'",
+		});
+	});
+
+	test(".andThen() Should return an Err with the error: 'UnreasonableError', halting execution early.", () => {
+		const result = validateStringType("pineapple")
+			.andThen(capitalizeFirstLetter)
+			.andThen(returnErrorUnreasonably)
+			.andThen(validateCorrectChars);
+
+		console.log(result);
+
+		expect(result.isErr()).toBe(true);
+		expect(result.unwrapErr()).toStrictEqual({
+			err: "UnreasonableError",
+			detail: "An unreasonable error has been encountered! Pineapple",
+		});
 	});
 });

@@ -14,8 +14,7 @@
 	],
 	"scripts": {
 		"prepublish": "tsc",
-		"test": "jest",
-		"run": "node lib/index.js"
+		"test": "jest"
 	},
 	"keywords": [],
 	"author": "",
