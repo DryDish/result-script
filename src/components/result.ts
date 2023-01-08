@@ -32,16 +32,6 @@ class Result<T, E> {
 		}
 	}
 
-	isErr() {
-		if ("err" in this) {
-			return true;
-		} else if ("ok" in this) {
-			return false;
-		} else {
-			throw new Error("Something is deeply wrong with the Result object");
-		}
-	}
-
 	isOk() {
 		if ("ok" in this) {
 			return true;
@@ -52,11 +42,21 @@ class Result<T, E> {
 		}
 	}
 
+	isErr() {
+		if ("err" in this) {
+			return true;
+		} else if ("ok" in this) {
+			return false;
+		} else {
+			throw new Error("Something is deeply wrong with the Result object");
+		}
+	}
+
 	unwrap() {
-		if (this && "ok" in this) {
+		if (this && this.isOk()) {
 			return this.ok;
 		} else {
-			throw new Error("Attempted to unwrap an Err.")
+			throw new Error("Attempted to unwrap an Err.");
 		}
 	}
 }
@@ -74,13 +74,5 @@ class Err<E, D> extends Result<T, E> {
 		super(errType);
 	}
 }
-
-const testFunction = (something: string): Ok<string> | Err<Error, string> => {
-	if (something === "banana") {
-		return new Ok(something);
-	} else {
-		return new Err(new Error("Banana was  not provided!"));
-	}
-};
 
 export { Result, Ok, Err };
