@@ -64,7 +64,8 @@ describe("Result Constructor Tests", () => {
 	});
 });
 
-describe("Result chaining tests", () => {
+describe("Result.andThen() chaining tests", () => {
+	// -----------------UTILITY FUNCTIONS---------------------
 	const validateStringType = (data: any): Ok<string> | Err<string, string> => {
 		if (typeof data === "string") {
 			return new Ok(data);
@@ -75,7 +76,6 @@ describe("Result chaining tests", () => {
 			);
 		}
 	};
-
 	const capitalizeFirstLetter = (chars: string): Ok<string> | Err<string, string> => {
 		try {
 			const updatedChars = chars.charAt(0).toUpperCase() + chars.slice(1);
@@ -84,7 +84,6 @@ describe("Result chaining tests", () => {
 			return new Err(error);
 		}
 	};
-
 	const validateCorrectString = (chars: string, correctString: string): Ok<string> | Err<string, string> => {
 		if (chars === correctString) {
 			return new Ok(chars);
@@ -95,10 +94,10 @@ describe("Result chaining tests", () => {
 			);
 		}
 	};
-
 	const returnErrorUnreasonably = (item: unknown): Ok<string> | Err<string, string> => {
 		return new Err("UnreasonableError", `An unreasonable error has been encountered! ${item}`);
 	};
+	// ---------------UTILITY FUNCTIONS END-------------------
 
 	test(".andThen() Should return an Ok with the string 'Banana' inside at end of the chain.", () => {
 		const result = validateStringType("banana")
