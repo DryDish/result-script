@@ -85,11 +85,14 @@ describe("Result chaining tests", () => {
 		}
 	};
 
-	const validateCorrectChars = (chars: string): Ok<string> | Err<string, string> => {
-		if (chars === "Banana") {
+	const validateCorrectString = (chars: string, correctString: string): Ok<string> | Err<string, string> => {
+		if (chars === correctString) {
 			return new Ok(chars);
 		} else {
-			return new Err("InvalidCharSequenceError", `The word: '${chars}' was not correct!`);
+			return new Err(
+				"InvalidCharSequenceError",
+				`Was expecting the char sequence: '${correctString}' but got: '${chars}'.`
+			);
 		}
 	};
 
@@ -98,14 +101,18 @@ describe("Result chaining tests", () => {
 	};
 
 	test(".andThen() Should return an Ok with the string 'Banana' inside at end of the chain.", () => {
-		const result = validateStringType("banana").andThen(capitalizeFirstLetter).andThen(validateCorrectChars);
+		const result = validateStringType("banana")
+			.andThen(capitalizeFirstLetter)
+			.andThen((x) => validateCorrectString(x, "Banana"));
 
 		expect(result.isOk()).toBe(true);
 		expect(result.unwrap()).toBe("Banana");
 	});
 
 	test(".andThen() Should return an Err with the error: 'InvalidDataType', halting execution early.", () => {
-		const result = validateStringType(12345).andThen(capitalizeFirstLetter).andThen(validateCorrectChars);
+		const result = validateStringType(12345)
+			.andThen(capitalizeFirstLetter)
+			.andThen((x) => validateCorrectString(x, "Banana"));
 
 		console.log(result);
 
@@ -120,7 +127,7 @@ describe("Result chaining tests", () => {
 		const result = validateStringType("pineapple")
 			.andThen(capitalizeFirstLetter)
 			.andThen(returnErrorUnreasonably)
-			.andThen(validateCorrectChars);
+			.andThen((x) => validateCorrectString(x, "Banana"));
 
 		console.log(result);
 
@@ -128,6 +135,20 @@ describe("Result chaining tests", () => {
 		expect(result.unwrapErr()).toStrictEqual({
 			err: "UnreasonableError",
 			detail: "An unreasonable error has been encountered! Pineapple",
+		});
+	});
+
+	test(".andThen() Should return an Err with the error: 'InvalidCharSequenceError', halting execution at the last step.", () => {
+		const result = validateStringType("pineapple")
+			.andThen(capitalizeFirstLetter)
+			.andThen((x) => validateCorrectString(x, "Banana"));
+
+		console.log(result);
+
+		expect(result.isErr()).toBe(true);
+		expect(result.unwrapErr()).toStrictEqual({
+			err: "InvalidCharSequenceError",
+			detail: "Was expecting the char sequence: 'Banana' but got: 'Pineapple'.",
 		});
 	});
 });
