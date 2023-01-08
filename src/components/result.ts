@@ -53,20 +53,20 @@ class Result<T, E> {
 		}
 	}
 
-	unwrap() {
+	unwrap(): T {
 		if (this && this.isOk()) {
-			return this.ok;
+			return this.ok as T;
 		} else {
 			throw new Error("Attempted to unwrap an Err.");
 		}
 	}
 
-	unwrapErr() {
+	unwrapErr(): { err: E } | { err: E; detail: any } {
 		if (this && this.isErr()) {
 			if (!this.detail) {
-				return { err: this.err };
+				return { err: this.err as E };
 			} else {
-				return { err: this.err, detail: this.detail };
+				return { err: this.err as E, detail: this.detail };
 			}
 		} else {
 			throw new Error("Attempted to unwrapErr an Ok.");

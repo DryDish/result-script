@@ -1,4 +1,4 @@
-import { Err, Ok } from "../components/result";
+import { Err, Ok, Result } from "../components/result";
 
 describe("Result Constructor Tests", () => {
 	test("result.isErr() should return true on a result with an Err inside.", () => {
@@ -56,7 +56,7 @@ describe("Result Constructor Tests", () => {
 
 describe("Result.andThen() chaining tests", () => {
 	// -----------------UTILITY FUNCTIONS---------------------
-	const validateStringType = (data: any): Ok<string> | Err<string, string> => {
+	const validateStringType = (data: any): Result<string, string> => {
 		if (typeof data === "string") {
 			return new Ok(data);
 		} else {
@@ -66,7 +66,7 @@ describe("Result.andThen() chaining tests", () => {
 			);
 		}
 	};
-	const capitalizeFirstLetter = (chars: string): Ok<string> | Err<string, string> => {
+	const capitalizeFirstLetter = (chars: string): Result<string, unknown> => {
 		try {
 			const updatedChars = chars.charAt(0).toUpperCase() + chars.slice(1);
 			return new Ok(updatedChars);
@@ -74,7 +74,7 @@ describe("Result.andThen() chaining tests", () => {
 			return new Err(error);
 		}
 	};
-	const validateCorrectString = (chars: string, correctString: string): Ok<string> | Err<string, string> => {
+	const validateCorrectString = (chars: string, correctString: string): Result<string, string> => {
 		if (chars === correctString) {
 			return new Ok(chars);
 		} else {
@@ -93,6 +93,10 @@ describe("Result.andThen() chaining tests", () => {
 		const result = validateStringType("banana")
 			.andThen(capitalizeFirstLetter)
 			.andThen((x) => validateCorrectString(x, "Banana"));
+
+		const result2 = validateStringType("potato");
+		const something = result2.unwrap();
+		console.log(something);
 
 		expect(result.isOk()).toBe(true);
 		expect(result.unwrap()).toBe("Banana");
