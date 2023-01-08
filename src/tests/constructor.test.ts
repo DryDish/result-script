@@ -1,16 +1,6 @@
-import { Result, Err, Ok } from "../components/result";
+import { Err, Ok } from "../components/result";
 
 describe("Result Constructor Tests", () => {
-	// test("Print preview of my data", () => {
-	// 	console.log(new Err(Error(), "Big mistake happened"));
-	// 	console.log(new Err(Error("OH NO!")));
-
-	// 	console.log(new Ok("lol"));
-	// 	console.log(new Ok({ data: "some data", arrayData: [1, 2, 3], nestedData: { data: "even more data" } }));
-
-	// 	expect(true).toBe(true);
-	// });
-
 	test("result.isErr() should return true on a result with an Err inside.", () => {
 		const result = new Err(Error("Big issues here!"), "This is an Err!");
 		expect(result.isErr()).toBe(true);

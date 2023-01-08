@@ -1,6 +1,7 @@
 type T = any;
 type E = any;
 type D = any;
+type ResultCallback = (value: any) => Ok<T> | Err<E, D>;
 
 interface IErr<E, D> {
 	err?: E;
@@ -81,8 +82,6 @@ class Result<T, E> {
 	}
 }
 
-type ResultCallback = (value: any) => Ok<T> | Err<E, D>;
-
 class Ok<T> extends Result<T, E> {
 	constructor(data: T) {
 		const okType: IOk<T> = { ok: data };
@@ -96,31 +95,5 @@ class Err<E, D> extends Result<T, E> {
 		super(errType);
 	}
 }
-
-const validateStringType = (data: any): Ok<string> | Err<string, string> => {
-	if (typeof data === "string") {
-		return new Ok(data);
-	} else {
-		return new Err("InvalidDataType");
-	}
-};
-
-const testCapitalB = (chars: string): Ok<string> | Err<string, string> => {
-	if (chars.startsWith("B")) {
-		return new Ok(chars);
-	} else {
-		return new Err("InvalidChars");
-	}
-};
-
-const testCorrectWord = (chars: string): Ok<string> | Err<string, string> => {
-	if (chars === "Banana") {
-		return new Ok(chars);
-	} else {
-		return new Err("The word was not correct!");
-	}
-};
-
-const result = validateStringType("Banana").andThen(testCorrectWord).andThen(testCapitalB);
 
 export { Result, Ok, Err };
