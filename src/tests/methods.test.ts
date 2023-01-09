@@ -1,6 +1,6 @@
 import { Err, Ok, Result } from "../components/result";
 
-describe("Result Constructor Tests", () => {
+describe("Result.isErr() Tests", () => {
 	test("result.isErr() should return true on a result with an Err inside.", () => {
 		const result = new Err(Error("Big issues here!"), "This is an Err!");
 		expect(result.isErr()).toBe(true);
@@ -10,7 +10,8 @@ describe("Result Constructor Tests", () => {
 		const result = new Ok({ stuff: "All is good here, just some data", moreStuff: [1, 2, 3] });
 		expect(result.isErr()).toBe(false);
 	});
-
+});
+describe("Result.isOk() Tests", () => {
 	test("result.isOk() should return false on a result with an Err inside.", () => {
 		const result = new Err(Error(), "All is good here, just some data");
 		expect(result.isOk()).toBe(false);
@@ -20,7 +21,9 @@ describe("Result Constructor Tests", () => {
 		const result = new Ok({ stuff: "All is good here, just some data", moreStuff: [1, 2, 3] });
 		expect(result.isOk()).toBe(true);
 	});
+});
 
+describe("Result.unwrap() Tests", () => {
 	test("result.unwrap() should return the it's data when called on an Ok", () => {
 		const data = { stuff: "sample data", moreStuff: [1, 2, 3] };
 		const result = new Ok(data);
@@ -36,7 +39,9 @@ describe("Result Constructor Tests", () => {
 
 		expect(result.unwrap).toThrowError("Attempted to unwrap an Err.");
 	});
+});
 
+describe("Result.unwrap() Tests", () => {
 	test("result.unwrapErr() should return the it's Error when called on an Err", () => {
 		const err = "SuperBadError";
 		const detail = "Error was thrown here today!";
@@ -54,7 +59,7 @@ describe("Result Constructor Tests", () => {
 	});
 });
 
-describe("Result.andThen() chaining tests", () => {
+describe("Result.andThen() tests", () => {
 	// -----------------UTILITY FUNCTIONS---------------------
 	const validateStringType = (data: any): Result<string, string> => {
 		if (typeof data === "string") {
@@ -143,5 +148,35 @@ describe("Result.andThen() chaining tests", () => {
 			err: "InvalidCharSequenceError",
 			detail: "Was expecting the char sequence: 'Banana' but got: 'Pineapple'.",
 		});
+	});
+});
+
+describe("Result.or() tests", () => {
+	test("Test should return 'this'.", () => {
+		const x: Result<number, string> = new Ok(2);
+		const y: Result<number, string> = new Err("Error Has occurred!");
+
+		expect(x.or(y)).toStrictEqual(new Ok(2));
+	});
+
+	test("Test should return 'res'.", () => {
+		const x: Result<number, string> = new Err("Error Has occurred!");
+		const y: Result<number, string> = new Ok(2);
+
+		expect(x.or(y)).toStrictEqual(new Ok(2));
+	});
+
+	test("Test should return error from 'res'.", () => {
+		const x: Result<number, string> = new Err("Not a 2");
+		const y: Result<number, string> = new Err("Error Has occurred!");
+
+		expect(x.or(y)).toStrictEqual(new Err("Error Has occurred!"));
+	});
+
+	test("Test should return 'this'.", () => {
+		const x: Result<number, string> = new Ok(2);
+		const y: Result<number, string> = new Ok(1234);
+
+		expect(x.or(y)).toStrictEqual(new Ok(2));
 	});
 });

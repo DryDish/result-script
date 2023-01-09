@@ -80,6 +80,16 @@ class Result<T, E> {
 			return this;
 		}
 	}
+
+	or(res: Result<T, D>): Result<T, D> {
+		if (this.isErr()) {
+			return res;
+		} else if (this.isOk()) {
+			return this;
+		} else {
+			throw new Error("Something is deeply wrong with the Result object");
+		}
+	}
 }
 
 class Ok<T> extends Result<T, E> {
