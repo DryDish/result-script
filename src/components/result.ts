@@ -1,4 +1,4 @@
-import { IErr, IOk, ResultCallbackOk, ResultCallbackErr } from "./interfaces";
+import { IErr, IOk, OkResultCallback, ErrResultCallback } from "./interfaces";
 
 class Result<T, E> {
 	ok!: T;
@@ -50,9 +50,9 @@ class Result<T, E> {
 		}
 	}
 
-	andThen(callableFunction: ResultCallbackOk<T, E>): Result<T, E> {
+	andThen(op: OkResultCallback<T, E>): Result<T, E> {
 		if (this.isOk()) {
-			return callableFunction(this.unwrap());
+			return op(this.unwrap());
 		} else {
 			return this;
 		}
@@ -68,7 +68,7 @@ class Result<T, E> {
 		}
 	}
 
-	orElse(op: ResultCallbackErr<T, E>): Result<T, E> {
+	orElse(op: ErrResultCallback<T, E>): Result<T, E> {
 		if (this.isErr() && this.err) {
 			return op(this.unwrapErr());
 		} else if (this.isOk() && this.ok) {

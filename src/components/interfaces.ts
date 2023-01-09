@@ -8,11 +8,11 @@ interface IErr<E> {
 	err: E;
 }
 
-interface ResultCallbackOk<T, E> {
+interface OkResultCallback<T, E> {
 	(x: T): Result<T, E>;
 }
 
-interface ResultCallbackErr<T, E> {
+interface ErrResultCallback<T, E> {
 	(x: E): Result<T, E>;
 }
 
@@ -21,4 +21,4 @@ interface ErrorMessage<E, T> {
 	detail: T;
 }
 
-export { ResultCallbackOk, ResultCallbackErr, IOk, IErr, ErrorMessage };
+export { OkResultCallback, ErrResultCallback, IOk, IErr, ErrorMessage };
