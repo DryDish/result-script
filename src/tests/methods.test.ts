@@ -1,107 +1,105 @@
+import { ErrorMessage } from "../components/interfaces";
 import { Err, Ok, Result } from "../components/result";
 
-describe("Result.isErr() Tests", () => {
-	test("result.isErr() should return true on a result with an Err inside.", () => {
-		const result = new Err(Error("Big issues here!"), "This is an Err!");
-		expect(result.isErr()).toBe(true);
+describe("Result.isOk() Tests", () => {
+	test("result.isOk() should return true on a result with an Ok inside.", () => {
+		const result: Result<number, string> = new Ok(-3);
+		expect(result.isOk()).toBe(true);
 	});
 
-	test("result.isErr() should return false on a result with an Ok inside.", () => {
-		const result = new Ok({ stuff: "All is good here, just some data", moreStuff: [1, 2, 3] });
-		expect(result.isErr()).toBe(false);
-	});
-});
-describe("Result.isOk() Tests", () => {
 	test("result.isOk() should return false on a result with an Err inside.", () => {
-		const result = new Err(Error(), "All is good here, just some data");
+		const result: Result<number, ErrorMessage<Error, string>> = new Err({
+			error: Error(),
+			detail: "All is good here, just some data",
+		});
 		expect(result.isOk()).toBe(false);
 	});
+});
 
-	test("result.isOk() should return true on a result with an Ok inside.", () => {
-		const result = new Ok({ stuff: "All is good here, just some data", moreStuff: [1, 2, 3] });
-		expect(result.isOk()).toBe(true);
+describe("Result.isErr() Tests", () => {
+	test("result.isErr() should return false on a result with an Ok inside.", () => {
+		const result: Result<number, string> = new Ok(-3);
+		expect(result.isErr()).toBe(false);
+	});
+
+	test("result.isErr() should return true on a result with an Err inside.", () => {
+		const result: Result<number, string> = new Err("Big issues here!");
+		expect(result.isErr()).toBe(true);
 	});
 });
 
 describe("Result.unwrap() Tests", () => {
 	test("result.unwrap() should return the it's data when called on an Ok", () => {
-		const data = { stuff: "sample data", moreStuff: [1, 2, 3] };
-		const result = new Ok(data);
-
-		expect(result.unwrap()).toBe(data);
+		const result: Result<number, string> = new Ok(2);
+		expect(result.unwrap()).toBe(2);
 	});
 
 	test("result.unwrap() should throw error: 'Attempted to unwrap an Err.' when called on an Err.", () => {
-		const err = "SuperBadError";
-		const detail = "Error was thrown here today!";
-
-		const result = new Err(err, detail);
-
+		const result: Result<number, ErrorMessage<string, string>> = new Err({
+			error: "SuperBadError",
+			detail: "Error was thrown here today!",
+		});
 		expect(result.unwrap).toThrowError("Attempted to unwrap an Err.");
 	});
 });
 
-describe("Result.unwrap() Tests", () => {
-	test("result.unwrapErr() should return the it's Error when called on an Err", () => {
-		const err = "SuperBadError";
-		const detail = "Error was thrown here today!";
-
-		const result = new Err(err, detail);
-
-		expect(result.unwrapErr()).toStrictEqual({ err, detail });
+describe("Result.unwrapErr() Tests", () => {
+	test("result.unwrapErr() should throw error: 'Attempted to unwrapErr an Ok' when called on an Ok.", () => {
+		const result: Result<number, string> = new Ok(2);
+		expect(result.unwrapErr).toThrowError("Attempted to unwrapErr an Ok.");
 	});
 
-	test("result.unwrapErr() should throw error: 'Attempted to unwrapErr an Ok' when called on an Ok.", () => {
-		const data = { stuff: "sample data", moreStuff: [1, 2, 3] };
-		const result = new Ok(data);
-
-		expect(result.unwrapErr).toThrowError("Attempted to unwrapErr an Ok.");
+	test("result.unwrapErr() should return the it's Error when called on an Err", () => {
+		const result: Result<number, ErrorMessage<string, string>> = new Err({
+			error: "SuperBadError",
+			detail: "Error was thrown here today!",
+		});
+		expect(result.unwrapErr()).toStrictEqual({ error: "SuperBadError", detail: "Error was thrown here today!" });
 	});
 });
 
 describe("Result.andThen() tests", () => {
 	// -----------------UTILITY FUNCTIONS---------------------
-	const validateStringType = (data: any): Result<string, string> => {
+	const validateStringType = (data: unknown): Result<string, ErrorMessage<string, string>> => {
 		if (typeof data === "string") {
 			return new Ok(data);
 		} else {
-			return new Err(
-				"InvalidDataType",
-				`The datatype provided was supposed to be 'string' but was given: '${typeof data}'`
-			);
+			return new Err({
+				error: "InvalidDataType",
+				detail: `The datatype provided was supposed to be 'string' but was given: '${typeof data}'`,
+			});
 		}
 	};
-	const capitalizeFirstLetter = (chars: string): Result<string, unknown> => {
+	const capitalizeFirstLetter = (chars: string): Result<string, ErrorMessage<string, string>> => {
 		try {
 			const updatedChars = chars.charAt(0).toUpperCase() + chars.slice(1);
 			return new Ok(updatedChars);
 		} catch (error) {
-			return new Err(error);
+			return new Err({ error: error as string, detail: "Whoopsie" });
 		}
 	};
-	const validateCorrectString = (chars: string, correctString: string): Result<string, string> => {
+	const validateCorrectString = (
+		chars: string,
+		correctString: string
+	): Result<string, ErrorMessage<string, string>> => {
 		if (chars === correctString) {
 			return new Ok(chars);
 		} else {
-			return new Err(
-				"InvalidCharSequenceError",
-				`Was expecting the char sequence: '${correctString}' but got: '${chars}'.`
-			);
+			return new Err({
+				error: "InvalidCharSequenceError",
+				detail: `Was expecting the char sequence: '${correctString}' but got: '${chars}'.`,
+			});
 		}
 	};
-	const returnErrorUnreasonably = (item: unknown): Ok<string> | Err<string, string> => {
-		return new Err("UnreasonableError", `An unreasonable error has been encountered! ${item}`);
+	const returnErrorUnreasonably = (item: unknown): Result<string, ErrorMessage<string, string>> => {
+		return new Err({ error: "UnreasonableError", detail: `An unreasonable error has been encountered! ${item}` });
 	};
 	// ---------------UTILITY FUNCTIONS END-------------------
 
 	test(".andThen() Should return an Ok with the string 'Banana' inside at end of the chain.", () => {
 		const result = validateStringType("banana")
 			.andThen(capitalizeFirstLetter)
-			.andThen((x) => validateCorrectString(x, "Banana"));
-
-		const result2 = validateStringType("potato");
-		const something = result2.unwrap();
-		console.log(something);
+			.andThen((x: string) => validateCorrectString(x, "Banana"));
 
 		expect(result.isOk()).toBe(true);
 		expect(result.unwrap()).toBe("Banana");
@@ -110,13 +108,11 @@ describe("Result.andThen() tests", () => {
 	test(".andThen() Should return an Err with the error: 'InvalidDataType', halting execution early.", () => {
 		const result = validateStringType(12345)
 			.andThen(capitalizeFirstLetter)
-			.andThen((x) => validateCorrectString(x, "Banana"));
-
-		console.log(result);
+			.andThen((x: string) => validateCorrectString(x, "Banana"));
 
 		expect(result.isErr()).toBe(true);
 		expect(result.unwrapErr()).toStrictEqual({
-			err: "InvalidDataType",
+			error: "InvalidDataType",
 			detail: "The datatype provided was supposed to be 'string' but was given: 'number'",
 		});
 	});
@@ -125,13 +121,11 @@ describe("Result.andThen() tests", () => {
 		const result = validateStringType("pineapple")
 			.andThen(capitalizeFirstLetter)
 			.andThen(returnErrorUnreasonably)
-			.andThen((x) => validateCorrectString(x, "Banana"));
-
-		console.log(result);
+			.andThen((x: string) => validateCorrectString(x, "Banana"));
 
 		expect(result.isErr()).toBe(true);
 		expect(result.unwrapErr()).toStrictEqual({
-			err: "UnreasonableError",
+			error: "UnreasonableError",
 			detail: "An unreasonable error has been encountered! Pineapple",
 		});
 	});
@@ -139,13 +133,11 @@ describe("Result.andThen() tests", () => {
 	test(".andThen() Should return an Err with the error: 'InvalidCharSequenceError', halting execution at the last step.", () => {
 		const result = validateStringType("pineapple")
 			.andThen(capitalizeFirstLetter)
-			.andThen((x) => validateCorrectString(x, "Banana"));
-
-		console.log(result);
+			.andThen((x: string) => validateCorrectString(x, "Banana"));
 
 		expect(result.isErr()).toBe(true);
 		expect(result.unwrapErr()).toStrictEqual({
-			err: "InvalidCharSequenceError",
+			error: "InvalidCharSequenceError",
 			detail: "Was expecting the char sequence: 'Banana' but got: 'Pineapple'.",
 		});
 	});
@@ -178,5 +170,41 @@ describe("Result.or() tests", () => {
 		const y: Result<number, string> = new Ok(1234);
 
 		expect(x.or(y)).toStrictEqual(new Ok(2));
+	});
+});
+
+// TODO: Missing feature parity!
+// Initializing Ok  does not return a data type with a know E, even after function returns
+// Initializing Err does not return a data type with a know T, even after function returns
+// Currently, when initialize Ok or Err alone, you must also define the possible other type
+describe("Result.orElse() tests", () => {
+	// -----------------UTILITY FUNCTIONS---------------------
+	const sq = (x: number): Result<number, number> => {
+		return new Ok(x * x);
+	};
+
+	const err = (x: number): Result<number, number> => {
+		return new Err(x);
+	};
+	// ---------------UTILITY FUNCTIONS END-------------------
+
+	test("Test should return 'Ok(2)'.", () => {
+		const result = new Ok<number, number>(2).orElse(sq).orElse(sq);
+		expect(result).toStrictEqual(new Ok(2));
+	});
+
+	test("Test should return 'Ok(2)'.", () => {
+		const result = new Ok<number, number>(2).orElse(err).orElse(sq);
+		expect(result).toStrictEqual(new Ok(2));
+	});
+
+	test("Test should return 'Ok(9)'.", () => {
+		const result = new Err<number, number>(3).orElse(sq).orElse(err);
+		expect(result).toStrictEqual(new Ok(9));
+	});
+
+	test("Test should return 'Err(3)'.", () => {
+		const result = new Err<number, number>(3).orElse(err).orElse(err);
+		expect(result).toStrictEqual(new Err(3));
 	});
 });

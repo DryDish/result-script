@@ -1,33 +1,14 @@
-type T = any;
-type E = any;
-type D = any;
-type ResultCallback = (value: any) => Ok<T> | Err<E, D>;
-
-interface IErr<E, D> {
-	err?: E;
-	detail?: D;
-}
-
-interface IOk<T> {
-	ok?: T;
-}
+import { IErr, IOk, ResultCallbackOk, ResultCallbackErr } from "./interfaces";
 
 class Result<T, E> {
-	ok?: T;
-	err?: E;
-	detail?: D;
+	ok!: T;
+	err!: E;
 
-	constructor(data: IOk<T> | IErr<E, D>) {
+	constructor(data: IOk<T> | IErr<E>) {
 		if ("ok" in data) {
 			this.ok = data.ok;
 		} else if ("err" in data) {
-			const errData: IErr<E, D> = data;
-			if (!errData.detail) {
-				this.err = errData.err;
-			} else {
-				this.err = errData.err;
-				this.detail = errData.detail;
-			}
+			this.err = data.err;
 		} else {
 			throw new Error("Bad constructor format!");
 		}
@@ -55,25 +36,21 @@ class Result<T, E> {
 
 	unwrap(): T {
 		if (this && this.isOk()) {
-			return this.ok as T;
+			return this.ok;
 		} else {
 			throw new Error("Attempted to unwrap an Err.");
 		}
 	}
 
-	unwrapErr(): { err: E } | { err: E; detail: any } {
-		if (this && this.isErr()) {
-			if (!this.detail) {
-				return { err: this.err as E };
-			} else {
-				return { err: this.err as E, detail: this.detail };
-			}
+	unwrapErr(): E {
+		if (this && this.err && this.isErr()) {
+			return this.err;
 		} else {
 			throw new Error("Attempted to unwrapErr an Ok.");
 		}
 	}
 
-	andThen(callableFunction: ResultCallback): Ok<T> | Err<E, D> {
+	andThen(callableFunction: ResultCallbackOk<T, E>): Result<T, E> {
 		if (this.isOk()) {
 			return callableFunction(this.unwrap());
 		} else {
@@ -81,7 +58,7 @@ class Result<T, E> {
 		}
 	}
 
-	or(res: Result<T, D>): Result<T, D> {
+	or(res: Result<T, E>): Result<T, E> {
 		if (this.isErr()) {
 			return res;
 		} else if (this.isOk()) {
@@ -90,19 +67,29 @@ class Result<T, E> {
 			throw new Error("Something is deeply wrong with the Result object");
 		}
 	}
+
+	orElse(op: ResultCallbackErr<T, E>): Result<T, E> {
+		if (this.isErr() && this.err) {
+			return op(this.unwrapErr());
+		} else if (this.isOk() && this.ok) {
+			return this;
+		} else {
+			throw new Error("Something is deeply wrong with the Result object");
+		}
+	}
 }
 
-class Ok<T> extends Result<T, E> {
+class Ok<T, E> extends Result<T, E> {
 	constructor(data: T) {
 		const okType: IOk<T> = { ok: data };
 		super(okType);
 	}
 }
 
-class Err<E, D> extends Result<T, E> {
-	constructor(err: E, detail?: D) {
-		const errType: IErr<E, D> = { err, detail };
-		super(errType);
+class Err<T, E> extends Result<T, E> {
+	constructor(err: E) {
+		const errObj = { err: err };
+		super(errObj);
 	}
 }
 
