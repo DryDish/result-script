@@ -43,13 +43,24 @@ class Result<T, E> {
 	}
 
 	unwrapErr(): E {
-		if (this && this.err && this.isErr()) {
+		if (this && this.isErr()) {
 			return this.err;
 		} else {
 			throw new Error("Attempted to unwrapErr an Ok.");
 		}
 	}
 
+	and<U>(res: Result<U, E>): Result<U, E> {
+		if (this.isErr()) {
+			return new Err<U, E>(this.err);
+		} else if (res.isOk()) {
+			return res;
+		} else if (res.isErr()) {
+			return new Err<U, E>(res.err);
+		} else {
+			throw new Error("Something is deeply wrong with the Result object");
+		}
+	}
 	andThen(op: OkResultCallback<T, E>): Result<T, E> {
 		if (this.isOk()) {
 			return op(this.unwrap());
@@ -69,9 +80,9 @@ class Result<T, E> {
 	}
 
 	orElse(op: ErrResultCallback<T, E>): Result<T, E> {
-		if (this.isErr() && this.err) {
+		if (this.isErr()) {
 			return op(this.unwrapErr());
-		} else if (this.isOk() && this.ok) {
+		} else if (this.isOk()) {
 			return this;
 		} else {
 			throw new Error("Something is deeply wrong with the Result object");
@@ -88,7 +99,7 @@ class Ok<T, E> extends Result<T, E> {
 
 class Err<T, E> extends Result<T, E> {
 	constructor(err: E) {
-		const errObj = { err: err };
+		const errObj: IErr<E> = { err: err };
 		super(errObj);
 	}
 }

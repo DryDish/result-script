@@ -58,6 +58,32 @@ describe("Result.unwrapErr() Tests", () => {
 	});
 });
 
+describe("Result.and() tests", () => {
+	test(".and() Should return the Err object.", () => {
+		const x: Result<number, string> = new Ok(2);
+		const y: Result<string, string> = new Err("late error");
+		expect(x.and(y)).toStrictEqual(new Err("late error"));
+	});
+
+	test(".and() Should still return the Err object.", () => {
+		const x: Result<number, string> = new Err("early error");
+		const y: Result<string, string> = new Ok("foo");
+		expect(x.and(y)).toStrictEqual(new Err("early error"));
+	});
+
+	test(".and() Should return the first Err object.", () => {
+		const x: Result<number, string> = new Err("not a 2");
+		const y: Result<string, string> = new Err("late error");
+		expect(x.and(y)).toStrictEqual(new Err("not a 2"));
+	});
+
+	test(".and() Should return the first Err object.", () => {
+		const x: Result<number, string> = new Ok(2);
+		const y: Result<string, string> = new Ok("Different Result Type");
+		expect(x.and(y)).toStrictEqual(new Ok("Different Result Type"));
+	});
+});
+
 describe("Result.andThen() tests", () => {
 	// -----------------UTILITY FUNCTIONS---------------------
 	const validateStringType = (data: unknown): Result<string, ErrorMessage<string, string>> => {
