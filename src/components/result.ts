@@ -110,6 +110,16 @@ class Result<T, E> {
 		}
 	}
 
+	unwrapOrElse(op: (err: E) => T): T {
+		if (this.isOk()) {
+			return this.unwrap();
+		} else if (this.isErr()) {
+			return op(this.unwrapErr());
+		} else {
+			throw new Error("Something is deeply wrong with the Result object");
+		}
+	}
+
 }
 
 class Ok<T, E> extends Result<T, E> {

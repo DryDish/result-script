@@ -254,12 +254,29 @@ describe("Result.orElse() tests", () => {
 
 describe("Result.unwrapOr() tests", () => {
 	test("Result.unwrapOr(2) should return 9 on Ok(9)", () => {
-		const result = new Ok<number, string>(9);
+		const result: Result<number, string> = new Ok(9);
 		expect(result.unwrapOr(2)).toBe(9);
 	});
 
 	test("Result.unwrapOr(2) should return 2 on Err(...)", () => {
-		const result = new Err<number, string>("error");
+		const result: Result<number, string> = new Err("error");
 		expect(result.unwrapOr(2)).toBe(2);
+	});
+});
+
+describe("Result.unwrapOrElse() tests", () => {
+	// -----------------UTILITY FUNCTIONS---------------------
+	const count = (x: string): number => {
+		return x.length;
+	};
+	// ---------------UTILITY FUNCTIONS END-------------------
+	test("Result.unwrapOrElse(count) should return 9 on Ok(9)", () => {
+		const result: Result<number, string> = new Ok(9);
+		expect(result.unwrapOrElse(count)).toBe(9);
+	});
+
+	test("Result.unwrapOrElse(count) should return 3 on Err('foo')", () => {
+		const result: Result<number, string> = new Err("foo");
+		expect(result.unwrapOrElse(count)).toBe(3);
 	});
 });
