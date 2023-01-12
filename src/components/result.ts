@@ -44,6 +44,16 @@ class Result<T, E> {
 		}
 	}
 
+	isErrAnd(f: (x: E) => boolean): boolean {
+		if (this.isOk()) {
+			return false;
+		} else if (this.isErr()) {
+			return f(this.unwrapErr());
+		} else {
+			throw new Error("Something is deeply wrong with the Result object");
+		}
+	}
+
 	unwrap(): T {
 		if (this && this.isOk()) {
 			return this.ok;

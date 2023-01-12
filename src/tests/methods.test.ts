@@ -45,6 +45,30 @@ describe("Result.isErr() Tests", () => {
 	});
 });
 
+describe("Result.isErrAnd() Tests", () => {
+	// -----------------UTILITY FUNCTIONS---------------------
+	enum ErrorKinds {
+		NotFound,
+		PermissionDenied,
+	}
+	// ---------------UTILITY FUNCTIONS END-------------------
+
+	test("result.isErrAnd() should return true on Ok(2) > 1", () => {
+		const result: Result<number, ErrorKinds> = new Err(ErrorKinds.NotFound);
+		expect(result.isErrAnd((x) => x === ErrorKinds.NotFound)).toBe(true);
+	});
+
+	test("result.isErrAnd() should return true on Ok(2) > 1", () => {
+		const result: Result<number, ErrorKinds> = new Err(ErrorKinds.PermissionDenied);
+		expect(result.isErrAnd((x) => x === ErrorKinds.NotFound)).toBe(false);
+	});
+
+	test("result.isErrAnd() should return true on Ok(2) > 1", () => {
+		const result: Result<number, ErrorKinds> = new Ok(123);
+		expect(result.isErrAnd((x) => x === ErrorKinds.NotFound)).toBe(false);
+	});
+});
+
 describe("Result.unwrap() Tests", () => {
 	test("result.unwrap() should return the it's data when called on an Ok", () => {
 		const result: Result<number, string> = new Ok(2);
