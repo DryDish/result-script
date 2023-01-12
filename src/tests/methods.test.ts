@@ -16,6 +16,23 @@ describe("Result.isOk() Tests", () => {
 	});
 });
 
+describe("Result.isOkAnd() Tests", () => {
+	test("result.isOkAnd() should return true on Ok(2) > 1", () => {
+		const result: Result<number, string> = new Ok(2);
+		expect(result.isOkAnd((x) => x > 1)).toBe(true);
+	});
+
+	test("result.isOkAnd() should return false on Ok(0) > 1", () => {
+		const result: Result<number, string> = new Ok(0);
+		expect(result.isOkAnd((x) => x > 1)).toBe(false);
+	});
+
+	test("result.isOkAnd() should return false on Err('hey') > 1", () => {
+		const result: Result<number, string> = new Err("hey");
+		expect(result.isOkAnd((x) => x > 1)).toBe(false);
+	});
+});
+
 describe("Result.isErr() Tests", () => {
 	test("result.isErr() should return false on a result with an Ok inside.", () => {
 		const result: Result<number, string> = new Ok(-3);
