@@ -61,12 +61,12 @@ describe("Result.unwrap() Tests", () => {
 });
 
 describe("Result.unwrapErr() Tests", () => {
-	test("result.unwrapErr() should throw error: 'Attempted to unwrapErr an Ok' when called on an Ok.", () => {
+	test("Result.unwrapErr() should throw error: 'Attempted to unwrapErr an Ok' when called on an Ok.", () => {
 		const result: Result<number, string> = new Ok(2);
 		expect(result.unwrapErr).toThrowError("Attempted to unwrapErr an Ok.");
 	});
 
-	test("result.unwrapErr() should return the it's Error when called on an Err", () => {
+	test("Result.unwrapErr() should return the it's Error when called on an Err", () => {
 		const result: Result<number, ErrorMessage<string, string>> = new Err({
 			error: "SuperBadError",
 			detail: "Error was thrown here today!",
@@ -76,25 +76,25 @@ describe("Result.unwrapErr() Tests", () => {
 });
 
 describe("Result.and() tests", () => {
-	test(".and() Should return the Err object.", () => {
+	test("Result.and() Should return the Err object.", () => {
 		const x: Result<number, string> = new Ok(2);
 		const y: Result<string, string> = new Err("late error");
 		expect(x.and(y)).toStrictEqual(new Err("late error"));
 	});
 
-	test(".and() Should still return the Err object.", () => {
+	test("Result.and() Should still return the Err object.", () => {
 		const x: Result<number, string> = new Err("early error");
 		const y: Result<string, string> = new Ok("foo");
 		expect(x.and(y)).toStrictEqual(new Err("early error"));
 	});
 
-	test(".and() Should return the first Err object.", () => {
+	test("Result.and() Should return the first Err object.", () => {
 		const x: Result<number, string> = new Err("not a 2");
 		const y: Result<string, string> = new Err("late error");
 		expect(x.and(y)).toStrictEqual(new Err("not a 2"));
 	});
 
-	test(".and() Should return the first Err object.", () => {
+	test("Result.and() Should return the first Err object.", () => {
 		const x: Result<number, string> = new Ok(2);
 		const y: Result<string, string> = new Ok("Different Result Type");
 		expect(x.and(y)).toStrictEqual(new Ok("Different Result Type"));
@@ -139,7 +139,7 @@ describe("Result.andThen() tests", () => {
 	};
 	// ---------------UTILITY FUNCTIONS END-------------------
 
-	test(".andThen() Should return an Ok with the string 'Banana' inside at end of the chain.", () => {
+	test("Result.andThen() Should return an Ok with the string 'Banana' inside at end of the chain.", () => {
 		const result = validateStringType("banana")
 			.andThen(capitalizeFirstLetter)
 			.andThen((x: string) => validateCorrectString(x, "Banana"));
@@ -148,7 +148,7 @@ describe("Result.andThen() tests", () => {
 		expect(result.unwrap()).toBe("Banana");
 	});
 
-	test(".andThen() Should return an Err with the error: 'InvalidDataType', halting execution early.", () => {
+	test("Result.andThen() Should return an Err with the error: 'InvalidDataType', halting execution early.", () => {
 		const result = validateStringType(12345)
 			.andThen(capitalizeFirstLetter)
 			.andThen((x: string) => validateCorrectString(x, "Banana"));
@@ -160,7 +160,7 @@ describe("Result.andThen() tests", () => {
 		});
 	});
 
-	test(".andThen() Should return an Err with the error: 'UnreasonableError', halting execution early.", () => {
+	test("Result.andThen() Should return an Err with the error: 'UnreasonableError', halting execution early.", () => {
 		const result = validateStringType("pineapple")
 			.andThen(capitalizeFirstLetter)
 			.andThen(returnErrorUnreasonably)
@@ -173,7 +173,7 @@ describe("Result.andThen() tests", () => {
 		});
 	});
 
-	test(".andThen() Should return an Err with the error: 'InvalidCharSequenceError', halting execution at the last step.", () => {
+	test("Result.andThen() Should return an Err with the error: 'InvalidCharSequenceError', halting execution at the last step.", () => {
 		const result = validateStringType("pineapple")
 			.andThen(capitalizeFirstLetter)
 			.andThen((x: string) => validateCorrectString(x, "Banana"));
@@ -249,5 +249,17 @@ describe("Result.orElse() tests", () => {
 	test("Test should return 'Err(3)'.", () => {
 		const result = new Err<number, number>(3).orElse(err).orElse(err);
 		expect(result).toStrictEqual(new Err(3));
+	});
+});
+
+describe("Result.unwrapOr() tests", () => {
+	test("Result.unwrapOr(2) should return 9 on Ok(9)", () => {
+		const result = new Ok<number, string>(9);
+		expect(result.unwrapOr(2)).toBe(9);
+	});
+
+	test("Result.unwrapOr(2) should return 2 on Err(...)", () => {
+		const result = new Err<number, string>("error");
+		expect(result.unwrapOr(2)).toBe(2);
 	});
 });

@@ -99,6 +99,17 @@ class Result<T, E> {
 			throw new Error("Something is deeply wrong with the Result object");
 		}
 	}
+
+	unwrapOr(alternative: T): T {
+		if (this.isOk()) {
+			return this.unwrap();
+		} else if (this.isErr()) {
+			return alternative;
+		} else {
+			throw new Error("Something is deeply wrong with the Result object");
+		}
+	}
+
 }
 
 class Ok<T, E> extends Result<T, E> {
