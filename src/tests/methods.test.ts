@@ -280,3 +280,20 @@ describe("Result.unwrapOrElse() tests", () => {
 		expect(result.unwrapOrElse(count)).toBe(3);
 	});
 });
+
+describe("Result.contains() tests", () => {
+	test("Result.contains(2) should return true on Ok(2)", () => {
+		const result: Result<number, string> = new Ok(2);
+		expect(result.contains(2)).toBe(true);
+	});
+
+	test("Result.contains(2) should return false on Ok(3)", () => {
+		const result: Result<number, string> = new Ok(3);
+		expect(result.contains(2)).toBe(false);
+	});
+
+	test("Result.contains(2) should return true on Ok(2)", () => {
+		const result: Result<number, string> = new Err("Some error message");
+		expect(result.contains(2)).toBe(false);
+	});
+});

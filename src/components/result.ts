@@ -120,6 +120,15 @@ class Result<T, E> {
 		}
 	}
 
+	contains<U extends T>(x: U): boolean {
+		if (this.isOk()) {
+			return this.unwrap() === x;
+		} else if (this.isErr()) {
+			return false;
+		} else {
+			throw new Error("Something is deeply wrong with the Result object");
+		}
+	}
 }
 
 class Ok<T, E> extends Result<T, E> {
