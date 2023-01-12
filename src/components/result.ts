@@ -14,7 +14,7 @@ class Result<T, E> {
 		}
 	}
 
-	isOk() {
+	isOk(): boolean {
 		if ("ok" in this) {
 			return true;
 		} else if ("err" in this) {
@@ -34,7 +34,7 @@ class Result<T, E> {
 		}
 	}
 
-	isErr() {
+	isErr(): boolean {
 		if ("err" in this) {
 			return true;
 		} else if ("ok" in this) {
