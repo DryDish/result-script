@@ -61,6 +61,7 @@ class Result<T, E> {
 			throw new Error("Something is deeply wrong with the Result object");
 		}
 	}
+
 	andThen(op: OkResultCallback<T, E>): Result<T, E> {
 		if (this.isOk()) {
 			return op(this.unwrap());
