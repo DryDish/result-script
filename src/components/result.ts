@@ -129,6 +129,16 @@ class Result<T, E> {
 			throw new Error("Something is deeply wrong with the Result object");
 		}
 	}
+
+	containsErr<F extends E>(x: F): boolean {
+		if (this.isErr()) {
+			return this.unwrapErr() === x;
+		} else if (this.isOk()) {
+			return false;
+		} else {
+			throw new Error("Something is deeply wrong with the Result object");
+		}
+	}
 }
 
 class Ok<T, E> extends Result<T, E> {

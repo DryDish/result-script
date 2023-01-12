@@ -297,3 +297,20 @@ describe("Result.contains() tests", () => {
 		expect(result.contains(2)).toBe(false);
 	});
 });
+
+describe("Result.containsErr() tests", () => {
+	test("Result.contains('Some error message') should return false on Ok(2)", () => {
+		const result: Result<number, string> = new Ok(2);
+		expect(result.containsErr("Some error message")).toBe(false);
+	});
+
+	test("Result.contains('Some error message') should return true on Ok('Some error message')", () => {
+		const result: Result<number, string> = new Err("Some error message");
+		expect(result.containsErr("Some error message")).toBe(true);
+	});
+
+	test("Result.contains('Some error message') should return false on Err('Some other error message')", () => {
+		const result: Result<number, string> = new Err("Some other error message");
+		expect(result.containsErr("Some error message")).toBe(false);
+	});
+});
