@@ -89,15 +89,25 @@ describe("Result.map() Tests", () => {
 	});
 
 	test("Result.map() should do modify a T: number to a U: string result", () => {
-		const result: Result<number, string> = new Ok(5);
-
-		const modification = result
+		const result = new Ok(5)
 			.map((x) => x * x)
 			.map((x) => x.toString())
 			.map((x) => " Number is: " + x + " ")
 			.map((x) => x.trim());
 
-		expect(modification).toStrictEqual(new Ok("Number is: 25"));
+		expect(result).toStrictEqual(new Ok("Number is: 25"));
+	});
+});
+
+describe("Result.mapOr() Tests", () => {
+	test("Result.mapOr() should do modify a T: string to a U: number result", () => {
+		const result: Result<string, string> = new Ok("foo");
+		expect(result.mapOr(42, (x) => x.length)).toBe(3);
+	});
+
+	test("Result.mapOr() should do modify a T: string to a U: number result", () => {
+		const result: Result<string, string> = new Err("bar");
+		expect(result.mapOr(42, (x) => x.length)).toBe(42);
 	});
 });
 

@@ -56,9 +56,21 @@ class Result<T, E> {
 
 	map<U>(op: (value: T) => U): Result<U, E> {
 		if (this.isOk()) {
-			return new Ok<U,E>(op(this.unwrap()));
+			return new Ok<U, E>(op(this.unwrap()));
 		} else if (this.isErr()) {
 			return new Err<U, E>(this.unwrapErr());
+		} else {
+			throw new Error("Something is deeply wrong with the Result object");
+		}
+	}
+	// pub fn map<U, F: FnOnce(T) -> U>(self, op: F) -> Result<U, E> {
+	// pub fn map<U, F: FnOnce(T) -> U>(self, op: F) -> U {
+
+	mapOr<U>(alternative: U, f: (value: T) => U): U {
+		if (this.isOk()) {
+			return f(this.unwrap());
+		} else if (this.isErr()) {
+			return alternative;
 		} else {
 			throw new Error("Something is deeply wrong with the Result object");
 		}
