@@ -84,6 +84,16 @@ class Result<T, E> {
 		}
 	}
 
+	mapErr<F>(op: (err: E) => F): Result<T, F> {
+		if (this.isOk()) {
+			return new Ok(this.unwrap());
+		} else if (this.isErr()) {
+			return new Err(op(this.unwrapErr()));
+		} else {
+			throw new Error("Something is deeply wrong with the Result object");
+		}
+	}
+
 	unwrap(): T {
 		if (this && this.isOk()) {
 			return this.ok;

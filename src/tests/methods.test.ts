@@ -131,6 +131,24 @@ describe("Result.mapOr() Tests", () => {
 	});
 });
 
+describe("Result.mapErr() Tests", () => {
+	// -----------------UTILITY FUNCTIONS---------------------
+	const stringify = (x: number): string => {
+		return `error code is: ${x}`;
+	};
+	// ---------------UTILITY FUNCTIONS END-------------------
+
+	test("Result.mapErr() should do modify a E to an F without modifying the T", () => {
+		const result: Result<number, number> = new Ok(2);
+		expect(result.mapErr(stringify)).toStrictEqual(new Ok(2));
+	});
+
+	test("Result.mapErr() should do modify a E to an F without modifying the T", () => {
+		const result: Result<number, number> = new Err(13);
+		expect(result.mapErr(stringify)).toStrictEqual(new Err("error code is: 13"));
+	});
+});
+
 describe("Result.unwrap() Tests", () => {
 	test("Result.unwrap() should return the it's data when called on an Ok", () => {
 		const result: Result<number, string> = new Ok(2);
