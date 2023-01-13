@@ -69,13 +69,45 @@ describe("Result.isErrAnd() Tests", () => {
 	});
 });
 
+describe("Result.map() Tests", () => {
+	test("Result.map() should do modify a T: string to a U: number result", () => {
+		const result: Result<string, string> = new Ok("foo");
+
+		expect(result.map((x) => x.length)).toStrictEqual(new Ok(3));
+	});
+
+	test("Result.map() should do modify a T: number to a U: string result", () => {
+		const result: Result<number, string> = new Ok(12);
+
+		expect(result.map((x) => x.toString())).toStrictEqual(new Ok("12"));
+	});
+
+	test("Result.map() should do nothing to an Err Result", () => {
+		const result: Result<number, string> = new Err("Error Message");
+
+		expect(result.map((x) => x.toString())).toStrictEqual(new Err("Error Message"));
+	});
+
+	test("Result.map() should do modify a T: number to a U: string result", () => {
+		const result: Result<number, string> = new Ok(5);
+
+		const modification = result
+			.map((x) => x * x)
+			.map((x) => x.toString())
+			.map((x) => " Number is: " + x + " ")
+			.map((x) => x.trim());
+
+		expect(modification).toStrictEqual(new Ok("Number is: 25"));
+	});
+});
+
 describe("Result.unwrap() Tests", () => {
-	test("result.unwrap() should return the it's data when called on an Ok", () => {
+	test("Result.unwrap() should return the it's data when called on an Ok", () => {
 		const result: Result<number, string> = new Ok(2);
 		expect(result.unwrap()).toBe(2);
 	});
 
-	test("result.unwrap() should throw error: 'Attempted to unwrap an Err.' when called on an Err.", () => {
+	test("Result.unwrap() should throw error: 'Attempted to unwrap an Err.' when called on an Err.", () => {
 		const result: Result<number, ErrorMessage<string, string>> = new Err({
 			error: "SuperBadError",
 			detail: "Error was thrown here today!",
