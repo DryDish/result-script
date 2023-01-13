@@ -63,8 +63,6 @@ class Result<T, E> {
 			throw new Error("Something is deeply wrong with the Result object");
 		}
 	}
-	// pub fn map<U, F: FnOnce(T) -> U>(self, op: F) -> Result<U, E> {
-	// pub fn map<U, F: FnOnce(T) -> U>(self, op: F) -> U {
 
 	mapOr<U>(alternative: U, f: (value: T) => U): U {
 		if (this.isOk()) {
