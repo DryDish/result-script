@@ -72,19 +72,16 @@ describe("Result.isErrAnd() Tests", () => {
 describe("Result.map() Tests", () => {
 	test("Result.map() should do modify a T: string to a U: number result", () => {
 		const result: Result<string, string> = new Ok("foo");
-
 		expect(result.map((x) => x.length)).toStrictEqual(new Ok(3));
 	});
 
 	test("Result.map() should do modify a T: number to a U: string result", () => {
 		const result: Result<number, string> = new Ok(12);
-
 		expect(result.map((x) => x.toString())).toStrictEqual(new Ok("12"));
 	});
 
 	test("Result.map() should do nothing to an Err Result", () => {
 		const result: Result<number, string> = new Err("Error Message");
-
 		expect(result.map((x) => x.toString())).toStrictEqual(new Err("Error Message"));
 	});
 
