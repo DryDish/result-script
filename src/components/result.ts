@@ -94,11 +94,11 @@ class Result<T, E> {
 		}
 	}
 
-	expect(message: string): T {
+	expect(msg: string): T {
 		if (this.isOk()) {
 			return this.unwrap();
 		} else if (this.isErr()) {
-			throw new Error(message + ": " + this.unwrapErr());
+			throw new Error(msg + ": " + this.unwrapErr());
 		} else {
 			throw new Error("Something is deeply wrong with the Result object");
 		}
@@ -109,6 +109,16 @@ class Result<T, E> {
 			return this.ok;
 		} else {
 			throw new Error("Attempted to unwrap an Err.");
+		}
+	}
+
+	expectErr(msg: string): E {
+		if (this.isErr()) {
+			return this.unwrapErr();
+		} else if (this.isOk()) {
+			throw new Error(msg + ": " + this.unwrap());
+		} else {
+			throw new Error("Something is deeply wrong with the Result object");
 		}
 	}
 
