@@ -94,6 +94,16 @@ class Result<T, E> {
 		}
 	}
 
+	expect(message: string): T {
+		if (this.isOk()) {
+			return this.unwrap();
+		} else if (this.isErr()) {
+			throw new Error(message + ": " + this.unwrapErr());
+		} else {
+			throw new Error("Something is deeply wrong with the Result object");
+		}
+	}
+
 	unwrap(): T {
 		if (this && this.isOk()) {
 			return this.ok;

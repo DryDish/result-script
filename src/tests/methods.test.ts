@@ -149,6 +149,18 @@ describe("Result.mapErr() Tests", () => {
 	});
 });
 
+describe("Result.expect() Tests", () => {
+	test("Result.expect() should throw an error when called on an Err", () => {
+		const result: Result<number, string> = new Err("emergency failure");
+		expect(() => result.expect("Testing expect")).toThrowError(Error("Testing expect: emergency failure"));
+	});
+
+	test("Result.expect() should return T when called on Ok", () => {
+		const result: Result<number, string> = new Ok(123);
+		expect(result.expect("Testing expect")).toBe(123);
+	});
+});
+
 describe("Result.unwrap() Tests", () => {
 	test("Result.unwrap() should return the it's data when called on an Ok", () => {
 		const result: Result<number, string> = new Ok(2);
