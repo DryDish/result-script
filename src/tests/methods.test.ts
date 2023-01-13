@@ -1,5 +1,5 @@
 import { ErrorMessage } from "../components/interfaces";
-import { Err, Ok, Result } from "../components/result";
+import { Result, Ok, Err } from "../components/result";
 
 describe("Result.isOk() Tests", () => {
 	test("result.isOk() should return true on a result with an Ok inside.", () => {
