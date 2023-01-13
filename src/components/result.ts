@@ -74,6 +74,16 @@ class Result<T, E> {
 		}
 	}
 
+	mapOrElse<U>(alternativeF: (err: E) => U, f: (value: T) => U): U {
+		if (this.isOk()) {
+			return f(this.unwrap());
+		} else if (this.isErr()) {
+			return alternativeF(this.unwrapErr());
+		} else {
+			throw new Error("Something is deeply wrong with the Result object");
+		}
+	}
+
 	unwrap(): T {
 		if (this && this.isOk()) {
 			return this.ok;
