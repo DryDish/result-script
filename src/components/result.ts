@@ -209,6 +209,19 @@ class Result<T, E> {
 			throw new Error("Something is deeply wrong with the Result object");
 		}
 	}
+
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	static async fromPromise<T>(promise: Promise<T | unknown>): Promise<Result<T, any>> {
+		return await promise
+			.then((value) => {
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				return new Ok<T, any>(value as T);
+			})
+			.catch((err) => {
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				return new Err<T, any>(err);
+			});
+	}
 }
 
 class Ok<T, E> extends Result<T, E> {

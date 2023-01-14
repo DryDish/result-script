@@ -344,10 +344,10 @@ describe("Result.or() tests", () => {
 	});
 });
 
-// TODO: Missing feature parity!
+// Missing feature parity!
 // Initializing Ok  does not return a data type with a know E, even after function returns
 // Initializing Err does not return a data type with a know T, even after function returns
-// Currently, when initialize Ok or Err alone, you must also define the possible other type
+// Currently, when initializing Ok or Err alone, you must also define the possible other type
 describe("Result.orElse() tests", () => {
 	// -----------------UTILITY FUNCTIONS---------------------
 	const sq = (x: number): Result<number, number> => {
@@ -440,5 +440,51 @@ describe("Result.containsErr() tests", () => {
 	test("Result.contains('Some error message') should return false on Err('Some other error message')", () => {
 		const result: Result<number, string> = new Err("Some other error message");
 		expect(result.containsErr("Some error message")).toBe(false);
+	});
+});
+
+describe("Result.fromPromise() tests", () => {
+	// -----------------UTILITY FUNCTIONS---------------------
+	const testPromiseResolve = new Promise((resolve, _reject) => {
+		resolve(123);
+		_reject("Something Wrong");
+	});
+
+	const testPromiseReject = new Promise((_resolve, reject) => {
+		reject(123);
+		_resolve(123);
+	});
+	// ---------------UTILITY FUNCTIONS END-------------------
+
+	test("Result.fromPromise() resolve typed", async () => {
+		// Type: Result<number, any>
+		const result: Result<number, any> = await Result.fromPromise(testPromiseResolve);
+
+		expect(result.isOk()).toBe(true);
+		expect(result.unwrap()).toBe(123);
+	});
+
+	test("Result.fromPromise() reject typed", async () => {
+		// Type: Result<number, any>
+		const result = await Result.fromPromise<number>(testPromiseReject);
+
+		expect(result.isErr()).toBe(true);
+		expect(result.unwrapErr()).toBe(123);
+	});
+
+	test("Result.fromPromise() accept untyped", async () => {
+		// Type: Result<unknown, any>
+		const result = await Result.fromPromise(testPromiseResolve);
+
+		expect(result.isOk()).toBe(true);
+		expect(result.unwrap()).toBe(123);
+	});
+
+	test("Result.fromPromise()3 reject untyped", async () => {
+		// Type: Result<Unknown, any>
+		const result = await Result.fromPromise(testPromiseResolve);
+
+		expect(result.isOk()).toBe(true);
+		expect(result.unwrap()).toBe(123);
 	});
 });
