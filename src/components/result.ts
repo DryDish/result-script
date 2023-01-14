@@ -1,4 +1,4 @@
-import { IErr, IOk, OkResultCallback, ErrResultCallback } from "./interfaces";
+import { IErr, IOk } from "./interfaces";
 
 class Result<T, E> {
 	ok!: T;
@@ -74,11 +74,11 @@ class Result<T, E> {
 		}
 	}
 
-	mapOrElse<U>(alternativeF: (err: E) => U, f: (value: T) => U): U {
+	mapOrElse<U>(altF: (err: E) => U, f: (value: T) => U): U {
 		if (this.isOk()) {
 			return f(this.unwrap());
 		} else if (this.isErr()) {
-			return alternativeF(this.unwrapErr());
+			return altF(this.unwrapErr());
 		} else {
 			throw new Error("Something is deeply wrong with the Result object");
 		}
@@ -142,11 +142,11 @@ class Result<T, E> {
 		}
 	}
 
-	andThen(op: OkResultCallback<T, E>): Result<T, E> {
+	andThen<U>(op: (value: T) => Result<U, E>): Result<U, E> {
 		if (this.isOk()) {
 			return op(this.unwrap());
 		} else {
-			return this;
+			return new Err(this.unwrapErr());
 		}
 	}
 
@@ -160,11 +160,11 @@ class Result<T, E> {
 		}
 	}
 
-	orElse(op: ErrResultCallback<T, E>): Result<T, E> {
-		if (this.isErr()) {
+	orElse<F>(op: (err: E) => Result<T, F>): Result<T, F> {
+		if (this.isOk()) {
+			return new Ok(this.unwrap());
+		} else if (this.isErr()) {
 			return op(this.unwrapErr());
-		} else if (this.isOk()) {
-			return this;
 		} else {
 			throw new Error("Something is deeply wrong with the Result object");
 		}

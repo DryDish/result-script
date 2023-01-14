@@ -1,1 +1,1 @@
-export * from "./components/result";
+export { Result, Ok, Err } from "./components/result";
