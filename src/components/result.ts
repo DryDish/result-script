@@ -14,6 +14,19 @@ class Result<T, E> {
 		}
 	}
 
+	/**
+	 * Returns `true` if the result is `Ok`
+	 *
+	 * @returns {boolean}  boolean
+	 * @memberof Result
+	 *
+	 * @example
+	 * const result: Result<number, string> = new Ok(-3);
+	 * result.isOk(); // true
+	 * @example
+	 * const result: Result<number, string> = new Err("Error Info");
+	 * result.isOk(); // false
+	 */
 	isOk(): boolean {
 		if ("ok" in this) {
 			return true;
@@ -24,8 +37,25 @@ class Result<T, E> {
 		}
 	}
 
+	/**
+	 * Returns `true` if the result is `Ok` and the value inside of it matches a predicate.
+	 *
+	 * @param {(x: T) => boolean} f predicate
+	 * @returns {boolean} boolean
+	 * @memberof Result
+	 *
+	 * @example
+	 * const result: Result<number, string> = new Ok(2);
+	 * result.isOkAnd((x) => x > 1); // true
+	 * @example
+	 * const result: Result<number, string> = new Ok(0);
+	 * result.isOkAnd((x) => x > 1); // false
+	 * @example
+	 * const result: Result<number, string> = new Err("hey");
+	 * result.isOkAnd((x) => x > 1); // false
+	 */
 	isOkAnd(f: (x: T) => boolean): boolean {
-		if ("ok" in this) {
+		if (this.isOk()) {
 			return f(this.unwrap());
 		} else if ("err" in this) {
 			return false;
