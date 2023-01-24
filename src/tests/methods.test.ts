@@ -81,8 +81,8 @@ describe("Result.map() Tests", () => {
 	});
 
 	test("Result.map() should do nothing to an Err Result", () => {
-		const result: Result<number, string> = new Err("Error Message");
-		expect(result.map((x) => x.toString())).toStrictEqual(new Err("Error Message"));
+		const result: Result<string, number> = new Err(-1);
+		expect(result.map((x) => x.length)).toStrictEqual(new Err(-1));
 	});
 
 	test("Result.map() should do modify a T: number to a U: string result", () => {

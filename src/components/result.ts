@@ -15,7 +15,7 @@ class Result<T, E> {
 	}
 
 	/**
-	 * Returns `true` if the result is `Ok`
+	 * Returns `true` if the result is `Ok`.
 	 *
 	 * @returns {boolean}  boolean
 	 * @memberof Result
@@ -64,6 +64,19 @@ class Result<T, E> {
 		}
 	}
 
+	/**
+	 * Returns `true` if the result is `Err`.
+	 *
+	 * @returns {boolean} boolean
+	 * @memberof Result
+	 *
+	 * @example
+	 * const result: Result<number, string> = new Ok(-3);
+	 * result.isErr(); // false
+	 * @example
+	 * const result: Result<number, string> = new Err("Some error");
+	 * result.isErr(); // true
+	 */
 	isErr(): boolean {
 		if ("err" in this) {
 			return true;
@@ -74,6 +87,28 @@ class Result<T, E> {
 		}
 	}
 
+	/**
+	 * Returns `true` if the result is `Err` and the value inside of it matches a predicate.
+	 *
+	 * @param {(x: E) => boolean} f predicate
+	 * @returns {boolean}  {boolean}
+	 * @memberof Result
+	 *
+	 * @external
+	 * enum ErrorKind {
+	 *   NotFound,
+	 *   PermissionDenied
+	 * }
+	 * @example
+	 * const result: Result<number, ErrorKind> = new Err(ErrorKind.NotFound);
+	 * result.isErrAnd((x) => x === ErrorKind.NotFound); // true
+	 * @example
+	 * const result: Result<number, ErrorKind> = new Err(ErrorKind.PermissionDenied);
+	 * result.isErrAnd((x) => x === ErrorKind.NotFound); // false
+	 * @example
+	 * const result: Result<number, ErrorKind> = new Ok(123);
+	 * result.isErrAnd((x) => x === ErrorKind.NotFound); // false
+	 */
 	isErrAnd(f: (x: E) => boolean): boolean {
 		if (this.isOk()) {
 			return false;
@@ -84,6 +119,34 @@ class Result<T, E> {
 		}
 	}
 
+	/**
+	 * Maps a `Result<T, E>` to `Result<U, E>` by applying a function to the
+	 * contained `Ok`'s value, leaving the `Err`'s value untouched.
+	 *
+	 * This method can be used to compose the results of two or more functions.
+	 *
+	 * @param {(value: T) => U} op
+	 * @returns {Result<U, E>}  Result<U, E>
+	 * @memberof Result
+	 *
+	 * @example
+	 * const result: Result<string, string> = new Ok("foo");
+	 * result.map((x) => x.length); // Ok(3)
+	 * @example
+	 * const result: Result<number, string> = new Ok(12);
+	 * result.map((x) => x.toString()); // Ok("12")
+	 * @example
+	 * const result: Result<string, number> = new Err(-1);
+	 * result.map((x) => x.length); // Err(-1)
+	 * @example
+	 * const result = new Ok(5)                   // Ok(5)
+	 *     .map((x) => x * x)                     // Ok(25)
+	 *     .map((x) => x.toString())              // Ok("25")
+	 *     .map((x) => " Number is: " + x + " ")  // Ok(" Number is: 25 ")
+	 *     .map((x) => x.trim());                 // Ok("Number is: 25")
+	 *
+	 * console.log(result); // Ok("Number is: 25")
+	 */
 	map<U>(op: (value: T) => U): Result<U, E> {
 		if (this.isOk()) {
 			return new Ok<U, E>(op(this.unwrap()));
