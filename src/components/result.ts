@@ -222,6 +222,16 @@ class Result<T, E> {
 				return new Err<T, any>(err);
 			});
 	}
+
+	static async fromPromiseStrict<T>(promise: Promise<T>): Promise<Result<T, unknown>> {
+		return await promise
+			.then((value: T) => {
+				return new Ok<T, unknown>(value);
+			})
+			.catch((err: unknown) => {
+				return new Err<T, unknown>(err);
+			});
+	}
 }
 
 class Ok<T, E> extends Result<T, E> {

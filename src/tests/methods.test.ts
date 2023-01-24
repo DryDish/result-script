@@ -488,3 +488,49 @@ describe("Result.fromPromise() tests", () => {
 		expect(result.unwrap()).toBe(123);
 	});
 });
+
+describe("Result.fromPromiseStrict() tests", () => {
+	// -----------------UTILITY FUNCTIONS---------------------
+	const testTypedPromise = <T>(variable: T): Promise<T> => {
+		return new Promise<T>((resolve, reject) => {
+			if (variable > 10) {
+				reject("Number too big!");
+			}
+			resolve(variable);
+		});
+	};
+	// ---------------UTILITY FUNCTIONS END-------------------
+
+	test("Result.fromPromiseStrict() resolve inferred types", async () => {
+		// Type: Result<number, any>
+		const result = await Result.fromPromiseStrict(testTypedPromise(10));
+
+		expect(result.isOk()).toBe(true);
+		expect(result.unwrap()).toBe(10);
+	});
+
+	test("Result.fromPromiseStrict() resolve explicit types", async () => {
+		// Type: Result<number, any>
+		const result: Result<number, any> = await Result.fromPromiseStrict(testTypedPromise(10));
+
+		expect(result.isOk()).toBe(true);
+		expect(result.unwrap()).toBe(10);
+	});
+
+	test("Result.fromPromiseStrict() reject inferred types", async () => {
+		// Type: Result<number, any>
+		const result = await Result.fromPromiseStrict(testTypedPromise(11));
+
+		expect(result.isErr()).toBe(true);
+		expect(result.unwrapErr()).toBe("Number too big!");
+	});
+
+	test("Result.fromPromiseStrict() reject explicit types", async () => {
+		// Type: Result<number, any>
+		const result = await Result.fromPromiseStrict<number>(testTypedPromise(11));
+
+		expect(result.isErr()).toBe(true);
+		expect(result.unwrapErr()).toBe("Number too big!");
+		console.log(result);
+	});
+});
