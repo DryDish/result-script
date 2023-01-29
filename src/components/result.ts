@@ -91,7 +91,7 @@ class Result<T, E> {
 	 * Returns `true` if the result is `Err` and the value inside of it matches a predicate.
 	 *
 	 * @param {(x: E) => boolean} f predicate
-	 * @returns {boolean}  {boolean}
+	 * @returns {boolean} boolean
 	 * @memberof Result
 	 *
 	 * @external
@@ -145,7 +145,7 @@ class Result<T, E> {
 	 *     .map((x) => " Number is: " + x + " ")  // Ok(" Number is: 25 ")
 	 *     .map((x) => x.trim());                 // Ok("Number is: 25")
 	 *
-	 * console.log(result); // Ok("Number is: 25")
+	 * console.log(result);                       // Ok("Number is: 25")
 	 */
 	map<U>(op: (value: T) => U): Result<U, E> {
 		if (this.isOk()) {
@@ -157,6 +157,22 @@ class Result<T, E> {
 		}
 	}
 
+	/**
+	 * Returns the provided `alternative` if the result is `Err` or,
+	 * applies a function to the contained value if the result is `Ok`
+	 *
+	 * @param {U} alternative
+	 * @param {(value: T) => U} f
+	 * @returns {U} U
+	 * @memberof Result
+	 *
+	 * @example
+	 * const result: Result<string, string> = new Ok("foo");
+	 * result.mapOr(42, (x) => x.length); // 3
+	 * @example
+	 * const result: Result<string, string> = new Err("bar");
+	 * result.mapOr(42, (x) => x.length); // 42
+	 */
 	mapOr<U>(alternative: U, f: (value: T) => U): U {
 		if (this.isOk()) {
 			return f(this.unwrap());

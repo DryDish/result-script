@@ -96,6 +96,18 @@ describe("Result.map() Tests", () => {
 	});
 });
 
+describe("Result.mapOr() Tests", () => {
+	test("Result.mapOr() should do modify a T: string to a U: number result", () => {
+		const result: Result<string, string> = new Ok("foo");
+		expect(result.mapOr(42, (x) => x.length)).toBe(3);
+	});
+
+	test("Result.mapOr() should do modify a T: string to a U: number result", () => {
+		const result: Result<string, string> = new Err("bar");
+		expect(result.mapOr(42, (x) => x.length)).toBe(42);
+	});
+});
+
 describe("Result.mapOrElse() Tests", () => {
 	const k = 21;
 	test("Result.mapOrElse() should call the success callback and return 3", () => {
@@ -116,18 +128,6 @@ describe("Result.mapOrElse() Tests", () => {
 				(v) => v.length
 			)
 		).toBe(42);
-	});
-});
-
-describe("Result.mapOr() Tests", () => {
-	test("Result.mapOr() should do modify a T: string to a U: number result", () => {
-		const result: Result<string, string> = new Ok("foo");
-		expect(result.mapOr(42, (x) => x.length)).toBe(3);
-	});
-
-	test("Result.mapOr() should do modify a T: string to a U: number result", () => {
-		const result: Result<string, string> = new Err("bar");
-		expect(result.mapOr(42, (x) => x.length)).toBe(42);
 	});
 });
 
