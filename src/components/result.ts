@@ -4,6 +4,11 @@ class Result<T, E> {
 	ok!: T;
 	err!: E;
 
+	/**
+	 * Creates an instance of Result.
+	 * @param {({"ok": T} | {"err": E})} data
+	 * @memberof Result
+	 */
 	constructor(data: IOk<T> | IErr<E>) {
 		if ("ok" in data) {
 			this.ok = data.ok;
@@ -125,6 +130,7 @@ class Result<T, E> {
 	 *
 	 * This method can be used to compose the results of two or more functions.
 	 *
+	 * @template U
 	 * @param {(value: T) => U} op
 	 * @returns {Result<U, E>}  Result<U, E>
 	 * @memberof Result
@@ -161,6 +167,7 @@ class Result<T, E> {
 	 * Returns the provided `alternative` if the result is `Err`, or
 	 * applies a function to the contained value if the result is `Ok`
 	 *
+	 * @template U
 	 * @param {U} alternative
 	 * @param {(value: T) => U} f function to apply
 	 * @returns {U} U
@@ -187,6 +194,7 @@ class Result<T, E> {
 	 * Maps a `Result<T, E>` to `U` by applying a a fallback function `altF` to
 	 * a contained `Err` value, or function `f` to a contained `Ok` value.
 	 *
+	 * @template U
 	 * @param {(err: E) => U} altF
 	 * @param {(value: T) => U} f
 	 * @returns {U} U
