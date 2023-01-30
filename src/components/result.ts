@@ -22,15 +22,15 @@ class Result<T, E> {
 	/**
 	 * Returns `true` if the result is `Ok`.
 	 *
-	 * @returns {boolean}  boolean
-	 * @memberof Result
-	 *
+	 * ---
 	 * @example
 	 * const result: Result<number, string> = new Ok(-3);
 	 * result.isOk(); // true
-	 * @example
+	 * 
 	 * const result: Result<number, string> = new Err("Error Info");
 	 * result.isOk(); // false
+	 * @returns {boolean}  boolean
+	 * @memberof Result
 	 */
 	isOk(): boolean {
 		if ("ok" in this) {
@@ -45,19 +45,19 @@ class Result<T, E> {
 	/**
 	 * Returns `true` if the result is `Ok` and the value inside of it matches a predicate.
 	 *
-	 * @param {(x: T) => boolean} f predicate
-	 * @returns {boolean} boolean
-	 * @memberof Result
-	 *
+	 * ---
 	 * @example
 	 * const result: Result<number, string> = new Ok(2);
 	 * result.isOkAnd((x) => x > 1); // true
-	 * @example
+	 * 
 	 * const result: Result<number, string> = new Ok(0);
 	 * result.isOkAnd((x) => x > 1); // false
-	 * @example
+	 * 
 	 * const result: Result<number, string> = new Err("hey");
 	 * result.isOkAnd((x) => x > 1); // false
+	 * @param {(x: T) => boolean} f predicate
+	 * @returns {boolean} boolean
+	 * @memberof Result
 	 */
 	isOkAnd(f: (x: T) => boolean): boolean {
 		if (this.isOk()) {
@@ -72,15 +72,15 @@ class Result<T, E> {
 	/**
 	 * Returns `true` if the result is `Err`.
 	 *
-	 * @returns {boolean} boolean
-	 * @memberof Result
-	 *
+	 * ---
 	 * @example
 	 * const result: Result<number, string> = new Ok(-3);
 	 * result.isErr(); // false
-	 * @example
+	 * 
 	 * const result: Result<number, string> = new Err("Some error");
 	 * result.isErr(); // true
+	 * @returns {boolean} boolean
+	 * @memberof Result
 	 */
 	isErr(): boolean {
 		if ("err" in this) {
@@ -95,24 +95,19 @@ class Result<T, E> {
 	/**
 	 * Returns `true` if the result is `Err` and the value inside of it matches a predicate.
 	 *
-	 * @param {(x: E) => boolean} f predicate
-	 * @returns {boolean} boolean
-	 * @memberof Result
-	 *
-	 * @external
-	 * enum ErrorKind {
-	 *   NotFound,
-	 *   PermissionDenied
-	 * }
+	 *  ---
 	 * @example
 	 * const result: Result<number, ErrorKind> = new Err(ErrorKind.NotFound);
 	 * result.isErrAnd((x) => x === ErrorKind.NotFound); // true
-	 * @example
+	 * 
 	 * const result: Result<number, ErrorKind> = new Err(ErrorKind.PermissionDenied);
 	 * result.isErrAnd((x) => x === ErrorKind.NotFound); // false
-	 * @example
+	 * 
 	 * const result: Result<number, ErrorKind> = new Ok(123);
 	 * result.isErrAnd((x) => x === ErrorKind.NotFound); // false
+	 * @param {(x: E) => boolean} f predicate
+	 * @returns {boolean} boolean
+	 * @memberof Result
 	 */
 	isErrAnd(f: (x: E) => boolean): boolean {
 		if (this.isOk()) {
@@ -126,32 +121,33 @@ class Result<T, E> {
 
 	/**
 	 * Maps a `Result<T, E>` to `Result<U, E>` by applying a function to the
-	 * contained `Ok`'s value, leaving the `Err`'s value untouched.
+	 * result's `Ok` value, leaving the `Err` untouched.
 	 *
 	 * This method can be used to compose the results of two or more functions.
+	 * 
+	 * ---
+	 * @example
+	 * const result: Result<string, string> = new Ok("foo");
+	 * result.map((x) => x.length); // Ok(3)
+	 * 
+	 * const result: Result<number, string> = new Ok(12);
+	 * result.map((x) => x.toString()); // Ok("12")
+	 * 
+	 * const result: Result<string, number> = new Err(-1);
+	 * result.map((x) => x.length); // Err(-1)
+	 * 
+	 * const result = new Ok(5)                  // Ok(5)
+	 *     .map((x) => x * x)                    // Ok(25)
+	 *     .map((x) => x.toString())             // Ok("25")
+	 *     .map((x) => " Number is: " + x + " ") // Ok(" Number is: 25 ")
+	 *     .map((x) => x.trim());                // Ok("Number is: 25")
 	 *
+	 * console.log(result);                      // Ok("Number is: 25")
 	 * @template U
 	 * @param {(value: T) => U} op
 	 * @returns {Result<U, E>}  Result<U, E>
 	 * @memberof Result
 	 *
-	 * @example
-	 * const result: Result<string, string> = new Ok("foo");
-	 * result.map((x) => x.length); // Ok(3)
-	 * @example
-	 * const result: Result<number, string> = new Ok(12);
-	 * result.map((x) => x.toString()); // Ok("12")
-	 * @example
-	 * const result: Result<string, number> = new Err(-1);
-	 * result.map((x) => x.length); // Err(-1)
-	 * @example
-	 * const result = new Ok(5)                   // Ok(5)
-	 *     .map((x) => x * x)                     // Ok(25)
-	 *     .map((x) => x.toString())              // Ok("25")
-	 *     .map((x) => " Number is: " + x + " ")  // Ok(" Number is: 25 ")
-	 *     .map((x) => x.trim());                 // Ok("Number is: 25")
-	 *
-	 * console.log(result);                       // Ok("Number is: 25")
 	 */
 	map<U>(op: (value: T) => U): Result<U, E> {
 		if (this.isOk()) {
@@ -166,19 +162,19 @@ class Result<T, E> {
 	/**
 	 * Returns the provided `alternative` if the result is `Err`, or
 	 * applies a function to the contained value if the result is `Ok`
-	 *
+	 * 
+	 * ---
+	 * @example
+	 * const result: Result<string, string> = new Ok("foo");
+	 * result.mapOr(42, (x) => x.length); // 3
+	 * 
+	 * const result: Result<string, string> = new Err("bar");
+	 * result.mapOr(42, (x) => x.length); // 42
 	 * @template U
 	 * @param {U} alternative
 	 * @param {(value: T) => U} f function to apply
 	 * @returns {U} U
 	 * @memberof Result
-	 *
-	 * @example
-	 * const result: Result<string, string> = new Ok("foo");
-	 * result.mapOr(42, (x) => x.length); // 3
-	 * @example
-	 * const result: Result<string, string> = new Err("bar");
-	 * result.mapOr(42, (x) => x.length); // 42
 	 */
 	mapOr<U>(alternative: U, f: (value: T) => U): U {
 		if (this.isOk()) {
@@ -193,32 +189,30 @@ class Result<T, E> {
 	/**
 	 * Maps a `Result<T, E>` to `U` by applying a a fallback function `altF` to
 	 * a contained `Err` value, or function `f` to a contained `Ok` value.
-	 *
+	 * ---
+	 * @example
+	 * const k = 21;
+	 * 
+	 * const result: Result<string, string> = new Err("OutOfBounds");
+	 * result.mapOrElse((e) => stringErrToNum(e),(v) => v.length) // -1
+	 * 
+	 * const result: Result<string, string> = new Ok("foo");
+	 * result.mapOrElse((_e) => k * 2, (v) => v.length); // 3
+	 * 
+	 * const result: Result<string, string> = new Err("bar");
+	 * result.mapOrElse((_e) => k * 2, (v) => v.length); // 42
+	 * 
+	 * const stringErrToNum = (error: string): number => {
+	 *    if (error == "OutOfBounds") {
+	 *        return -1;
+	 *    }
+	 *    return -2;
+	 * };
 	 * @template U
 	 * @param {(err: E) => U} altF
 	 * @param {(value: T) => U} f
 	 * @returns {U} U
 	 * @memberof Result
-	 *
-	 * @extern
-	 * 	const stringErrToNum = (error: string): number => {
-	 *	if (error == "OutOfBounds") {
-	 *		return -1;
-	 *	} else {
-	 *		return -2;
-	 *	}
-	 * };
-	 * @example
-	 * const result: Result<string, string> = new Err("OutOfBounds");
-	 * result.mapOrElse((e) => stringErrToNum(e),(v) => v.length) // -1
-	 * @example
-	 * const k = 21;
-	 * const result: Result<string, string> = new Ok("foo");
-	 * result.mapOrElse((_e) => k * 2, (v) => v.length); // 3
-	 * @example
-	 * const k = 21;
-	 * const result: Result<string, string> = new Err("bar");
-	 * result.mapOrElse((_e) => k * 2, (v) => v.length); // 42
 	 */
 	mapOrElse<U>(altF: (err: E) => U, f: (value: T) => U): U {
 		if (this.isOk()) {
@@ -236,20 +230,19 @@ class Result<T, E> {
 	 *
 	 * This function can be used to pass through a successful result while
 	 * handling an error.
-	 *
+	 * ---
+	 * @example
+	 * const stringify = (x: number): string => `error code is: ${x}`;
+
+	 * const result: Result<number, number> = new Ok(2);
+	 * result.mapErr(stringify); // Ok(2)
+	 * 
+	 * const result: Result<number, number> = new Err(13);
+	 * result.mapErr(stringify); // Err("error code is: 13")
 	 * @template F
 	 * @param {(err: E) => F} op
 	 * @returns {*} Result<T, F>
 	 * @memberof Result
-	 *
-	 * @example
-	 * const stringify = (x: number): string => `error code is: ${x}`;
-	 * 
-	 * const result: Result<number, number> = new Ok(2);
-	 * result.mapErr(stringify); // Ok(2)
-	 * @example
-	 * const result: Result<number, number> = new Err(13);
-	 * result.mapErr(stringify); // Err("error code is: 13")
 	 */
 	mapErr<F>(op: (err: E) => F): Result<T, F> {
 		if (this.isOk()) {
