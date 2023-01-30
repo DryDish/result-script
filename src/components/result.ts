@@ -158,11 +158,11 @@ class Result<T, E> {
 	}
 
 	/**
-	 * Returns the provided `alternative` if the result is `Err` or,
+	 * Returns the provided `alternative` if the result is `Err`, or
 	 * applies a function to the contained value if the result is `Ok`
 	 *
 	 * @param {U} alternative
-	 * @param {(value: T) => U} f
+	 * @param {(value: T) => U} f function to apply
 	 * @returns {U} U
 	 * @memberof Result
 	 *
@@ -183,6 +183,35 @@ class Result<T, E> {
 		}
 	}
 
+	/**
+	 * Maps a `Result<T, E>` to `U` by applying a a fallback function `altF` to
+	 * a contained `Err` value, or function `f` to a contained `Ok` value.
+	 *
+	 * @param {(err: E) => U} altF
+	 * @param {(value: T) => U} f
+	 * @returns {U} U
+	 * @memberof Result
+	 *
+	 * @extern
+	 * 	const stringErrToNum = (error: string): number => {
+	 *	if (error == "OutOfBounds") {
+	 *		return -1;
+	 *	} else {
+	 *		return -2;
+	 *	}
+	 * };
+	 * @example
+	 * const result: Result<string, string> = new Err("OutOfBounds");
+	 * result.mapOrElse((e) => stringErrToNum(e),(v) => v.length) // -1
+	 * @example
+	 * const k = 21;
+	 * const result: Result<string, string> = new Ok("foo");
+	 * result.mapOrElse((_e) => k * 2, (v) => v.length); // 3
+	 * @example
+	 * const k = 21;
+	 * const result: Result<string, string> = new Err("bar");
+	 * result.mapOrElse((_e) => k * 2, (v) => v.length); // 42
+	 */
 	mapOrElse<U>(altF: (err: E) => U, f: (value: T) => U): U {
 		if (this.isOk()) {
 			return f(this.unwrap());

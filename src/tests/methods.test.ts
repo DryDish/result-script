@@ -109,7 +109,16 @@ describe("Result.mapOr() Tests", () => {
 });
 
 describe("Result.mapOrElse() Tests", () => {
+	// -----------------UTILITY FUNCTIONS---------------------
+	const stringErrToNum = (error: string): number => {
+		if (error == "OutOfBounds") {
+			return -1;
+		} else {
+			return -2;
+		}
+	};
 	const k = 21;
+	// ---------------UTILITY FUNCTIONS END-------------------
 	test("Result.mapOrElse() should call the success callback and return 3", () => {
 		const result: Result<string, string> = new Ok("foo");
 		expect(
@@ -128,6 +137,26 @@ describe("Result.mapOrElse() Tests", () => {
 				(v) => v.length
 			)
 		).toBe(42);
+	});
+
+	test("Result.mapOrElse() should call the error callback and return 42", () => {
+		const result: Result<string, string> = new Err("OutOfBounds");
+		expect(
+			result.mapOrElse(
+				(e) => stringErrToNum(e),
+				(v) => v.length
+			)
+		).toBe(-1);
+	});
+
+	test("Result.mapOrElse() should call the error callback and return 42", () => {
+		const result: Result<string, string> = new Err("SomethingElse");
+		expect(
+			result.mapOrElse(
+				(e) => stringErrToNum(e),
+				(v) => v.length
+			)
+		).toBe(-2);
 	});
 });
 
