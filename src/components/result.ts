@@ -222,6 +222,27 @@ class Result<T, E> {
 		}
 	}
 
+	/**
+	 * Maps a `Result<T, E>` to `Result<T, F>` by applying a function to a
+	 * results' `Err` value, leaving its `Ok` value untouched.
+	 *
+	 * This function can be used to pass through a successful result while
+	 * handling an error.
+	 *
+	 * @template F
+	 * @param {(err: E) => F} op
+	 * @returns {*} Result<T, F>
+	 * @memberof Result
+	 *
+	 * @example
+	 * const stringify = (x: number): string => `error code is: ${x}`;
+	 * 
+	 * const result: Result<number, number> = new Ok(2);
+	 * result.mapErr(stringify); // Ok(2)
+	 * @example
+	 * const result: Result<number, number> = new Err(13);
+	 * result.mapErr(stringify); // Err("error code is: 13")
+	 */
 	mapErr<F>(op: (err: E) => F): Result<T, F> {
 		if (this.isOk()) {
 			return new Ok(this.unwrap());

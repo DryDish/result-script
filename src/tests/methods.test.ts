@@ -162,9 +162,7 @@ describe("Result.mapOrElse() Tests", () => {
 
 describe("Result.mapErr() Tests", () => {
 	// -----------------UTILITY FUNCTIONS---------------------
-	const stringify = (x: number): string => {
-		return `error code is: ${x}`;
-	};
+	const stringify = (x: number): string => `error code is: ${x}`;
 	// ---------------UTILITY FUNCTIONS END-------------------
 
 	test("Result.mapErr() should do modify a E to an F without modifying the T", () => {
