@@ -241,7 +241,7 @@ class Result<T, E> {
 	 * result.mapErr(stringify); // Err("error code is: 13")
 	 * @template F
 	 * @param {(err: E) => F} op
-	 * @returns {*} Result<T, F>
+	 * @returns {Result<T, F>} Result<T, F>
 	 * @memberof Result
 	 */
 	mapErr<F>(op: (err: E) => F): Result<T, F> {
