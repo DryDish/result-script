@@ -26,7 +26,7 @@ class Result<T, E> {
 	 * @example
 	 * const result: Result<number, string> = new Ok(-3);
 	 * result.isOk(); // true
-	 * 
+	 *
 	 * const result: Result<number, string> = new Err("Error Info");
 	 * result.isOk(); // false
 	 * @returns {boolean}  boolean
@@ -49,10 +49,10 @@ class Result<T, E> {
 	 * @example
 	 * const result: Result<number, string> = new Ok(2);
 	 * result.isOkAnd((x) => x > 1); // true
-	 * 
+	 *
 	 * const result: Result<number, string> = new Ok(0);
 	 * result.isOkAnd((x) => x > 1); // false
-	 * 
+	 *
 	 * const result: Result<number, string> = new Err("hey");
 	 * result.isOkAnd((x) => x > 1); // false
 	 * @param {(x: T) => boolean} f predicate
@@ -76,7 +76,7 @@ class Result<T, E> {
 	 * @example
 	 * const result: Result<number, string> = new Ok(-3);
 	 * result.isErr(); // false
-	 * 
+	 *
 	 * const result: Result<number, string> = new Err("Some error");
 	 * result.isErr(); // true
 	 * @returns {boolean} boolean
@@ -99,10 +99,10 @@ class Result<T, E> {
 	 * @example
 	 * const result: Result<number, ErrorKind> = new Err(ErrorKind.NotFound);
 	 * result.isErrAnd((x) => x === ErrorKind.NotFound); // true
-	 * 
+	 *
 	 * const result: Result<number, ErrorKind> = new Err(ErrorKind.PermissionDenied);
 	 * result.isErrAnd((x) => x === ErrorKind.NotFound); // false
-	 * 
+	 *
 	 * const result: Result<number, ErrorKind> = new Ok(123);
 	 * result.isErrAnd((x) => x === ErrorKind.NotFound); // false
 	 * @param {(x: E) => boolean} f predicate
@@ -124,18 +124,18 @@ class Result<T, E> {
 	 * result's `Ok` value, leaving the `Err` untouched.
 	 *
 	 * This method can be used to compose the results of two or more functions.
-	 * 
+	 *
 	 * ---
 	 * @example
 	 * const result: Result<string, string> = new Ok("foo");
 	 * result.map((x) => x.length); // Ok(3)
-	 * 
+	 *
 	 * const result: Result<number, string> = new Ok(12);
 	 * result.map((x) => x.toString()); // Ok("12")
-	 * 
+	 *
 	 * const result: Result<string, number> = new Err(-1);
 	 * result.map((x) => x.length); // Err(-1)
-	 * 
+	 *
 	 * const result = new Ok(5)                  // Ok(5)
 	 *     .map((x) => x * x)                    // Ok(25)
 	 *     .map((x) => x.toString())             // Ok("25")
@@ -162,12 +162,12 @@ class Result<T, E> {
 	/**
 	 * Returns the provided `alternative` if the result is `Err`, or
 	 * applies a function to the contained value if the result is `Ok`
-	 * 
+	 *
 	 * ---
 	 * @example
 	 * const result: Result<string, string> = new Ok("foo");
 	 * result.mapOr(42, (x) => x.length); // 3
-	 * 
+	 *
 	 * const result: Result<string, string> = new Err("bar");
 	 * result.mapOr(42, (x) => x.length); // 42
 	 * @template U
@@ -192,16 +192,16 @@ class Result<T, E> {
 	 * ---
 	 * @example
 	 * const k = 21;
-	 * 
+	 *
 	 * const result: Result<string, string> = new Err("OutOfBounds");
 	 * result.mapOrElse((e) => stringErrToNum(e),(v) => v.length) // -1
-	 * 
+	 *
 	 * const result: Result<string, string> = new Ok("foo");
 	 * result.mapOrElse((_e) => k * 2, (v) => v.length); // 3
-	 * 
+	 *
 	 * const result: Result<string, string> = new Err("bar");
 	 * result.mapOrElse((_e) => k * 2, (v) => v.length); // 42
-	 * 
+	 *
 	 * const stringErrToNum = (error: string): number => {
 	 *    if (error == "OutOfBounds") {
 	 *        return -1;
@@ -254,6 +254,38 @@ class Result<T, E> {
 		}
 	}
 
+	/**
+	 * Returns the contained {@link Ok} value. Throws an `Error` if the Result
+	 * is {@link Err}.
+	 *
+	 * Because this method may throw an {@link Err}, its use is generally
+	 * discouraged. Instead, use conditions to check for `Err` explicitly, or
+	 * call {@link unwrapOr} or {@link unwrapOrElse}.
+	 *
+	 * `expect` messages should be used to describe the reason you _expect_ the
+	 * `Result` should be `Ok`.
+	 *
+	 * In this example the function getEnv returns a Result:
+	 * ```typescript
+	 * const path: string = getEnv("IMPORTANT_PATH").expect("Env variable 'PATH_NAME' should be set by dotEnv.");'
+	 * ```
+	 *
+	 * **Hint**: If you are having trouble remembering how to phrase expect
+	 * error messages remember to focus on the word "should" as in "env
+	 * variable should be set by ..." or "the given binary should be available
+	 * and executable by the current user".
+	 *
+	 * @example
+	 * const result: Result<number, string> = new Err("emergency failure");
+	 * result.expect("Testing expect"); // throws Error with the text: "Testing expect: emergency failure"
+	 *
+	 * const result: Result<number, string> = new Ok(123);
+	 * result.expect("Testing expect"); // 123;
+	 * @throws {Error} `Error` with text: `${msg} :` + the contents of the `Err`.
+	 * @param {string} msg
+	 * @returns {T} T
+	 * @memberof Result
+	 */
 	expect(msg: string): T {
 		if (this.isOk()) {
 			return this.unwrap();
@@ -330,6 +362,13 @@ class Result<T, E> {
 		}
 	}
 
+	/**
+	 * Temporary please remove
+	 *
+	 * @param {T} alternative
+	 * @returns {T} T
+	 * @memberof Result
+	 */
 	unwrapOr(alternative: T): T {
 		if (this.isOk()) {
 			return this.unwrap();
