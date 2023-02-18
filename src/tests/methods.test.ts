@@ -199,7 +199,9 @@ describe("Result.unwrap() Tests", () => {
 			error: "SuperBadError",
 			detail: "Error was thrown here today!",
 		});
-		expect(result.unwrap).toThrowError("Attempted to unwrap an Err.");
+		expect(() => {
+			result.unwrap();
+		}).toThrowError("Attempted to unwrap an Err.");
 	});
 });
 

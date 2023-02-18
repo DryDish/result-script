@@ -299,6 +299,24 @@ class Result<T, E> {
 		}
 	}
 
+	/**
+	 * Returns the contained {@link Ok} value. Throws an `Error` if the Result
+	 * is {@link Err}.
+	 *
+	 * Because this method may throw an `Error`, its use is generally
+	 * discouraged. Instead, use conditions to check for {@link Err} explicitly
+	 * , or call {@link unwrapOr} or {@link unwrapOrElse}.
+	 *
+	 * @example
+	 * const result: Result<number, string> = new Ok(2);
+	 * result.unwrap(); // 2
+	 *
+	 * const result: Result<number, string> = new Err("emergency failure");
+	 * result.unwrap(); // Throws Error "Attempted to unwrap an Err."
+	 *
+	 * @returns {T} T
+	 * @memberof Result
+	 */
 	unwrap(): T {
 		if (this && this.isOk()) {
 			return this.ok;
