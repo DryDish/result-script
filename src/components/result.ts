@@ -20,7 +20,7 @@ class Result<T, E> {
 	}
 
 	/**
-	 * Returns `true` if the result is `Ok`.
+	 * Returns `true` if the result is {@link Ok}.
 	 *
 	 * ---
 	 * @example
@@ -43,7 +43,7 @@ class Result<T, E> {
 	}
 
 	/**
-	 * Returns `true` if the result is `Ok` and the value inside of it matches a predicate.
+	 * Returns `true` if the result is {@link Ok} and the value inside of it matches a predicate.
 	 *
 	 * ---
 	 * @example
@@ -70,7 +70,7 @@ class Result<T, E> {
 	}
 
 	/**
-	 * Returns `true` if the result is `Err`.
+	 * Returns `true` if the result is {@link Err}.
 	 *
 	 * ---
 	 * @example
@@ -93,7 +93,7 @@ class Result<T, E> {
 	}
 
 	/**
-	 * Returns `true` if the result is `Err` and the value inside of it matches a predicate.
+	 * Returns `true` if the result is {@link Err} and the value inside of it matches a predicate.
 	 *
 	 *  ---
 	 * @example
@@ -121,7 +121,7 @@ class Result<T, E> {
 
 	/**
 	 * Maps a `Result<T, E>` to `Result<U, E>` by applying a function to the
-	 * result's `Ok` value, leaving the `Err` untouched.
+	 * result's {@link Ok} value, leaving the {@link Err} untouched.
 	 *
 	 * This method can be used to compose the results of two or more functions.
 	 *
@@ -160,8 +160,8 @@ class Result<T, E> {
 	}
 
 	/**
-	 * Returns the provided `alternative` if the result is `Err`, or
-	 * applies a function to the contained value if the result is `Ok`
+	 * Returns the provided `alternative` if the result is {@link Err}, or
+	 * applies a function to the contained value if the result is {@link Ok}
 	 *
 	 * ---
 	 * @example
@@ -188,7 +188,10 @@ class Result<T, E> {
 
 	/**
 	 * Maps a `Result<T, E>` to `U` by applying a a fallback function `altF` to
-	 * a contained `Err` value, or function `f` to a contained `Ok` value.
+	 * a contained {@link Err} value, or function `f` to a contained {@link Ok} value.
+	 * 
+	 * This method can be used to unpack a successful result while handling an
+	 * error.
 	 * ---
 	 * @example
 	 * const k = 21;
@@ -226,7 +229,7 @@ class Result<T, E> {
 
 	/**
 	 * Maps a `Result<T, E>` to `Result<T, F>` by applying a function to a
-	 * results' `Err` value, leaving its `Ok` value untouched.
+	 * results' {@link Err} value, leaving its {@link Ok} value untouched.
 	 *
 	 * This function can be used to pass through a successful result while
 	 * handling an error.
@@ -258,9 +261,9 @@ class Result<T, E> {
 	 * Returns the contained {@link Ok} value. Throws an `Error` if the Result
 	 * is {@link Err}.
 	 *
-	 * Because this method may throw an {@link Err}, its use is generally
-	 * discouraged. Instead, use conditions to check for `Err` explicitly, or
-	 * call {@link unwrapOr} or {@link unwrapOrElse}.
+	 * Because this method may throw an `Error`, its use is generally
+	 * discouraged. Instead, use conditions to check for {@link Err} explicitly
+	 * , or call {@link unwrapOr} or {@link unwrapOrElse}.
 	 *
 	 * `expect` messages should be used to describe the reason you _expect_ the
 	 * `Result` should be `Ok`.
