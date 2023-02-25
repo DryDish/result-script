@@ -339,7 +339,7 @@ class Result<T, E> {
 	 * const result: Result<number, string> = new Err("Some Error");
 	 * result.expectErr("Testing expectErr"); // "Some Error"
 	 * @param {string} msg
-	 * @returns {E} Error of type: E
+	 * @returns {E} E
 	 * @memberof Result
 	 */
 	expectErr(msg: string): E {
