@@ -412,6 +412,26 @@ class Result<T, E> {
 		}
 	}
 
+	/**
+	 * Calls `op` if the result is {@link Ok}, otherwise returns the
+	 * {@link Err} value of 'this'.
+	 *
+	 * This function can be used for control flow based on `Result` values.
+	 *
+	 * @example
+	 * const result: Result<string, ErrorMessage<string, string>> = validateStringType("banana")
+	 *   .andThen(capitalizeFirstLetter)
+	 *   .andThen((x) => validateCorrectString(x, "Banana")); // Ok("Banana")
+	 *
+	 * const result: Result<string, ErrorMessage<string, string>> = validateStringType("pineapple")
+	 *   .andThen(capitalizeFirstLetter)
+	 *   .andThen((x: string) => validateCorrectString(x, "Banana")); // Err({ error: "InvalidCharSequenceError", detail: "Was expecting the char sequence: 'Banana' but got: 'Pineapple' })
+	 *
+	 * @template U
+	 * @param {(value: T) => Result<U, E>} op
+	 * @returns {*}  {Result<U, E>}
+	 * @memberof Result
+	 */
 	andThen<U>(op: (value: T) => Result<U, E>): Result<U, E> {
 		if (this.isOk()) {
 			return op(this.unwrap());

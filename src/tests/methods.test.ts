@@ -291,12 +291,11 @@ describe("Result.andThen() tests", () => {
 	const validateStringType = (data: unknown): Result<string, ErrorMessage<string, string>> => {
 		if (typeof data === "string") {
 			return new Ok(data);
-		} else {
-			return new Err({
-				error: "InvalidDataType",
-				detail: `The datatype provided was supposed to be 'string' but was given: '${typeof data}'`,
-			});
 		}
+		return new Err({
+			error: "InvalidDataType",
+			detail: `The datatype provided was supposed to be 'string' but was given: '${typeof data}'`,
+		});
 	};
 	const capitalizeFirstLetter = (chars: string): Result<string, ErrorMessage<string, string>> => {
 		try {
@@ -312,12 +311,11 @@ describe("Result.andThen() tests", () => {
 	): Result<string, ErrorMessage<string, string>> => {
 		if (chars === correctString) {
 			return new Ok(chars);
-		} else {
-			return new Err({
-				error: "InvalidCharSequenceError",
-				detail: `Was expecting the char sequence: '${correctString}' but got: '${chars}'.`,
-			});
 		}
+		return new Err({
+			error: "InvalidCharSequenceError",
+			detail: `Was expecting the char sequence: '${correctString}' but got: '${chars}'.`,
+		});
 	};
 	const returnErrorUnreasonably = (item: unknown): Result<string, ErrorMessage<string, string>> => {
 		return new Err({ error: "UnreasonableError", detail: `An unreasonable error has been encountered! ${item}` });
@@ -325,18 +323,18 @@ describe("Result.andThen() tests", () => {
 	// ---------------UTILITY FUNCTIONS END-------------------
 
 	test("Result.andThen() Should return an Ok with the string 'Banana' inside at end of the chain.", () => {
-		const result = validateStringType("banana")
+		const result: Result<string, ErrorMessage<string, string>> = validateStringType("banana")
 			.andThen(capitalizeFirstLetter)
-			.andThen((x: string) => validateCorrectString(x, "Banana"));
+			.andThen((x) => validateCorrectString(x, "Banana"));
 
 		expect(result.isOk()).toBe(true);
 		expect(result.unwrap()).toBe("Banana");
 	});
 
 	test("Result.andThen() Should return an Err with the error: 'InvalidDataType', halting execution early.", () => {
-		const result = validateStringType(12345)
+		const result: Result<string, ErrorMessage<string, string>> = validateStringType(12345)
 			.andThen(capitalizeFirstLetter)
-			.andThen((x: string) => validateCorrectString(x, "Banana"));
+			.andThen((x) => validateCorrectString(x, "Banana"));
 
 		expect(result.isErr()).toBe(true);
 		expect(result.unwrapErr()).toStrictEqual({
@@ -346,7 +344,7 @@ describe("Result.andThen() tests", () => {
 	});
 
 	test("Result.andThen() Should return an Err with the error: 'UnreasonableError', halting execution early.", () => {
-		const result = validateStringType("pineapple")
+		const result: Result<string, ErrorMessage<string, string>> = validateStringType("pineapple")
 			.andThen(capitalizeFirstLetter)
 			.andThen(returnErrorUnreasonably)
 			.andThen((x: string) => validateCorrectString(x, "Banana"));
@@ -359,7 +357,7 @@ describe("Result.andThen() tests", () => {
 	});
 
 	test("Result.andThen() Should return an Err with the error: 'InvalidCharSequenceError', halting execution at the last step.", () => {
-		const result = validateStringType("pineapple")
+		const result: Result<string, ErrorMessage<string, string>> = validateStringType("pineapple")
 			.andThen(capitalizeFirstLetter)
 			.andThen((x: string) => validateCorrectString(x, "Banana"));
 
