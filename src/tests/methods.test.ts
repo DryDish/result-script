@@ -444,9 +444,7 @@ describe("Result.unwrapOr() tests", () => {
 
 describe("Result.unwrapOrElse() tests", () => {
 	// -----------------UTILITY FUNCTIONS---------------------
-	const count = (x: string): number => {
-		return x.length;
-	};
+	const count = (x: string): number => x.length;
 	// ---------------UTILITY FUNCTIONS END-------------------
 	test("Result.unwrapOrElse(count) should return 9 on Ok(9)", () => {
 		const result: Result<number, string> = new Ok(9);

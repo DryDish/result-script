@@ -530,6 +530,23 @@ class Result<T, E> {
 		}
 	}
 
+	/**
+	 * Returns the contained {@link Ok} value or computes it from the function
+	 * `op`.
+	 * ---
+	 * @example
+	 * const count = (x: string): number => x.length;
+	 *
+	 * const result: Result<number, string> = new Ok(9);
+	 * result.unwrapOrElse(count); // 9
+	 *
+	 * const result: Result<number, string> = new Err("foo");
+	 * result.unwrapOrElse(count); // 3
+	 *
+	 * @param {(err: E) => T} op
+	 * @returns {T} T
+	 * @memberof Result
+	 */
 	unwrapOrElse(op: (err: E) => T): T {
 		if (this.isOk()) {
 			return this.unwrap();
