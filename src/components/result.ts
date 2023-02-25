@@ -506,7 +506,15 @@ class Result<T, E> {
 	}
 
 	/**
-	 * Temporary please remove
+	 * Returns the contained {@link Ok} value or a provided `alternative` if
+	 * the result is an {@link Err}.
+	 * ---
+	 * @example
+	 * const result: Result<number, string> = new Ok(9);
+	 * result.unwrapOr(2); // 9
+	 *
+	 * const result: Result<number, string> = new Err("error");
+	 * result.unwrapOr(2); // 2
 	 *
 	 * @param {T} alternative
 	 * @returns {T} T
