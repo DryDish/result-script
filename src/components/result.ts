@@ -374,6 +374,32 @@ class Result<T, E> {
 		}
 	}
 
+	/**
+	 * Returns `res` if the result is {@link Ok}. otherwise returns the
+	 * {@link Err} value of 'this'.
+	 * ---
+	 * @example
+	 * const x: Result<number, string> = new Ok(2);
+	 * const y: Result<string, string> = new Err("late error");
+	 * x.and(y); // Err("late error")
+	 *
+	 * const x: Result<number, string> = new Err("early error");
+	 * const y: Result<string, string> = new Ok("foo");
+	 * x.and(y); // Err("early error")
+	 *
+	 * const x: Result<number, string> = new Err("not a 2");
+	 * const y: Result<string, string> = new Err("late error");
+	 * x.and(y); // Err("not a 2")
+	 *
+	 * const x: Result<number, string> = new Ok(2);
+	 * const y: Result<string, string> = new Ok("Different Result Type");
+	 * x.and(y); // Ok("Different Result Type")
+	 *
+	 * @template U
+	 * @param {Result<U, E>} res
+	 * @returns {Result<U, E>} Result<U, E>
+	 * @memberof Result
+	 */
 	and<U>(res: Result<U, E>): Result<U, E> {
 		if (this.isErr()) {
 			return new Err<U, E>(this.err);
