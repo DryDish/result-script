@@ -417,7 +417,7 @@ class Result<T, E> {
 	 * {@link Err} value of 'this'.
 	 *
 	 * This function can be used for control flow based on `Result` values.
-	 *
+	 * ---
 	 * @example
 	 * const result: Result<string, ErrorMessage<string, string>> = validateStringType("banana")
 	 *   .andThen(capitalizeFirstLetter)
@@ -429,7 +429,7 @@ class Result<T, E> {
 	 *
 	 * @template U
 	 * @param {(value: T) => Result<U, E>} op
-	 * @returns {*}  {Result<U, E>}
+	 * @returns {Result<U, E>} Result<U, E>
 	 * @memberof Result
 	 */
 	andThen<U>(op: (value: T) => Result<U, E>): Result<U, E> {
@@ -440,6 +440,31 @@ class Result<T, E> {
 		}
 	}
 
+	/**
+	 * Returns `res` if the result is {@link Err}, otherwise returns the
+	 * {@link Ok} value of 'this'.
+	 * ---
+	 * @example
+	 * const x: Result<number, string> = new Ok(2);
+	 * const y: Result<number, string> = new Err("Late error");
+	 * x.or(y); // Ok(2)
+	 *
+	 * const x: Result<number, string> = new Err("Early error");
+	 * const y: Result<number, string> = new Ok(2);
+	 * x.or(y); // Ok(2)
+	 *
+	 * const x: Result<number, string> = new Err("Not a 2");
+	 * const y: Result<number, string> = new Err("Late error");
+	 * x.or(y); // Err("Late error")
+	 *
+	 * const x: Result<number, string> = new Ok(2);
+	 * const y: Result<number, string> = new Ok(1234);
+	 * x.or(y); // Ok(2)
+	 *
+	 * @param {Result<T, E>} res
+	 * @returns {Result<T, E>} Result<T, E>
+	 * @memberof Result
+	 */
 	or(res: Result<T, E>): Result<T, E> {
 		if (this.isErr()) {
 			return res;

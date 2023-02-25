@@ -372,13 +372,13 @@ describe("Result.andThen() tests", () => {
 describe("Result.or() tests", () => {
 	test("Test should return 'this'.", () => {
 		const x: Result<number, string> = new Ok(2);
-		const y: Result<number, string> = new Err("Error Has occurred!");
+		const y: Result<number, string> = new Err("Late error");
 
 		expect(x.or(y)).toStrictEqual(new Ok(2));
 	});
 
 	test("Test should return 'res'.", () => {
-		const x: Result<number, string> = new Err("Error Has occurred!");
+		const x: Result<number, string> = new Err("Early error");
 		const y: Result<number, string> = new Ok(2);
 
 		expect(x.or(y)).toStrictEqual(new Ok(2));
@@ -386,9 +386,9 @@ describe("Result.or() tests", () => {
 
 	test("Test should return error from 'res'.", () => {
 		const x: Result<number, string> = new Err("Not a 2");
-		const y: Result<number, string> = new Err("Error Has occurred!");
+		const y: Result<number, string> = new Err("Late error");
 
-		expect(x.or(y)).toStrictEqual(new Err("Error Has occurred!"));
+		expect(x.or(y)).toStrictEqual(new Err("Late error"));
 	});
 
 	test("Test should return 'this'.", () => {
