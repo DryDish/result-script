@@ -236,15 +236,27 @@ describe("Result.expectErr() Tests", () => {
 describe("Result.unwrapErr() Tests", () => {
 	test("Result.unwrapErr() should throw error: 'Attempted to unwrapErr an Ok' when called on an Ok.", () => {
 		const result: Result<number, string> = new Ok(2);
-		expect(result.unwrapErr).toThrowError("Attempted to unwrapErr an Ok.");
+		expect(() => result.unwrapErr()).toThrowError("Called Result.unwrapErr() on an Ok value: 2");
 	});
 
-	test("Result.unwrapErr() should return the it's Error when called on an Err", () => {
+	test("Result.unwrapErr() should throw error: 'Attempted to unwrapErr an Ok' when called on an Ok.", () => {
+		const result: Result<{ name: string; age: number }, string> = new Ok({ name: "Ann", age: 21 });
+		expect(() => result.unwrapErr()).toThrowError(
+			'Called Result.unwrapErr() on an Ok value: {"name":"Ann","age":21}'
+		);
+	});
+
+	test("Result.unwrapErr() should return the Err's value when called on an Err", () => {
 		const result: Result<number, ErrorMessage<string, string>> = new Err({
 			error: "SuperBadError",
 			detail: "Error was thrown here today!",
 		});
 		expect(result.unwrapErr()).toStrictEqual({ error: "SuperBadError", detail: "Error was thrown here today!" });
+	});
+
+	test("Result.unwrapErr() should return the Err's value when called on an Err", () => {
+		const result: Result<number, string> = new Err("emergency failure");
+		expect(result.unwrapErr()).toStrictEqual("emergency failure");
 	});
 });
 

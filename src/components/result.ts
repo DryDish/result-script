@@ -352,11 +352,25 @@ class Result<T, E> {
 		}
 	}
 
+	/**
+	 * Returns the contained {@link Err} value. Throws an `Error` if the Result
+	 * is {@link Ok}.
+	 * ---
+	 * @example
+	 * const result: Result<number, string> = new Ok(2);
+	 * result.unwrapErr(); // Throws Error: 'Called Result.unwrapErr() on an Ok value: 2'
+	 *
+	 * const result: Result<number, string> = new Err("emergency failure");
+	 * result.unwrapErr(); // "emergency failure"
+	 *
+	 * @returns {E} E
+	 * @memberof Result
+	 */
 	unwrapErr(): E {
 		if (this && this.isErr()) {
 			return this.err;
 		} else {
-			throw new Error("Attempted to unwrapErr an Ok.");
+			throw new Error("Called Result.unwrapErr() on an Ok value: " + JSON.stringify(this.unwrap()));
 		}
 	}
 
