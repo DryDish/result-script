@@ -280,7 +280,7 @@ class Result<T, E> {
 	 * ---
 	 * @example
 	 * const result: Result<number, string> = new Err("emergency failure");
-	 * result.expect("Testing expect"); // throws Error with the text: "Testing expect: emergency failure"
+	 * result.expect("Testing expect"); // throws Error with the text: 'Testing expect: "emergency failure"'
 	 *
 	 * const result: Result<number, string> = new Ok(123);
 	 * result.expect("Testing expect"); // 123;
@@ -293,7 +293,7 @@ class Result<T, E> {
 		if (this.isOk()) {
 			return this.unwrap();
 		} else if (this.isErr()) {
-			throw new Error(msg + ": " + this.unwrapErr());
+			throw new Error(msg + ": " + JSON.stringify(this.unwrapErr()));
 		} else {
 			throw new Error("Something is deeply wrong with the Result object");
 		}
@@ -312,7 +312,7 @@ class Result<T, E> {
 	 * result.unwrap(); // 2
 	 *
 	 * const result: Result<number, string> = new Err("emergency failure");
-	 * result.unwrap(); // Throws Error "Attempted to unwrap an Err."
+	 * result.unwrap(); // Throws Error 'Called Result.unwrap() on an Err value: "emergency failure"'
 	 *
 	 * @returns {T} T
 	 * @memberof Result
@@ -321,7 +321,7 @@ class Result<T, E> {
 		if (this && this.isOk()) {
 			return this.ok;
 		} else {
-			throw new Error("Attempted to unwrap an Err.");
+			throw new Error("Called Result.unwrap() on an Err value: " + JSON.stringify(this.unwrapErr()));
 		}
 	}
 
