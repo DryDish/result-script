@@ -189,7 +189,7 @@ class Result<T, E> {
 	/**
 	 * Maps a `Result<T, E>` to `U` by applying a a fallback function `altF` to
 	 * a contained {@link Err} value, or function `f` to a contained {@link Ok} value.
-	 * 
+	 *
 	 * This method can be used to unpack a successful result while handling an
 	 * error.
 	 * ---
@@ -277,7 +277,7 @@ class Result<T, E> {
 	 * error messages remember to focus on the word "should" as in "env
 	 * variable should be set by ..." or "the given binary should be available
 	 * and executable by the current user".
-	 *
+	 * ---
 	 * @example
 	 * const result: Result<number, string> = new Err("emergency failure");
 	 * result.expect("Testing expect"); // throws Error with the text: "Testing expect: emergency failure"
@@ -306,7 +306,7 @@ class Result<T, E> {
 	 * Because this method may throw an `Error`, its use is generally
 	 * discouraged. Instead, use conditions to check for {@link Err} explicitly
 	 * , or call {@link unwrapOr} or {@link unwrapOrElse}.
-	 *
+	 * ---
 	 * @example
 	 * const result: Result<number, string> = new Ok(2);
 	 * result.unwrap(); // 2
@@ -325,11 +325,28 @@ class Result<T, E> {
 		}
 	}
 
+	/**
+	 * Returns the contained {@link Err}. Throws an `Error` if the Result
+	 * is {@link Ok}.
+	 *
+	 * Throws an error if the value is an {@link Ok}, with the error message
+	 * including the passed `msg`, and the content of the {@link Ok}.
+	 * ---
+	 * @example
+	 * const result: Result<number, string> = new Ok(10);
+	 * result.expectErr("Testing expectErr"); // Throws Error "Testing expectErr: 10"
+	 *
+	 * const result: Result<number, string> = new Err("Some Error");
+	 * result.expectErr("Testing expectErr"); // "Some Error"
+	 * @param {string} msg
+	 * @returns {E} Error of type: E
+	 * @memberof Result
+	 */
 	expectErr(msg: string): E {
 		if (this.isErr()) {
 			return this.unwrapErr();
 		} else if (this.isOk()) {
-			throw new Error(msg + ": " + this.unwrap());
+			throw new Error(msg + ": " + JSON.stringify(this.unwrap()));
 		} else {
 			throw new Error("Something is deeply wrong with the Result object");
 		}

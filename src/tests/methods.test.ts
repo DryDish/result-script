@@ -211,6 +211,13 @@ describe("Result.expectErr() Tests", () => {
 		expect(() => result.expectErr("Testing expectErr")).toThrowError(Error("Testing expectErr: 10"));
 	});
 
+	test("Result.expectErr() should throw an error when called on an Ok", () => {
+		const result: Result<object, string> = new Ok({ name: "bob", age: 12 });
+		expect(() => result.expectErr("Testing expectErr")).toThrowError(
+			Error('Testing expectErr: {"name":"bob","age":12}')
+		);
+	});
+
 	test("Result.expect() should return E when called on an Err", () => {
 		const result: Result<number, string> = new Err("Some Error");
 		expect(result.expectErr("Testing expectErr")).toBe("Some Error");
