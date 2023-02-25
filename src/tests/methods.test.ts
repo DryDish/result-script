@@ -405,13 +405,8 @@ describe("Result.or() tests", () => {
 // Currently, when initializing Ok or Err alone, you must also define the possible other type
 describe("Result.orElse() tests", () => {
 	// -----------------UTILITY FUNCTIONS---------------------
-	const sq = (x: number): Result<number, number> => {
-		return new Ok(x * x);
-	};
-
-	const err = (x: number): Result<number, number> => {
-		return new Err(x);
-	};
+	const sq = (x: number): Result<number, number> => new Ok(x * x);
+	const err = (x: number): Result<number, number> => new Err(x);
 	// ---------------UTILITY FUNCTIONS END-------------------
 
 	test("Test should return 'Ok(2)'.", () => {

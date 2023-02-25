@@ -475,6 +475,26 @@ class Result<T, E> {
 		}
 	}
 
+	/**
+	 * Calls `op` if the result is {@link Err}, otherwise returns the
+	 * {@link Ok} value of 'this'.
+	 *
+	 * This function can be used for control flow based on result values.
+	 * ---
+	 * @example
+	 * const sq = (x: number): Result<number, number> => new Ok(x * x);
+	 * const err = (x: number): Result<number, number> => new Err(x);
+	 *
+	 * new Ok<number, number>(2).orElse(sq).orElse(sq);    // Ok(2)
+	 * new Ok<number, number>(2).orElse(err).orElse(sq);   // Ok(2)
+	 * new Err<number, number>(3).orElse(sq).orElse(err);  // Ok(9)
+	 * new Err<number, number>(3).orElse(err).orElse(err); // Err(3)
+	 *
+	 * @template F
+	 * @param {(err: E) => Result<T, F>} op
+	 * @returns {Result} Result<T, F>
+	 * @memberof Result
+	 */
 	orElse<F>(op: (err: E) => Result<T, F>): Result<T, F> {
 		if (this.isOk()) {
 			return new Ok(this.unwrap());
