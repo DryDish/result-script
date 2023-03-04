@@ -645,8 +645,6 @@ class Result<T, E> {
 	 * {@link Promise} as the named type: <`T`>, regardless of what the actual type
 	 * of the data is.
 	 *
-	 * ---
-	 *
 	 * If the {@link Promise} being converted is typed, it is recommended to
 	 * instead use {@link fromPromiseStrict} as that function will enforce types.
 	 *
