@@ -518,6 +518,7 @@ class Result<T, E> {
 	/**
 	 * Returns the contained {@link Ok} value or a provided `alternative` if
 	 * the result is an {@link Err}.
+	 * 
 	 * ---
 	 * @example
 	 * const result: Result<number, string> = new Ok(9);
@@ -543,6 +544,7 @@ class Result<T, E> {
 	/**
 	 * Returns the contained {@link Ok} value or computes it from the function
 	 * `op`.
+	 * 
 	 * ---
 	 * @example
 	 * const count = (x: string): number => x.length;
@@ -552,7 +554,6 @@ class Result<T, E> {
 	 *
 	 * const result: Result<number, string> = new Err("foo");
 	 * result.unwrapOrElse(count); // 3
-	 *
 	 * @param {(err: E) => T} op
 	 * @returns {T} T
 	 * @memberof Result
@@ -567,6 +568,25 @@ class Result<T, E> {
 		}
 	}
 
+
+	/**
+	 * Returns `true` if the Result is an {@link Ok} containing the given value.
+	 * 
+	 * ---
+	 * @example
+	 * const result: Result<number, string> = new Ok(2);
+	 * result.contains(2); // true
+	 * 
+	 * const result: Result<number, string> = new Ok(3);
+	 * result.contains(2); // false
+	 * 
+	 * const result: Result<number, string> = new Err("Some error message");
+	 * result.contains(2); // false
+	 * @template U
+	 * @param {U} x Variable to compare to the Result's {@link Ok}.
+	 * @returns {boolean} boolean
+	 * @memberof Result
+	 */
 	contains<U extends T>(x: U): boolean {
 		if (this.isOk()) {
 			return this.unwrap() === x;
