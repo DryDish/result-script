@@ -515,27 +515,20 @@ describe("Result.containsErr() tests", () => {
 
 describe("Result.fromPromise() tests", () => {
 	// -----------------UTILITY FUNCTIONS---------------------
-	const testPromiseResolve = new Promise((resolve, _reject) => {
-		resolve(123);
-		_reject("Something Wrong");
-	});
-
-	const testPromiseReject = new Promise((_resolve, reject) => {
-		reject(123);
-		_resolve(123);
-	});
+	const testPromiseResolve = new Promise((resolve) => resolve(123));
+	const testPromiseReject = new Promise((_, reject) => reject(123));
 	// ---------------UTILITY FUNCTIONS END-------------------
 
 	test("Result.fromPromise() resolve typed", async () => {
-		// Type: Result<number, any>
-		const result: Result<number, any> = await Result.fromPromise(testPromiseResolve);
+		// Type: Result<number, unknown>
+		const result: Result<number, unknown> = await Result.fromPromise(testPromiseResolve);
 
 		expect(result.isOk()).toBe(true);
 		expect(result.unwrap()).toBe(123);
 	});
 
 	test("Result.fromPromise() reject typed", async () => {
-		// Type: Result<number, any>
+		// Type: Result<number, unknown>
 		const result = await Result.fromPromise<number>(testPromiseReject);
 
 		expect(result.isErr()).toBe(true);
@@ -543,15 +536,15 @@ describe("Result.fromPromise() tests", () => {
 	});
 
 	test("Result.fromPromise() accept untyped", async () => {
-		// Type: Result<unknown, any>
+		// Type: Result<unknown, unknown>
 		const result = await Result.fromPromise(testPromiseResolve);
 
 		expect(result.isOk()).toBe(true);
 		expect(result.unwrap()).toBe(123);
 	});
 
-	test("Result.fromPromise()3 reject untyped", async () => {
-		// Type: Result<Unknown, any>
+	test("Result.fromPromise() reject untyped", async () => {
+		// Type: Result<Unknown, unknown>
 		const result = await Result.fromPromise(testPromiseResolve);
 
 		expect(result.isOk()).toBe(true);

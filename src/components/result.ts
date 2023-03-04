@@ -633,6 +633,50 @@ class Result<T, E> {
 		}
 	}
 
+	/**
+	 * Converts a {@link Promise} to a `Result`.
+	 *
+	 * If used with a type, it will treat the resolved data type as that type,
+	 * otherwise the type will be `unknown`
+	 *
+	 * ---
+	 * ### Warning:
+	 * This is a loosely typed function that treats the resolved type of the
+	 * {@link Promise} as the named type: <`T`>, regardless of what the actual type
+	 * of the data is.
+	 *
+	 * ---
+	 *
+	 * If the {@link Promise} being converted is typed, it is recommended to
+	 * instead use {@link fromPromiseStrict} as that function will enforce types.
+	 *
+	 * This is intended to be used when the {@link Promise} returns `unknown` or
+	 * `any`.
+	 *
+	 * ---
+	 * @example
+	 * const promiseResolve = new Promise((resolve) => resolve(123));
+	 * const promiseReject = new Promise((_, reject) => reject(123));
+	 *
+	 * const result: Result<number, unknown> = await Result.fromPromise(promiseResolve);
+	 * result.isOk();      // true
+	 * result.unwrap();    // 123
+	 *
+	 * // Type: Result<number, unknown>
+	 * const result = await Result.fromPromise<number>(promiseReject);
+	 * result.isErr();     // true
+	 * result.unwrapErr(); // 123
+	 *
+	 * // Type: Result<unknown, unknown>
+	 * const result = await Result.fromPromise(promiseResolve);
+	 * result.isOk();      // true
+	 * result.unwrap();    // 123
+	 * @static
+	 * @template T
+	 * @param {(Promise<T | unknown>)} promise
+	 * @returns {Promise<Result<T, unknown>>} Promise<Result<T, unknown>>
+	 * @memberof Result
+	 */
 	static async fromPromise<T>(promise: Promise<T | unknown>): Promise<Result<T, unknown>> {
 		return await promise
 			.then((value) => {
