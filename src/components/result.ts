@@ -633,16 +633,13 @@ class Result<T, E> {
 		}
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	static async fromPromise<T>(promise: Promise<T | unknown>): Promise<Result<T, any>> {
+	static async fromPromise<T>(promise: Promise<T | unknown>): Promise<Result<T, unknown>> {
 		return await promise
 			.then((value) => {
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				return new Ok<T, any>(value as T);
+				return new Ok<T, unknown>(value as T);
 			})
 			.catch((err) => {
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				return new Err<T, any>(err);
+				return new Err<T, unknown>(err);
 			});
 	}
 
