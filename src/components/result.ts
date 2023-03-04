@@ -1,4 +1,5 @@
 import { IErr, IOk } from "./interfaces";
+import { isDeepStrictEqual } from "node:util";
 
 class Result<T, E> {
 	ok!: T;
@@ -192,7 +193,7 @@ class Result<T, E> {
 	 *
 	 * This method can be used to unpack a successful result while handling an
 	 * error.
-	 * 
+	 *
 	 * ---
 	 * @example
 	 * const k = 21;
@@ -279,7 +280,7 @@ class Result<T, E> {
 	 * error messages remember to focus on the word "should" as in "env
 	 * variable should be set by ..." or "the given binary should be available
 	 * and executable by the current user".
-	 * 
+	 *
 	 * ---
 	 * @example
 	 * const result: Result<number, string> = new Err("emergency failure");
@@ -309,7 +310,7 @@ class Result<T, E> {
 	 * Because this method may throw an `Error`, its use is generally
 	 * discouraged. Instead, use conditions to check for {@link Err} explicitly
 	 * , or call {@link unwrapOr} or {@link unwrapOrElse}.
-	 * 
+	 *
 	 * ---
 	 * @example
 	 * const result: Result<number, string> = new Ok(2);
@@ -335,7 +336,7 @@ class Result<T, E> {
 	 *
 	 * Throws an error if the value is an {@link Ok}, with the error message
 	 * including the passed `msg`, and the content of the {@link Ok}.
-	 * 
+	 *
 	 * ---
 	 * @example
 	 * const result: Result<number, string> = new Ok(10);
@@ -360,7 +361,7 @@ class Result<T, E> {
 	/**
 	 * Returns the contained {@link Err} value. Throws an `Error` if the Result
 	 * is {@link Ok}.
-	 * 
+	 *
 	 * ---
 	 * @example
 	 * const result: Result<number, string> = new Ok(2);
@@ -383,7 +384,7 @@ class Result<T, E> {
 	/**
 	 * Returns `res` if the result is {@link Ok}. otherwise returns the
 	 * {@link Err} value of 'this'.
-	 * 
+	 *
 	 * ---
 	 * @example
 	 * const x: Result<number, string> = new Ok(2);
@@ -424,7 +425,7 @@ class Result<T, E> {
 	 * {@link Err} value of 'this'.
 	 *
 	 * This function can be used for control flow based on `Result` values.
-	 * 
+	 *
 	 * ---
 	 * @example
 	 * const result: Result<string, ErrorMessage<string, string>> = validateStringType("banana")
@@ -451,7 +452,7 @@ class Result<T, E> {
 	/**
 	 * Returns `res` if the result is {@link Err}, otherwise returns the
 	 * {@link Ok} value of 'this'.
-	 * 
+	 *
 	 * ---
 	 * @example
 	 * const x: Result<number, string> = new Ok(2);
@@ -489,7 +490,7 @@ class Result<T, E> {
 	 * {@link Ok} value of 'this'.
 	 *
 	 * This function can be used for control flow based on result values.
-	 * 
+	 *
 	 * ---
 	 * @example
 	 * const sq = (x: number): Result<number, number> => new Ok(x * x);
@@ -518,7 +519,7 @@ class Result<T, E> {
 	/**
 	 * Returns the contained {@link Ok} value or a provided `alternative` if
 	 * the result is an {@link Err}.
-	 * 
+	 *
 	 * ---
 	 * @example
 	 * const result: Result<number, string> = new Ok(9);
@@ -544,7 +545,7 @@ class Result<T, E> {
 	/**
 	 * Returns the contained {@link Ok} value or computes it from the function
 	 * `op`.
-	 * 
+	 *
 	 * ---
 	 * @example
 	 * const count = (x: string): number => x.length;
@@ -568,20 +569,23 @@ class Result<T, E> {
 		}
 	}
 
-
 	/**
 	 * Returns `true` if the Result is an {@link Ok} containing the given value.
-	 * 
+	 *
 	 * ---
 	 * @example
 	 * const result: Result<number, string> = new Ok(2);
 	 * result.contains(2); // true
-	 * 
+	 *
 	 * const result: Result<number, string> = new Ok(3);
 	 * result.contains(2); // false
-	 * 
+	 *
 	 * const result: Result<number, string> = new Err("Some error message");
 	 * result.contains(2); // false
+	 *
+	 * const result: Result<unknown, string> = new Ok({ data: 123 })
+	 * result.contains({ data: 123 });   // true
+	 * result.contains({ data: "123" }); // false
 	 * @template U
 	 * @param {U} x Variable to compare to the Result's {@link Ok}.
 	 * @returns {boolean} boolean
@@ -589,7 +593,7 @@ class Result<T, E> {
 	 */
 	contains<U extends T>(x: U): boolean {
 		if (this.isOk()) {
-			return this.unwrap() === x;
+			return isDeepStrictEqual(this.unwrap(), x);
 		} else if (this.isErr()) {
 			return false;
 		} else {
@@ -597,9 +601,31 @@ class Result<T, E> {
 		}
 	}
 
+	/**
+	 * Returns `true` if the result is an {@link Err} containing the given value.
+	 *
+	 * ---
+	 * @example
+	 * const result: Result<number, string> = new Ok(2);
+	 * result.containsErr("Some error message"); // false
+	 *
+	 * const result: Result<number, string> = new Err("Some error message");
+	 * result.containsErr("Some error message"); // true
+	 *
+	 * const result: Result<number, string> = new Err("Some other error message");
+	 * result.containsErr("Some error message"); // false
+	 *
+	 * const result: Result<number, ErrMsg> = new Err({ detail: "Some error has occurred" });
+	 * result.containsErr({ detail: "Some error has occurred" });       // true
+	 * result.containsErr({ detail: "Some other error has occurred" }); // false
+	 * @template F
+	 * @param {F} x Variable to compare to the Result's {@link Err}.
+	 * @returns {boolean} boolean
+	 * @memberof Result
+	 */
 	containsErr<F extends E>(x: F): boolean {
 		if (this.isErr()) {
-			return this.unwrapErr() === x;
+			return isDeepStrictEqual(this.unwrapErr(), x);
 		} else if (this.isOk()) {
 			return false;
 		} else {

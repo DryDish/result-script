@@ -241,9 +241,7 @@ describe("Result.unwrapErr() Tests", () => {
 
 	test("Result.unwrapErr() should throw error: 'Attempted to unwrapErr an Ok' when called on an Ok.", () => {
 		const result: Result<{ name: string; age: number }, string> = new Ok({ name: "Ann", age: 21 });
-		expect(() => result.unwrapErr()).toThrowError(
-			'Called Result.unwrapErr() on an Ok value: {"name":"Ann","age":21}'
-		);
+		expect(() => result.unwrapErr()).toThrowError('Called Result.unwrapErr() on an Ok value: {"name":"Ann","age":21}');
 	});
 
 	test("Result.unwrapErr() should return the Err's value when called on an Err", () => {
@@ -472,6 +470,16 @@ describe("Result.contains() tests", () => {
 		const result: Result<number, string> = new Err("Some error message");
 		expect(result.contains(2)).toBe(false);
 	});
+
+	test("Result.contains(<Object>) should return true when comparing an equal object", () => {
+		const result: Result<unknown, string> = new Ok({ data: 123 });
+		expect(result.contains({ data: 123 })).toBe(true);
+	});
+
+	test("Result.contains(<Object>) should return false when comparing a different object", () => {
+		const result: Result<unknown, string> = new Ok({ data: 123 });
+		expect(result.contains({ data: "123" })).toBe(false);
+	});
 });
 
 describe("Result.containsErr() tests", () => {
@@ -488,6 +496,20 @@ describe("Result.containsErr() tests", () => {
 	test("Result.contains('Some error message') should return false on Err('Some other error message')", () => {
 		const result: Result<number, string> = new Err("Some other error message");
 		expect(result.containsErr("Some error message")).toBe(false);
+	});
+
+	interface ErrMsg {
+		detail: string;
+	}
+
+	test("Result.contains(<Object>) should return true when comparing equal objects", () => {
+		const result: Result<number, ErrMsg> = new Err({ detail: "Some error has occurred" });
+		expect(result.containsErr({ detail: "Some error has occurred" })).toBe(true);
+	});
+
+	test("Result.contains(<Object>) should return false when comparing different objects", () => {
+		const result: Result<number, ErrMsg> = new Err({ detail: "Some error has occurred" });
+		expect(result.containsErr({ detail: "Some other error has occurred" })).toBe(false);
 	});
 });
 
