@@ -3,10 +3,6 @@
 	"type": "module",
 	"version": "0.0.1",
 	"description": "Typescript implementation of Rust's Result",
-	"repository": {
-		"type": "git",
-		"url": "TODO: update me"
-	},
 	"main": "lib/index.js",
 	"types": "lib/index.d.ts",
 	"files": [
@@ -16,9 +12,17 @@
 		"prepublish": "tsc",
 		"test": "jest"
 	},
-	"keywords": [],
-	"author": "",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/DryDish/typescript-result.git"
+	},
+	"keywords": ["typescript", "result", "rust"],
+	"author": "AlexM",
 	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/DryDish/typescript-result/issues"
+	},
+	"homepage": "https://github.com/DryDish/typescript-result#readme",
 	"devDependencies": {
 		"@types/jest": "^29.2.5",
 		"@types/node": "^18.14.6",
