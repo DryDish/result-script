@@ -192,6 +192,7 @@ class Result<T, E> {
 	 *
 	 * This method can be used to unpack a successful result while handling an
 	 * error.
+	 * 
 	 * ---
 	 * @example
 	 * const k = 21;
@@ -233,6 +234,7 @@ class Result<T, E> {
 	 *
 	 * This function can be used to pass through a successful result while
 	 * handling an error.
+	 * 
 	 * ---
 	 * @example
 	 * const stringify = (x: number): string => `error code is: ${x}`;
@@ -277,6 +279,7 @@ class Result<T, E> {
 	 * error messages remember to focus on the word "should" as in "env
 	 * variable should be set by ..." or "the given binary should be available
 	 * and executable by the current user".
+	 * 
 	 * ---
 	 * @example
 	 * const result: Result<number, string> = new Err("emergency failure");
@@ -306,6 +309,7 @@ class Result<T, E> {
 	 * Because this method may throw an `Error`, its use is generally
 	 * discouraged. Instead, use conditions to check for {@link Err} explicitly
 	 * , or call {@link unwrapOr} or {@link unwrapOrElse}.
+	 * 
 	 * ---
 	 * @example
 	 * const result: Result<number, string> = new Ok(2);
@@ -331,6 +335,7 @@ class Result<T, E> {
 	 *
 	 * Throws an error if the value is an {@link Ok}, with the error message
 	 * including the passed `msg`, and the content of the {@link Ok}.
+	 * 
 	 * ---
 	 * @example
 	 * const result: Result<number, string> = new Ok(10);
@@ -355,6 +360,7 @@ class Result<T, E> {
 	/**
 	 * Returns the contained {@link Err} value. Throws an `Error` if the Result
 	 * is {@link Ok}.
+	 * 
 	 * ---
 	 * @example
 	 * const result: Result<number, string> = new Ok(2);
@@ -377,6 +383,7 @@ class Result<T, E> {
 	/**
 	 * Returns `res` if the result is {@link Ok}. otherwise returns the
 	 * {@link Err} value of 'this'.
+	 * 
 	 * ---
 	 * @example
 	 * const x: Result<number, string> = new Ok(2);
@@ -417,6 +424,7 @@ class Result<T, E> {
 	 * {@link Err} value of 'this'.
 	 *
 	 * This function can be used for control flow based on `Result` values.
+	 * 
 	 * ---
 	 * @example
 	 * const result: Result<string, ErrorMessage<string, string>> = validateStringType("banana")
@@ -443,6 +451,7 @@ class Result<T, E> {
 	/**
 	 * Returns `res` if the result is {@link Err}, otherwise returns the
 	 * {@link Ok} value of 'this'.
+	 * 
 	 * ---
 	 * @example
 	 * const x: Result<number, string> = new Ok(2);
@@ -480,6 +489,7 @@ class Result<T, E> {
 	 * {@link Ok} value of 'this'.
 	 *
 	 * This function can be used for control flow based on result values.
+	 * 
 	 * ---
 	 * @example
 	 * const sq = (x: number): Result<number, number> => new Ok(x * x);
