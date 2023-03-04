@@ -646,7 +646,7 @@ class Result<T, E> {
 	 * of the data is.
 	 *
 	 * If the {@link Promise} being converted is typed, it is recommended to
-	 * instead use {@link fromPromiseStrict} as that function will enforce types.
+	 * instead use {@link fromPromise} as that function will enforce types.
 	 *
 	 * This is intended to be used when the {@link Promise} returns `unknown` or
 	 * `any`.
@@ -656,17 +656,18 @@ class Result<T, E> {
 	 * const promiseResolve = new Promise((resolve) => resolve(123));
 	 * const promiseReject = new Promise((_, reject) => reject(123));
 	 *
-	 * const result: Result<number, unknown> = await Result.fromPromise(promiseResolve);
+	 * // Explicit typing
+	 * const result: Result<number, unknown> = await Result.fromPromiseUnknown(promiseResolve);
 	 * result.isOk();      // true
 	 * result.unwrap();    // 123
 	 *
-	 * // Type: Result<number, unknown>
-	 * const result = await Result.fromPromise<number>(promiseReject);
+	 * // Type: Result<number, unknown> - Explicit typing alternative
+	 * const result = await Result.fromPromiseUnknown<number>(promiseReject);
 	 * result.isErr();     // true
 	 * result.unwrapErr(); // 123
 	 *
 	 * // Type: Result<unknown, unknown>
-	 * const result = await Result.fromPromise(promiseResolve);
+	 * const result = await Result.fromPromiseUnknown(promiseResolve);
 	 * result.isOk();      // true
 	 * result.unwrap();    // 123
 	 * @static
@@ -675,7 +676,7 @@ class Result<T, E> {
 	 * @returns {Promise<Result<T, unknown>>} Promise<Result<T, unknown>>
 	 * @memberof Result
 	 */
-	static async fromPromise<T>(promise: Promise<T | unknown>): Promise<Result<T, unknown>> {
+	static async fromPromiseUnknown<T>(promise: Promise<T | unknown>): Promise<Result<T, unknown>> {
 		return await promise
 			.then((value) => {
 				return new Ok<T, unknown>(value as T);
@@ -685,7 +686,43 @@ class Result<T, E> {
 			});
 	}
 
-	static async fromPromiseStrict<T>(promise: Promise<T>): Promise<Result<T, unknown>> {
+	/**
+	 * Converts a {@link Promise} to a `Result`.
+	 *
+	 * NOTE: due to {@link Promise}'s implementation, only the resolution can be
+	 * typed. The rejection will always be untyped.
+	 *
+	 * ---
+	 * @example
+	 * interface promiseResolve<T> { (variable: T): Promise<T> }
+	 * interface promiseReject<T> { (_: T): Promise<T> }
+	 *
+	 * // Type: Result<number, unknown> - inferred type
+	 * const result = await Result.fromPromise(promiseResolve(10));
+	 * result.isOk();      // true
+	 * result.unwrap()     // 10
+	 *
+	 * // Type: Result<number, unknown> - explicit type
+	 * const result: Result<number, unknown> = await Result.fromPromise(promiseResolve(10));
+	 * result.isOk();      // true
+	 * result.unwrap()     // 10
+	 *
+	 * // Type: Result<number, unknown> - inferred type
+	 * const result = await Result.fromPromise(promiseReject(10));
+	 * result.isErr();     // true
+	 * result.unwrapErr(); // "rejected"
+	 *
+	 * // Type: Result<number, unknown> - explicit type alternative
+	 * const result = await Result.fromPromise<number>(promiseReject(10));
+	 * result.isErr();     // true
+	 * result.unwrapErr(); // "rejected"
+	 * @static
+	 * @template T
+	 * @param {Promise<T>} promise
+	 * @returns {Promise<Result<T, unknown>>} Promise<Result<T, unknown>>
+	 * @memberof Result
+	 */
+	static async fromPromise<T>(promise: Promise<T>): Promise<Result<T, unknown>> {
 		return await promise
 			.then((value: T) => {
 				return new Ok<T, unknown>(value);

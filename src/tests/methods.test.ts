@@ -513,87 +513,81 @@ describe("Result.containsErr() tests", () => {
 	});
 });
 
-describe("Result.fromPromise() tests", () => {
+describe("Result.fromPromiseUnknown() tests", () => {
 	// -----------------UTILITY FUNCTIONS---------------------
 	const testPromiseResolve = new Promise((resolve) => resolve(123));
 	const testPromiseReject = new Promise((_, reject) => reject(123));
 	// ---------------UTILITY FUNCTIONS END-------------------
 
-	test("Result.fromPromise() resolve typed", async () => {
+	test("Result.fromPromiseUnknown() resolve typed", async () => {
 		// Type: Result<number, unknown>
-		const result: Result<number, unknown> = await Result.fromPromise(testPromiseResolve);
+		const result: Result<number, unknown> = await Result.fromPromiseUnknown(testPromiseResolve);
 
 		expect(result.isOk()).toBe(true);
 		expect(result.unwrap()).toBe(123);
 	});
 
-	test("Result.fromPromise() reject typed", async () => {
+	test("Result.fromPromiseUnknown() reject typed", async () => {
 		// Type: Result<number, unknown>
-		const result = await Result.fromPromise<number>(testPromiseReject);
+		const result = await Result.fromPromiseUnknown<number>(testPromiseReject);
 
 		expect(result.isErr()).toBe(true);
 		expect(result.unwrapErr()).toBe(123);
 	});
 
-	test("Result.fromPromise() accept untyped", async () => {
+	test("Result.fromPromiseUnknown() accept untyped", async () => {
 		// Type: Result<unknown, unknown>
-		const result = await Result.fromPromise(testPromiseResolve);
+		const result = await Result.fromPromiseUnknown(testPromiseResolve);
 
 		expect(result.isOk()).toBe(true);
 		expect(result.unwrap()).toBe(123);
 	});
 
-	test("Result.fromPromise() reject untyped", async () => {
+	test("Result.fromPromiseUnknown() reject untyped", async () => {
 		// Type: Result<Unknown, unknown>
-		const result = await Result.fromPromise(testPromiseResolve);
+		const result = await Result.fromPromiseUnknown(testPromiseResolve);
 
 		expect(result.isOk()).toBe(true);
 		expect(result.unwrap()).toBe(123);
 	});
 });
 
-describe("Result.fromPromiseStrict() tests", () => {
+describe("Result.fromPromise() tests", () => {
 	// -----------------UTILITY FUNCTIONS---------------------
-	const testTypedPromise = <T>(variable: T): Promise<T> => {
-		return new Promise<T>((resolve, reject) => {
-			if (variable > 10) {
-				reject("Number too big!");
-			}
-			resolve(variable);
-		});
-	};
+	const promiseResolve = <T>(variable: T): Promise<T> => new Promise<T>((resolve) => resolve(variable));
+	const promiseReject = <T>(_: T): Promise<T> => new Promise((_, reject) => reject("rejected"));
 	// ---------------UTILITY FUNCTIONS END-------------------
 
-	test("Result.fromPromiseStrict() resolve inferred types", async () => {
-		// Type: Result<number, any>
-		const result = await Result.fromPromiseStrict(testTypedPromise(10));
+	test("Result.fromPromise() resolve inferred types", async () => {
+		// Type: Result<number, unknown>
+		const result = await Result.fromPromise(promiseResolve(10));
 
 		expect(result.isOk()).toBe(true);
 		expect(result.unwrap()).toBe(10);
 	});
 
-	test("Result.fromPromiseStrict() resolve explicit types", async () => {
-		// Type: Result<number, any>
-		const result: Result<number, any> = await Result.fromPromiseStrict(testTypedPromise(10));
+	test("Result.fromPromise() resolve explicit types", async () => {
+		// Type: Result<number, unknown>
+		const result: Result<number, unknown> = await Result.fromPromise(promiseResolve(10));
 
 		expect(result.isOk()).toBe(true);
 		expect(result.unwrap()).toBe(10);
 	});
 
-	test("Result.fromPromiseStrict() reject inferred types", async () => {
-		// Type: Result<number, any>
-		const result = await Result.fromPromiseStrict(testTypedPromise(11));
+	test("Result.fromPromise() reject inferred types", async () => {
+		// Type: Result<number, unknown>
+		const result = await Result.fromPromise(promiseReject(10));
 
 		expect(result.isErr()).toBe(true);
-		expect(result.unwrapErr()).toBe("Number too big!");
+		expect(result.unwrapErr()).toBe("rejected");
 	});
 
-	test("Result.fromPromiseStrict() reject explicit types", async () => {
-		// Type: Result<number, any>
-		const result = await Result.fromPromiseStrict<number>(testTypedPromise(11));
+	test("Result.fromPromise() reject explicit types", async () => {
+		// Type: Result<number, unknown>
+		const result = await Result.fromPromise<number>(promiseReject(10));
 
 		expect(result.isErr()).toBe(true);
-		expect(result.unwrapErr()).toBe("Number too big!");
+		expect(result.unwrapErr()).toBe("rejected");
 		console.log(result);
 	});
 });
