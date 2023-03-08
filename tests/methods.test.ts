@@ -7,12 +7,12 @@ interface ErrorMessage<E, T> {
 
 describe("Result.isOk() Tests", () => {
 	test("result.isOk() should return true on a result with an Ok inside.", () => {
-		const result: Result<number, string> = new Ok(-3);
+		const result: Result<number, string> = Ok(-3);
 		expect(result.isOk()).toBe(true);
 	});
 
 	test("result.isOk() should return false on a result with an Err inside.", () => {
-		const result: Result<number, ErrorMessage<Error, string>> = new Err({
+		const result: Result<number, ErrorMessage<Error, string>> = Err({
 			error: Error(),
 			detail: "All is good here, just some data",
 		});
@@ -22,29 +22,29 @@ describe("Result.isOk() Tests", () => {
 
 describe("Result.isOkAnd() Tests", () => {
 	test("result.isOkAnd() should return true on Ok(2) > 1", () => {
-		const result: Result<number, string> = new Ok(2);
+		const result: Result<number, string> = Ok(2);
 		expect(result.isOkAnd((x) => x > 1)).toBe(true);
 	});
 
 	test("result.isOkAnd() should return false on Ok(0) > 1", () => {
-		const result: Result<number, string> = new Ok(0);
+		const result: Result<number, string> = Ok(0);
 		expect(result.isOkAnd((x) => x > 1)).toBe(false);
 	});
 
 	test("result.isOkAnd() should return false on Err('hey') > 1", () => {
-		const result: Result<number, string> = new Err("hey");
+		const result: Result<number, string> = Err("hey");
 		expect(result.isOkAnd((x) => x > 1)).toBe(false);
 	});
 });
 
 describe("Result.isErr() Tests", () => {
 	test("result.isErr() should return false on a result with an Ok inside.", () => {
-		const result: Result<number, string> = new Ok(-3);
+		const result: Result<number, string> = Ok(-3);
 		expect(result.isErr()).toBe(false);
 	});
 
 	test("result.isErr() should return true on a result with an Err inside.", () => {
-		const result: Result<number, string> = new Err("Big issues here!");
+		const result: Result<number, string> = Err("Big issues here!");
 		expect(result.isErr()).toBe(true);
 	});
 });
@@ -58,56 +58,56 @@ describe("Result.isErrAnd() Tests", () => {
 	// ---------------UTILITY FUNCTIONS END-------------------
 
 	test("result.isErrAnd() should return true on Ok(2) > 1", () => {
-		const result: Result<number, ErrorKinds> = new Err(ErrorKinds.NotFound);
+		const result: Result<number, ErrorKinds> = Err(ErrorKinds.NotFound);
 		expect(result.isErrAnd((x) => x === ErrorKinds.NotFound)).toBe(true);
 	});
 
 	test("result.isErrAnd() should return true on Ok(2) > 1", () => {
-		const result: Result<number, ErrorKinds> = new Err(ErrorKinds.PermissionDenied);
+		const result: Result<number, ErrorKinds> = Err(ErrorKinds.PermissionDenied);
 		expect(result.isErrAnd((x) => x === ErrorKinds.NotFound)).toBe(false);
 	});
 
 	test("result.isErrAnd() should return true on Ok(2) > 1", () => {
-		const result: Result<number, ErrorKinds> = new Ok(123);
+		const result: Result<number, ErrorKinds> = Ok(123);
 		expect(result.isErrAnd((x) => x === ErrorKinds.NotFound)).toBe(false);
 	});
 });
 
 describe("Result.map() Tests", () => {
 	test("Result.map() should do modify a T: string to a U: number result", () => {
-		const result: Result<string, string> = new Ok("foo");
-		expect(result.map((x) => x.length)).toStrictEqual(new Ok(3));
+		const result: Result<string, string> = Ok("foo");
+		expect(result.map((x) => x.length)).toStrictEqual(Ok(3));
 	});
 
 	test("Result.map() should do modify a T: number to a U: string result", () => {
-		const result: Result<number, string> = new Ok(12);
-		expect(result.map((x) => x.toString())).toStrictEqual(new Ok("12"));
+		const result: Result<number, string> = Ok(12);
+		expect(result.map((x) => x.toString())).toStrictEqual(Ok("12"));
 	});
 
 	test("Result.map() should do nothing to an Err Result", () => {
-		const result: Result<string, number> = new Err(-1);
-		expect(result.map((x) => x.length)).toStrictEqual(new Err(-1));
+		const result: Result<string, number> = Err(-1);
+		expect(result.map((x) => x.length)).toStrictEqual(Err(-1));
 	});
 
 	test("Result.map() should do modify a T: number to a U: string result", () => {
-		const result = new Ok(5)
+		const result = Ok(5)
 			.map((x) => x * x)
 			.map((x) => x.toString())
 			.map((x) => " Number is: " + x + " ")
 			.map((x) => x.trim());
 
-		expect(result).toStrictEqual(new Ok("Number is: 25"));
+		expect(result).toStrictEqual(Ok("Number is: 25"));
 	});
 });
 
 describe("Result.mapOr() Tests", () => {
 	test("Result.mapOr() should do modify a T: string to a U: number result", () => {
-		const result: Result<string, string> = new Ok("foo");
+		const result: Result<string, string> = Ok("foo");
 		expect(result.mapOr(42, (x) => x.length)).toBe(3);
 	});
 
 	test("Result.mapOr() should do modify a T: string to a U: number result", () => {
-		const result: Result<string, string> = new Err("bar");
+		const result: Result<string, string> = Err("bar");
 		expect(result.mapOr(42, (x) => x.length)).toBe(42);
 	});
 });
@@ -124,7 +124,7 @@ describe("Result.mapOrElse() Tests", () => {
 	const k = 21;
 	// ---------------UTILITY FUNCTIONS END-------------------
 	test("Result.mapOrElse() should call the success callback and return 3", () => {
-		const result: Result<string, string> = new Ok("foo");
+		const result: Result<string, string> = Ok("foo");
 		expect(
 			result.mapOrElse(
 				(_e) => k * 2,
@@ -134,7 +134,7 @@ describe("Result.mapOrElse() Tests", () => {
 	});
 
 	test("Result.mapOrElse() should call the error callback and return 42", () => {
-		const result: Result<string, string> = new Err("bar");
+		const result: Result<string, string> = Err("bar");
 		expect(
 			result.mapOrElse(
 				(_e) => k * 2,
@@ -144,7 +144,7 @@ describe("Result.mapOrElse() Tests", () => {
 	});
 
 	test("Result.mapOrElse() should call the error callback and return 42", () => {
-		const result: Result<string, string> = new Err("OutOfBounds");
+		const result: Result<string, string> = Err("OutOfBounds");
 		expect(
 			result.mapOrElse(
 				(e) => stringErrToNum(e),
@@ -154,7 +154,7 @@ describe("Result.mapOrElse() Tests", () => {
 	});
 
 	test("Result.mapOrElse() should call the error callback and return 42", () => {
-		const result: Result<string, string> = new Err("SomethingElse");
+		const result: Result<string, string> = Err("SomethingElse");
 		expect(
 			result.mapOrElse(
 				(e) => stringErrToNum(e),
@@ -170,36 +170,36 @@ describe("Result.mapErr() Tests", () => {
 	// ---------------UTILITY FUNCTIONS END-------------------
 
 	test("Result.mapErr() should do modify a E to an F without modifying the T", () => {
-		const result: Result<number, number> = new Ok(2);
-		expect(result.mapErr(stringify)).toStrictEqual(new Ok(2));
+		const result: Result<number, number> = Ok(2);
+		expect(result.mapErr(stringify)).toStrictEqual(Ok(2));
 	});
 
 	test("Result.mapErr() should do modify a E to an F without modifying the T", () => {
-		const result: Result<number, number> = new Err(13);
-		expect(result.mapErr(stringify)).toStrictEqual(new Err("error code is: 13"));
+		const result: Result<number, number> = Err(13);
+		expect(result.mapErr(stringify)).toStrictEqual(Err("error code is: 13"));
 	});
 });
 
 describe("Result.expect() Tests", () => {
 	test("Result.expect() should throw an error when called on an Err", () => {
-		const result: Result<number, string> = new Err("emergency failure");
+		const result: Result<number, string> = Err("emergency failure");
 		expect(() => result.expect("Testing expect")).toThrowError(Error('Testing expect: "emergency failure"'));
 	});
 
 	test("Result.expect() should return T when called on Ok", () => {
-		const result: Result<number, string> = new Ok(123);
+		const result: Result<number, string> = Ok(123);
 		expect(result.expect("Testing expect")).toBe(123);
 	});
 });
 
 describe("Result.unwrap() Tests", () => {
 	test("Result.unwrap() should return the it's data when called on an Ok", () => {
-		const result: Result<number, string> = new Ok(2);
+		const result: Result<number, string> = Ok(2);
 		expect(result.unwrap()).toBe(2);
 	});
 
 	test("Result.unwrap() should throw error when called on an Err.", () => {
-		const result: Result<number, ErrorMessage<string, string>> = new Err({
+		const result: Result<number, ErrorMessage<string, string>> = Err({
 			error: "SuperBadError",
 			detail: "Error was thrown here today!",
 		});
@@ -211,7 +211,7 @@ describe("Result.unwrap() Tests", () => {
 	});
 
 	test("Result.unwrap() should throw error when called on an Err.", () => {
-		const result: Result<number, string> = new Err("Something is wrong");
+		const result: Result<number, string> = Err("Something is wrong");
 		expect(() => {
 			result.unwrap();
 		}).toThrowError('Called Result.unwrap() on an Err value: "Something is wrong"');
@@ -220,36 +220,36 @@ describe("Result.unwrap() Tests", () => {
 
 describe("Result.expectErr() Tests", () => {
 	test("Result.expectErr() should throw an error when called on an Ok", () => {
-		const result: Result<number, string> = new Ok(10);
+		const result: Result<number, string> = Ok(10);
 		expect(() => result.expectErr("Testing expectErr")).toThrowError(Error("Testing expectErr: 10"));
 	});
 
 	test("Result.expectErr() should throw an error when called on an Ok", () => {
-		const result: Result<object, string> = new Ok({ name: "bob", age: 12 });
+		const result: Result<object, string> = Ok({ name: "bob", age: 12 });
 		expect(() => result.expectErr("Testing expectErr")).toThrowError(
 			Error('Testing expectErr: {"name":"bob","age":12}')
 		);
 	});
 
 	test("Result.expect() should return E when called on an Err", () => {
-		const result: Result<number, string> = new Err("Some Error");
+		const result: Result<number, string> = Err("Some Error");
 		expect(result.expectErr("Testing expectErr")).toBe("Some Error");
 	});
 });
 
 describe("Result.unwrapErr() Tests", () => {
 	test("Result.unwrapErr() should throw error: 'Attempted to unwrapErr an Ok' when called on an Ok.", () => {
-		const result: Result<number, string> = new Ok(2);
+		const result: Result<number, string> = Ok(2);
 		expect(() => result.unwrapErr()).toThrowError("Called Result.unwrapErr() on an Ok value: 2");
 	});
 
 	test("Result.unwrapErr() should throw error: 'Attempted to unwrapErr an Ok' when called on an Ok.", () => {
-		const result: Result<{ name: string; age: number }, string> = new Ok({ name: "Ann", age: 21 });
+		const result: Result<{ name: string; age: number }, string> = Ok({ name: "Ann", age: 21 });
 		expect(() => result.unwrapErr()).toThrowError('Called Result.unwrapErr() on an Ok value: {"name":"Ann","age":21}');
 	});
 
 	test("Result.unwrapErr() should return the Err's value when called on an Err", () => {
-		const result: Result<number, ErrorMessage<string, string>> = new Err({
+		const result: Result<number, ErrorMessage<string, string>> = Err({
 			error: "SuperBadError",
 			detail: "Error was thrown here today!",
 		});
@@ -257,34 +257,34 @@ describe("Result.unwrapErr() Tests", () => {
 	});
 
 	test("Result.unwrapErr() should return the Err's value when called on an Err", () => {
-		const result: Result<number, string> = new Err("emergency failure");
+		const result: Result<number, string> = Err("emergency failure");
 		expect(result.unwrapErr()).toStrictEqual("emergency failure");
 	});
 });
 
 describe("Result.and() tests", () => {
 	test("Result.and() Should return the Err object.", () => {
-		const x: Result<number, string> = new Ok(2);
-		const y: Result<string, string> = new Err("late error");
-		expect(x.and(y)).toStrictEqual(new Err("late error"));
+		const x: Result<number, string> = Ok(2);
+		const y: Result<string, string> = Err("late error");
+		expect(x.and(y)).toStrictEqual(Err("late error"));
 	});
 
 	test("Result.and() Should still return the Err object.", () => {
-		const x: Result<number, string> = new Err("early error");
-		const y: Result<string, string> = new Ok("foo");
-		expect(x.and(y)).toStrictEqual(new Err("early error"));
+		const x: Result<number, string> = Err("early error");
+		const y: Result<string, string> = Ok("foo");
+		expect(x.and(y)).toStrictEqual(Err("early error"));
 	});
 
 	test("Result.and() Should return the first Err object.", () => {
-		const x: Result<number, string> = new Err("not a 2");
-		const y: Result<string, string> = new Err("late error");
-		expect(x.and(y)).toStrictEqual(new Err("not a 2"));
+		const x: Result<number, string> = Err("not a 2");
+		const y: Result<string, string> = Err("late error");
+		expect(x.and(y)).toStrictEqual(Err("not a 2"));
 	});
 
 	test("Result.and() Should return the first Err object.", () => {
-		const x: Result<number, string> = new Ok(2);
-		const y: Result<string, string> = new Ok("Different Result Type");
-		expect(x.and(y)).toStrictEqual(new Ok("Different Result Type"));
+		const x: Result<number, string> = Ok(2);
+		const y: Result<string, string> = Ok("Different Result Type");
+		expect(x.and(y)).toStrictEqual(Ok("Different Result Type"));
 	});
 });
 
@@ -292,9 +292,9 @@ describe("Result.andThen() tests", () => {
 	// -----------------UTILITY FUNCTIONS---------------------
 	const validateStringType = (data: unknown): Result<string, ErrorMessage<string, string>> => {
 		if (typeof data === "string") {
-			return new Ok(data);
+			return Ok(data);
 		}
-		return new Err({
+		return Err({
 			error: "InvalidDataType",
 			detail: `The datatype provided was supposed to be 'string' but was given: '${typeof data}'`,
 		});
@@ -302,9 +302,9 @@ describe("Result.andThen() tests", () => {
 	const capitalizeFirstLetter = (chars: string): Result<string, ErrorMessage<string, string>> => {
 		try {
 			const updatedChars = chars.charAt(0).toUpperCase() + chars.slice(1);
-			return new Ok(updatedChars);
+			return Ok(updatedChars);
 		} catch (error) {
-			return new Err({ error: error as string, detail: "Whoopsie" });
+			return Err({ error: error as string, detail: "Whoopsie" });
 		}
 	};
 	const validateCorrectString = (
@@ -312,15 +312,15 @@ describe("Result.andThen() tests", () => {
 		correctString: string
 	): Result<string, ErrorMessage<string, string>> => {
 		if (chars === correctString) {
-			return new Ok(chars);
+			return Ok(chars);
 		}
-		return new Err({
+		return Err({
 			error: "InvalidCharSequenceError",
 			detail: `Was expecting the char sequence: '${correctString}' but got: '${chars}'.`,
 		});
 	};
 	const returnErrorUnreasonably = (item: unknown): Result<string, ErrorMessage<string, string>> => {
-		return new Err({ error: "UnreasonableError", detail: `An unreasonable error has been encountered! ${item}` });
+		return Err({ error: "UnreasonableError", detail: `An unreasonable error has been encountered! ${item}` });
 	};
 	// ---------------UTILITY FUNCTIONS END-------------------
 
@@ -373,31 +373,31 @@ describe("Result.andThen() tests", () => {
 
 describe("Result.or() tests", () => {
 	test("Test should return 'this'.", () => {
-		const x: Result<number, string> = new Ok(2);
-		const y: Result<number, string> = new Err("Late error");
+		const x: Result<number, string> = Ok(2);
+		const y: Result<number, string> = Err("Late error");
 
-		expect(x.or(y)).toStrictEqual(new Ok(2));
+		expect(x.or(y)).toStrictEqual(Ok(2));
 	});
 
 	test("Test should return 'res'.", () => {
-		const x: Result<number, string> = new Err("Early error");
-		const y: Result<number, string> = new Ok(2);
+		const x: Result<number, string> = Err("Early error");
+		const y: Result<number, string> = Ok(2);
 
-		expect(x.or(y)).toStrictEqual(new Ok(2));
+		expect(x.or(y)).toStrictEqual(Ok(2));
 	});
 
 	test("Test should return error from 'res'.", () => {
-		const x: Result<number, string> = new Err("Not a 2");
-		const y: Result<number, string> = new Err("Late error");
+		const x: Result<number, string> = Err("Not a 2");
+		const y: Result<number, string> = Err("Late error");
 
-		expect(x.or(y)).toStrictEqual(new Err("Late error"));
+		expect(x.or(y)).toStrictEqual(Err("Late error"));
 	});
 
 	test("Test should return 'this'.", () => {
-		const x: Result<number, string> = new Ok(2);
-		const y: Result<number, string> = new Ok(1234);
+		const x: Result<number, string> = Ok(2);
+		const y: Result<number, string> = Ok(1234);
 
-		expect(x.or(y)).toStrictEqual(new Ok(2));
+		expect(x.or(y)).toStrictEqual(Ok(2));
 	});
 });
 
@@ -407,39 +407,39 @@ describe("Result.or() tests", () => {
 // Currently, when initializing Ok or Err alone, you must also define the possible other type
 describe("Result.orElse() tests", () => {
 	// -----------------UTILITY FUNCTIONS---------------------
-	const sq = (x: number): Result<number, number> => new Ok(x * x);
-	const err = (x: number): Result<number, number> => new Err(x);
+	const sq = (x: number): Result<number, number> => Ok(x * x);
+	const err = (x: number): Result<number, number> => Err(x);
 	// ---------------UTILITY FUNCTIONS END-------------------
 
 	test("Test should return 'Ok(2)'.", () => {
-		const result = new Ok<number, number>(2).orElse(sq).orElse(sq);
-		expect(result).toStrictEqual(new Ok(2));
+		const result = Ok<number, number>(2).orElse(sq).orElse(sq);
+		expect(result).toStrictEqual(Ok(2));
 	});
 
 	test("Test should return 'Ok(2)'.", () => {
-		const result = new Ok<number, number>(2).orElse(err).orElse(sq);
-		expect(result).toStrictEqual(new Ok(2));
+		const result = Ok<number, number>(2).orElse(err).orElse(sq);
+		expect(result).toStrictEqual(Ok(2));
 	});
 
 	test("Test should return 'Ok(9)'.", () => {
-		const result = new Err<number, number>(3).orElse(sq).orElse(err);
-		expect(result).toStrictEqual(new Ok(9));
+		const result = Err<number, number>(3).orElse(sq).orElse(err);
+		expect(result).toStrictEqual(Ok(9));
 	});
 
 	test("Test should return 'Err(3)'.", () => {
-		const result = new Err<number, number>(3).orElse(err).orElse(err);
-		expect(result).toStrictEqual(new Err(3));
+		const result = Err<number, number>(3).orElse(err).orElse(err);
+		expect(result).toStrictEqual(Err(3));
 	});
 });
 
 describe("Result.unwrapOr() tests", () => {
 	test("Result.unwrapOr(2) should return 9 on Ok(9)", () => {
-		const result: Result<number, string> = new Ok(9);
+		const result: Result<number, string> = Ok(9);
 		expect(result.unwrapOr(2)).toBe(9);
 	});
 
 	test("Result.unwrapOr(2) should return 2 on Err(...)", () => {
-		const result: Result<number, string> = new Err("error");
+		const result: Result<number, string> = Err("error");
 		expect(result.unwrapOr(2)).toBe(2);
 	});
 });
@@ -449,56 +449,56 @@ describe("Result.unwrapOrElse() tests", () => {
 	const count = (x: string): number => x.length;
 	// ---------------UTILITY FUNCTIONS END-------------------
 	test("Result.unwrapOrElse(count) should return 9 on Ok(9)", () => {
-		const result: Result<number, string> = new Ok(9);
+		const result: Result<number, string> = Ok(9);
 		expect(result.unwrapOrElse(count)).toBe(9);
 	});
 
 	test("Result.unwrapOrElse(count) should return 3 on Err('foo')", () => {
-		const result: Result<number, string> = new Err("foo");
+		const result: Result<number, string> = Err("foo");
 		expect(result.unwrapOrElse(count)).toBe(3);
 	});
 });
 
 describe("Result.contains() tests", () => {
 	test("Result.contains(2) should return true on Ok(2)", () => {
-		const result: Result<number, string> = new Ok(2);
+		const result: Result<number, string> = Ok(2);
 		expect(result.contains(2)).toBe(true);
 	});
 
 	test("Result.contains(2) should return false on Ok(3)", () => {
-		const result: Result<number, string> = new Ok(3);
+		const result: Result<number, string> = Ok(3);
 		expect(result.contains(2)).toBe(false);
 	});
 
 	test("Result.contains(2) should return true on Ok(2)", () => {
-		const result: Result<number, string> = new Err("Some error message");
+		const result: Result<number, string> = Err("Some error message");
 		expect(result.contains(2)).toBe(false);
 	});
 
 	test("Result.contains(<Object>) should return true when comparing an equal object", () => {
-		const result: Result<unknown, string> = new Ok({ data: 123 });
+		const result: Result<unknown, string> = Ok({ data: 123 });
 		expect(result.contains({ data: 123 })).toBe(true);
 	});
 
 	test("Result.contains(<Object>) should return false when comparing a different object", () => {
-		const result: Result<unknown, string> = new Ok({ data: 123 });
+		const result: Result<unknown, string> = Ok({ data: 123 });
 		expect(result.contains({ data: "123" })).toBe(false);
 	});
 });
 
 describe("Result.containsErr() tests", () => {
 	test("Result.contains('Some error message') should return false on Ok(2)", () => {
-		const result: Result<number, string> = new Ok(2);
+		const result: Result<number, string> = Ok(2);
 		expect(result.containsErr("Some error message")).toBe(false);
 	});
 
 	test("Result.contains('Some error message') should return true on Ok('Some error message')", () => {
-		const result: Result<number, string> = new Err("Some error message");
+		const result: Result<number, string> = Err("Some error message");
 		expect(result.containsErr("Some error message")).toBe(true);
 	});
 
 	test("Result.contains('Some error message') should return false on Err('Some other error message')", () => {
-		const result: Result<number, string> = new Err("Some other error message");
+		const result: Result<number, string> = Err("Some other error message");
 		expect(result.containsErr("Some error message")).toBe(false);
 	});
 
@@ -507,12 +507,12 @@ describe("Result.containsErr() tests", () => {
 	}
 
 	test("Result.contains(<Object>) should return true when comparing equal objects", () => {
-		const result: Result<number, ErrMsg> = new Err({ detail: "Some error has occurred" });
+		const result: Result<number, ErrMsg> = Err({ detail: "Some error has occurred" });
 		expect(result.containsErr({ detail: "Some error has occurred" })).toBe(true);
 	});
 
 	test("Result.contains(<Object>) should return false when comparing different objects", () => {
-		const result: Result<number, ErrMsg> = new Err({ detail: "Some error has occurred" });
+		const result: Result<number, ErrMsg> = Err({ detail: "Some error has occurred" });
 		expect(result.containsErr({ detail: "Some other error has occurred" })).toBe(false);
 	});
 });

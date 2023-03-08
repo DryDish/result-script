@@ -16,7 +16,7 @@ class Result<T, E> {
 		} else if ("err" in data) {
 			this.err = data.err;
 		} else {
-			throw new Error("Bad constructor format!");
+			throw Error("Bad constructor format!");
 		}
 	}
 
@@ -25,10 +25,10 @@ class Result<T, E> {
 	 *
 	 * ---
 	 * @example
-	 * const result: Result<number, string> = new Ok(-3);
+	 * const result: Result<number, string> = Ok(-3);
 	 * result.isOk(); // true
 	 *
-	 * const result: Result<number, string> = new Err("Error Info");
+	 * const result: Result<number, string> = Err("Error Info");
 	 * result.isOk(); // false
 	 * @returns {boolean}  boolean
 	 * @memberof Result
@@ -39,7 +39,7 @@ class Result<T, E> {
 		} else if ("err" in this) {
 			return false;
 		} else {
-			throw new Error("Something is deeply wrong with the Result object");
+			throw Error("Something is deeply wrong with the Result object");
 		}
 	}
 
@@ -48,13 +48,13 @@ class Result<T, E> {
 	 *
 	 * ---
 	 * @example
-	 * const result: Result<number, string> = new Ok(2);
+	 * const result: Result<number, string> = Ok(2);
 	 * result.isOkAnd((x) => x > 1); // true
 	 *
-	 * const result: Result<number, string> = new Ok(0);
+	 * const result: Result<number, string> = Ok(0);
 	 * result.isOkAnd((x) => x > 1); // false
 	 *
-	 * const result: Result<number, string> = new Err("hey");
+	 * const result: Result<number, string> = Err("hey");
 	 * result.isOkAnd((x) => x > 1); // false
 	 * @param {(x: T) => boolean} f predicate
 	 * @returns {boolean} boolean
@@ -66,7 +66,7 @@ class Result<T, E> {
 		} else if ("err" in this) {
 			return false;
 		} else {
-			throw new Error("Something is deeply wrong with the Result object");
+			throw Error("Something is deeply wrong with the Result object");
 		}
 	}
 
@@ -75,10 +75,10 @@ class Result<T, E> {
 	 *
 	 * ---
 	 * @example
-	 * const result: Result<number, string> = new Ok(-3);
+	 * const result: Result<number, string> = Ok(-3);
 	 * result.isErr(); // false
 	 *
-	 * const result: Result<number, string> = new Err("Some error");
+	 * const result: Result<number, string> = Err("Some error");
 	 * result.isErr(); // true
 	 * @returns {boolean} boolean
 	 * @memberof Result
@@ -89,7 +89,7 @@ class Result<T, E> {
 		} else if ("ok" in this) {
 			return false;
 		} else {
-			throw new Error("Something is deeply wrong with the Result object");
+			throw Error("Something is deeply wrong with the Result object");
 		}
 	}
 
@@ -98,13 +98,13 @@ class Result<T, E> {
 	 *
 	 *  ---
 	 * @example
-	 * const result: Result<number, ErrorKind> = new Err(ErrorKind.NotFound);
+	 * const result: Result<number, ErrorKind> = Err(ErrorKind.NotFound);
 	 * result.isErrAnd((x) => x === ErrorKind.NotFound); // true
 	 *
-	 * const result: Result<number, ErrorKind> = new Err(ErrorKind.PermissionDenied);
+	 * const result: Result<number, ErrorKind> = Err(ErrorKind.PermissionDenied);
 	 * result.isErrAnd((x) => x === ErrorKind.NotFound); // false
 	 *
-	 * const result: Result<number, ErrorKind> = new Ok(123);
+	 * const result: Result<number, ErrorKind> = Ok(123);
 	 * result.isErrAnd((x) => x === ErrorKind.NotFound); // false
 	 * @param {(x: E) => boolean} f predicate
 	 * @returns {boolean} boolean
@@ -116,7 +116,7 @@ class Result<T, E> {
 		} else if (this.isErr()) {
 			return f(this.unwrapErr());
 		} else {
-			throw new Error("Something is deeply wrong with the Result object");
+			throw Error("Something is deeply wrong with the Result object");
 		}
 	}
 
@@ -128,16 +128,16 @@ class Result<T, E> {
 	 *
 	 * ---
 	 * @example
-	 * const result: Result<string, string> = new Ok("foo");
+	 * const result: Result<string, string> = Ok("foo");
 	 * result.map((x) => x.length); // Ok(3)
 	 *
-	 * const result: Result<number, string> = new Ok(12);
+	 * const result: Result<number, string> = Ok(12);
 	 * result.map((x) => x.toString()); // Ok("12")
 	 *
-	 * const result: Result<string, number> = new Err(-1);
+	 * const result: Result<string, number> = Err(-1);
 	 * result.map((x) => x.length); // Err(-1)
 	 *
-	 * const result = new Ok(5)                  // Ok(5)
+	 * const result = Ok(5)                  // Ok(5)
 	 *     .map((x) => x * x)                    // Ok(25)
 	 *     .map((x) => x.toString())             // Ok("25")
 	 *     .map((x) => " Number is: " + x + " ") // Ok(" Number is: 25 ")
@@ -152,11 +152,11 @@ class Result<T, E> {
 	 */
 	map<U>(op: (value: T) => U): Result<U, E> {
 		if (this.isOk()) {
-			return new Ok<U, E>(op(this.unwrap()));
+			return Ok<U, E>(op(this.unwrap()));
 		} else if (this.isErr()) {
-			return new Err<U, E>(this.unwrapErr());
+			return Err<U, E>(this.unwrapErr());
 		} else {
-			throw new Error("Something is deeply wrong with the Result object");
+			throw Error("Something is deeply wrong with the Result object");
 		}
 	}
 
@@ -166,10 +166,10 @@ class Result<T, E> {
 	 *
 	 * ---
 	 * @example
-	 * const result: Result<string, string> = new Ok("foo");
+	 * const result: Result<string, string> = Ok("foo");
 	 * result.mapOr(42, (x) => x.length); // 3
 	 *
-	 * const result: Result<string, string> = new Err("bar");
+	 * const result: Result<string, string> = Err("bar");
 	 * result.mapOr(42, (x) => x.length); // 42
 	 * @template U
 	 * @param {U} alternative
@@ -183,7 +183,7 @@ class Result<T, E> {
 		} else if (this.isErr()) {
 			return alternative;
 		} else {
-			throw new Error("Something is deeply wrong with the Result object");
+			throw Error("Something is deeply wrong with the Result object");
 		}
 	}
 
@@ -198,13 +198,13 @@ class Result<T, E> {
 	 * @example
 	 * const k = 21;
 	 *
-	 * const result: Result<string, string> = new Err("OutOfBounds");
+	 * const result: Result<string, string> = Err("OutOfBounds");
 	 * result.mapOrElse((e) => stringErrToNum(e),(v) => v.length) // -1
 	 *
-	 * const result: Result<string, string> = new Ok("foo");
+	 * const result: Result<string, string> = Ok("foo");
 	 * result.mapOrElse((_e) => k * 2, (v) => v.length); // 3
 	 *
-	 * const result: Result<string, string> = new Err("bar");
+	 * const result: Result<string, string> = Err("bar");
 	 * result.mapOrElse((_e) => k * 2, (v) => v.length); // 42
 	 *
 	 * const stringErrToNum = (error: string): number => {
@@ -225,7 +225,7 @@ class Result<T, E> {
 		} else if (this.isErr()) {
 			return altF(this.unwrapErr());
 		} else {
-			throw new Error("Something is deeply wrong with the Result object");
+			throw Error("Something is deeply wrong with the Result object");
 		}
 	}
 
@@ -240,10 +240,10 @@ class Result<T, E> {
 	 * @example
 	 * const stringify = (x: number): string => `error code is: ${x}`;
 
-	 * const result: Result<number, number> = new Ok(2);
+	 * const result: Result<number, number> = Ok(2);
 	 * result.mapErr(stringify); // Ok(2)
 	 * 
-	 * const result: Result<number, number> = new Err(13);
+	 * const result: Result<number, number> = Err(13);
 	 * result.mapErr(stringify); // Err("error code is: 13")
 	 * @template F
 	 * @param {(err: E) => F} op
@@ -252,11 +252,11 @@ class Result<T, E> {
 	 */
 	mapErr<F>(op: (err: E) => F): Result<T, F> {
 		if (this.isOk()) {
-			return new Ok(this.unwrap());
+			return Ok(this.unwrap());
 		} else if (this.isErr()) {
-			return new Err(op(this.unwrapErr()));
+			return Err(op(this.unwrapErr()));
 		} else {
-			throw new Error("Something is deeply wrong with the Result object");
+			throw Error("Something is deeply wrong with the Result object");
 		}
 	}
 
@@ -283,10 +283,10 @@ class Result<T, E> {
 	 *
 	 * ---
 	 * @example
-	 * const result: Result<number, string> = new Err("emergency failure");
+	 * const result: Result<number, string> = Err("emergency failure");
 	 * result.expect("Testing expect"); // throws Error with the text: 'Testing expect: "emergency failure"'
 	 *
-	 * const result: Result<number, string> = new Ok(123);
+	 * const result: Result<number, string> = Ok(123);
 	 * result.expect("Testing expect"); // 123;
 	 * @throws {Error} `Error` with text: `${msg} :` + the contents of the `Err`.
 	 * @param {string} msg
@@ -297,9 +297,9 @@ class Result<T, E> {
 		if (this.isOk()) {
 			return this.unwrap();
 		} else if (this.isErr()) {
-			throw new Error(msg + ": " + JSON.stringify(this.unwrapErr()));
+			throw Error(msg + ": " + JSON.stringify(this.unwrapErr()));
 		} else {
-			throw new Error("Something is deeply wrong with the Result object");
+			throw Error("Something is deeply wrong with the Result object");
 		}
 	}
 
@@ -313,10 +313,10 @@ class Result<T, E> {
 	 *
 	 * ---
 	 * @example
-	 * const result: Result<number, string> = new Ok(2);
+	 * const result: Result<number, string> = Ok(2);
 	 * result.unwrap(); // 2
 	 *
-	 * const result: Result<number, string> = new Err("emergency failure");
+	 * const result: Result<number, string> = Err("emergency failure");
 	 * result.unwrap(); // Throws Error 'Called Result.unwrap() on an Err value: "emergency failure"'
 	 *
 	 * @returns {T} T
@@ -326,7 +326,7 @@ class Result<T, E> {
 		if (this && this.isOk()) {
 			return this.ok;
 		} else {
-			throw new Error("Called Result.unwrap() on an Err value: " + JSON.stringify(this.unwrapErr()));
+			throw Error("Called Result.unwrap() on an Err value: " + JSON.stringify(this.unwrapErr()));
 		}
 	}
 
@@ -339,10 +339,10 @@ class Result<T, E> {
 	 *
 	 * ---
 	 * @example
-	 * const result: Result<number, string> = new Ok(10);
+	 * const result: Result<number, string> = Ok(10);
 	 * result.expectErr("Testing expectErr"); // Throws Error "Testing expectErr: 10"
 	 *
-	 * const result: Result<number, string> = new Err("Some Error");
+	 * const result: Result<number, string> = Err("Some Error");
 	 * result.expectErr("Testing expectErr"); // "Some Error"
 	 * @param {string} msg
 	 * @returns {E} E
@@ -352,9 +352,9 @@ class Result<T, E> {
 		if (this.isErr()) {
 			return this.unwrapErr();
 		} else if (this.isOk()) {
-			throw new Error(msg + ": " + JSON.stringify(this.unwrap()));
+			throw Error(msg + ": " + JSON.stringify(this.unwrap()));
 		} else {
-			throw new Error("Something is deeply wrong with the Result object");
+			throw Error("Something is deeply wrong with the Result object");
 		}
 	}
 
@@ -364,10 +364,10 @@ class Result<T, E> {
 	 *
 	 * ---
 	 * @example
-	 * const result: Result<number, string> = new Ok(2);
+	 * const result: Result<number, string> = Ok(2);
 	 * result.unwrapErr(); // Throws Error: 'Called Result.unwrapErr() on an Ok value: 2'
 	 *
-	 * const result: Result<number, string> = new Err("emergency failure");
+	 * const result: Result<number, string> = Err("emergency failure");
 	 * result.unwrapErr(); // "emergency failure"
 	 *
 	 * @returns {E} E
@@ -377,7 +377,7 @@ class Result<T, E> {
 		if (this && this.isErr()) {
 			return this.err;
 		} else {
-			throw new Error("Called Result.unwrapErr() on an Ok value: " + JSON.stringify(this.unwrap()));
+			throw Error("Called Result.unwrapErr() on an Ok value: " + JSON.stringify(this.unwrap()));
 		}
 	}
 
@@ -387,20 +387,20 @@ class Result<T, E> {
 	 *
 	 * ---
 	 * @example
-	 * const x: Result<number, string> = new Ok(2);
-	 * const y: Result<string, string> = new Err("late error");
+	 * const x: Result<number, string> = Ok(2);
+	 * const y: Result<string, string> = Err("late error");
 	 * x.and(y); // Err("late error")
 	 *
-	 * const x: Result<number, string> = new Err("early error");
-	 * const y: Result<string, string> = new Ok("foo");
+	 * const x: Result<number, string> = Err("early error");
+	 * const y: Result<string, string> = Ok("foo");
 	 * x.and(y); // Err("early error")
 	 *
-	 * const x: Result<number, string> = new Err("not a 2");
-	 * const y: Result<string, string> = new Err("late error");
+	 * const x: Result<number, string> = Err("not a 2");
+	 * const y: Result<string, string> = Err("late error");
 	 * x.and(y); // Err("not a 2")
 	 *
-	 * const x: Result<number, string> = new Ok(2);
-	 * const y: Result<string, string> = new Ok("Different Result Type");
+	 * const x: Result<number, string> = Ok(2);
+	 * const y: Result<string, string> = Ok("Different Result Type");
 	 * x.and(y); // Ok("Different Result Type")
 	 *
 	 * @template U
@@ -410,13 +410,13 @@ class Result<T, E> {
 	 */
 	and<U>(res: Result<U, E>): Result<U, E> {
 		if (this.isErr()) {
-			return new Err<U, E>(this.err);
+			return Err<U, E>(this.err);
 		} else if (res.isOk()) {
 			return res;
 		} else if (res.isErr()) {
-			return new Err<U, E>(res.err);
+			return Err<U, E>(res.err);
 		} else {
-			throw new Error("Something is deeply wrong with the Result object");
+			throw Error("Something is deeply wrong with the Result object");
 		}
 	}
 
@@ -445,7 +445,7 @@ class Result<T, E> {
 		if (this.isOk()) {
 			return op(this.unwrap());
 		} else {
-			return new Err(this.unwrapErr());
+			return Err(this.unwrapErr());
 		}
 	}
 
@@ -455,20 +455,20 @@ class Result<T, E> {
 	 *
 	 * ---
 	 * @example
-	 * const x: Result<number, string> = new Ok(2);
-	 * const y: Result<number, string> = new Err("Late error");
+	 * const x: Result<number, string> = Ok(2);
+	 * const y: Result<number, string> = Err("Late error");
 	 * x.or(y); // Ok(2)
 	 *
-	 * const x: Result<number, string> = new Err("Early error");
-	 * const y: Result<number, string> = new Ok(2);
+	 * const x: Result<number, string> = Err("Early error");
+	 * const y: Result<number, string> = Ok(2);
 	 * x.or(y); // Ok(2)
 	 *
-	 * const x: Result<number, string> = new Err("Not a 2");
-	 * const y: Result<number, string> = new Err("Late error");
+	 * const x: Result<number, string> = Err("Not a 2");
+	 * const y: Result<number, string> = Err("Late error");
 	 * x.or(y); // Err("Late error")
 	 *
-	 * const x: Result<number, string> = new Ok(2);
-	 * const y: Result<number, string> = new Ok(1234);
+	 * const x: Result<number, string> = Ok(2);
+	 * const y: Result<number, string> = Ok(1234);
 	 * x.or(y); // Ok(2)
 	 *
 	 * @param {Result<T, E>} res
@@ -481,7 +481,7 @@ class Result<T, E> {
 		} else if (this.isOk()) {
 			return this;
 		} else {
-			throw new Error("Something is deeply wrong with the Result object");
+			throw Error("Something is deeply wrong with the Result object");
 		}
 	}
 
@@ -493,13 +493,13 @@ class Result<T, E> {
 	 *
 	 * ---
 	 * @example
-	 * const sq = (x: number): Result<number, number> => new Ok(x * x);
-	 * const err = (x: number): Result<number, number> => new Err(x);
+	 * const sq = (x: number): Result<number, number> => Ok(x * x);
+	 * const err = (x: number): Result<number, number> => Err(x);
 	 *
-	 * new Ok<number, number>(2).orElse(sq).orElse(sq);    // Ok(2)
-	 * new Ok<number, number>(2).orElse(err).orElse(sq);   // Ok(2)
-	 * new Err<number, number>(3).orElse(sq).orElse(err);  // Ok(9)
-	 * new Err<number, number>(3).orElse(err).orElse(err); // Err(3)
+	 * Ok<number, number>(2).orElse(sq).orElse(sq);    // Ok(2)
+	 * Ok<number, number>(2).orElse(err).orElse(sq);   // Ok(2)
+	 * Err<number, number>(3).orElse(sq).orElse(err);  // Ok(9)
+	 * Err<number, number>(3).orElse(err).orElse(err); // Err(3)
 	 *
 	 * @template F
 	 * @param {(err: E) => Result<T, F>} op
@@ -508,11 +508,11 @@ class Result<T, E> {
 	 */
 	orElse<F>(op: (err: E) => Result<T, F>): Result<T, F> {
 		if (this.isOk()) {
-			return new Ok(this.unwrap());
+			return Ok(this.unwrap());
 		} else if (this.isErr()) {
 			return op(this.unwrapErr());
 		} else {
-			throw new Error("Something is deeply wrong with the Result object");
+			throw Error("Something is deeply wrong with the Result object");
 		}
 	}
 
@@ -522,10 +522,10 @@ class Result<T, E> {
 	 *
 	 * ---
 	 * @example
-	 * const result: Result<number, string> = new Ok(9);
+	 * const result: Result<number, string> = Ok(9);
 	 * result.unwrapOr(2); // 9
 	 *
-	 * const result: Result<number, string> = new Err("error");
+	 * const result: Result<number, string> = Err("error");
 	 * result.unwrapOr(2); // 2
 	 *
 	 * @param {T} alternative
@@ -538,7 +538,7 @@ class Result<T, E> {
 		} else if (this.isErr()) {
 			return alternative;
 		} else {
-			throw new Error("Something is deeply wrong with the Result object");
+			throw Error("Something is deeply wrong with the Result object");
 		}
 	}
 
@@ -550,10 +550,10 @@ class Result<T, E> {
 	 * @example
 	 * const count = (x: string): number => x.length;
 	 *
-	 * const result: Result<number, string> = new Ok(9);
+	 * const result: Result<number, string> = Ok(9);
 	 * result.unwrapOrElse(count); // 9
 	 *
-	 * const result: Result<number, string> = new Err("foo");
+	 * const result: Result<number, string> = Err("foo");
 	 * result.unwrapOrElse(count); // 3
 	 * @param {(err: E) => T} op
 	 * @returns {T} T
@@ -565,7 +565,7 @@ class Result<T, E> {
 		} else if (this.isErr()) {
 			return op(this.unwrapErr());
 		} else {
-			throw new Error("Something is deeply wrong with the Result object");
+			throw Error("Something is deeply wrong with the Result object");
 		}
 	}
 
@@ -574,16 +574,16 @@ class Result<T, E> {
 	 *
 	 * ---
 	 * @example
-	 * const result: Result<number, string> = new Ok(2);
+	 * const result: Result<number, string> = Ok(2);
 	 * result.contains(2); // true
 	 *
-	 * const result: Result<number, string> = new Ok(3);
+	 * const result: Result<number, string> = Ok(3);
 	 * result.contains(2); // false
 	 *
-	 * const result: Result<number, string> = new Err("Some error message");
+	 * const result: Result<number, string> = Err("Some error message");
 	 * result.contains(2); // false
 	 *
-	 * const result: Result<unknown, string> = new Ok({ data: 123 })
+	 * const result: Result<unknown, string> = Ok({ data: 123 })
 	 * result.contains({ data: 123 });   // true
 	 * result.contains({ data: "123" }); // false
 	 * @template U
@@ -597,7 +597,7 @@ class Result<T, E> {
 		} else if (this.isErr()) {
 			return false;
 		} else {
-			throw new Error("Something is deeply wrong with the Result object");
+			throw Error("Something is deeply wrong with the Result object");
 		}
 	}
 
@@ -606,16 +606,16 @@ class Result<T, E> {
 	 *
 	 * ---
 	 * @example
-	 * const result: Result<number, string> = new Ok(2);
+	 * const result: Result<number, string> = Ok(2);
 	 * result.containsErr("Some error message"); // false
 	 *
-	 * const result: Result<number, string> = new Err("Some error message");
+	 * const result: Result<number, string> = Err("Some error message");
 	 * result.containsErr("Some error message"); // true
 	 *
-	 * const result: Result<number, string> = new Err("Some other error message");
+	 * const result: Result<number, string> = Err("Some other error message");
 	 * result.containsErr("Some error message"); // false
 	 *
-	 * const result: Result<number, ErrMsg> = new Err({ detail: "Some error has occurred" });
+	 * const result: Result<number, ErrMsg> = Err({ detail: "Some error has occurred" });
 	 * result.containsErr({ detail: "Some error has occurred" });       // true
 	 * result.containsErr({ detail: "Some other error has occurred" }); // false
 	 * @template F
@@ -629,7 +629,7 @@ class Result<T, E> {
 		} else if (this.isOk()) {
 			return false;
 		} else {
-			throw new Error("Something is deeply wrong with the Result object");
+			throw Error("Something is deeply wrong with the Result object");
 		}
 	}
 
@@ -679,10 +679,10 @@ class Result<T, E> {
 	static async fromPromiseUnknown<T>(promise: Promise<T | unknown>): Promise<Result<T, unknown>> {
 		return await promise
 			.then((value) => {
-				return new Ok<T, unknown>(value as T);
+				return Ok<T, unknown>(value as T);
 			})
 			.catch((err) => {
-				return new Err<T, unknown>(err);
+				return Err<T, unknown>(err);
 			});
 	}
 
@@ -725,26 +725,36 @@ class Result<T, E> {
 	static async fromPromise<T>(promise: Promise<T>): Promise<Result<T, unknown>> {
 		return await promise
 			.then((value: T) => {
-				return new Ok<T, unknown>(value);
+				return Ok<T, unknown>(value);
 			})
 			.catch((err: unknown) => {
-				return new Err<T, unknown>(err);
+				return Err<T, unknown>(err);
 			});
 	}
 }
 
-class Ok<T, E> extends Result<T, E> {
-	constructor(data: T) {
-		const okType: IOk<T> = { ok: data };
-		super(okType);
-	}
-}
+// class Ok<T, E> extends Result<T, E> {
+// 	constructor(data: T) {
+// 		const okType: IOk<T> = { ok: data };
+// 		super(okType);
+// 	}
+// }
 
-class Err<T, E> extends Result<T, E> {
-	constructor(err: E) {
-		const errObj: IErr<E> = { err: err };
-		super(errObj);
-	}
-}
+// class Err<T, E> extends Result<T, E> {
+// 	constructor(err: E) {
+// 		const errObj: IErr<E> = { err: err };
+// 		super(errObj);
+// 	}
+// }
+
+const Ok = <T, E>(data: T): Result<T, E> => {
+	const okType: IOk<T> = { ok: data };
+	return new Result(okType);
+};
+
+const Err = <T, E>(err: E): Result<T, E> => {
+	const errObj: IErr<E> = { err: err };
+	return new Result(errObj);
+};
 
 export { Result, Ok, Err };

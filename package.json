@@ -1,5 +1,5 @@
 {
-	"name": "typescript-result",
+	"name": "ts-result",
 	"type": "module",
 	"version": "0.0.1",
 	"description": "Typescript implementation of Rust's Result",
