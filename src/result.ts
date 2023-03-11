@@ -1,7 +1,7 @@
-import { IErr, IOk } from "./interfaces";
+import { IErr, IOk, IResult } from "./interfaces";
 import { isDeepStrictEqual } from "node:util";
 
-class Result<T, E> {
+class Result<T, E> implements IResult<T,E > {
 	ok!: T;
 	err!: E;
 
