@@ -14,7 +14,7 @@
 		"lib"
 	],
 	"scripts": {
-		"build": "rm -fr lib/* && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json && ./fixup.sh",
+		"build": "jest && rm -fr lib/* && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json && ./fixup.sh",
 		"test": "jest"
 	},
 	"repository": {
