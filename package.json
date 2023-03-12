@@ -1,15 +1,20 @@
 {
 	"name": "ts-result",
-	"type": "module",
 	"version": "0.0.1",
 	"description": "Typescript implementation of Rust's Result",
-	"main": "lib/index.js",
-	"types": "lib/index.d.ts",
+	"main": "lib/cjs/index.js",
+	"module": "lib/mjs/index.js",
+	"exports": {
+		".": {
+			"import": "./lib/mjs/index.js",
+			"require": "./lib/cjs/index.js"
+		}
+	},
 	"files": [
 		"lib"
 	],
 	"scripts": {
-		"prepublish": "tsc",
+		"build": "rm -fr lib/* && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json && ./fixup.sh",
 		"test": "jest"
 	},
 	"repository": {
