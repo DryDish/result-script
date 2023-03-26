@@ -1,2 +1,2 @@
-export { Result, Ok, Err } from "./result.js";
+export { Result, Ok, Err } from "./result";
 export { IResult } from "./interfaces";

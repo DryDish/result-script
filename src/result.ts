@@ -1,5 +1,6 @@
 import { IErr, IOk, IResult } from "./interfaces";
 import { isDeepStrictEqual } from "node:util";
+import { ResultAsync } from "./resultAsync";
 
 class Result<T, E> implements IResult<T, E> {
 	ok!: T;
@@ -669,14 +670,10 @@ class Result<T, E> implements IResult<T, E> {
 	 * @returns {Promise<Result<T, unknown>>} Promise<Result<T, unknown>>
 	 * @memberof Result
 	 */
-	static async fromPromise<T>(promise: Promise<T>): Promise<Result<T, unknown>> {
-		return await promise
-			.then((value: T) => {
-				return Ok<T, unknown>(value);
-			})
-			.catch((err: unknown) => {
-				return Err<T, unknown>(err);
-			});
+	static fromPromise<T>(promise: Promise<T>): ResultAsync<Result<T, unknown>> {
+		return new ResultAsync(async (resolve) => {
+			promise.then((promiseData) => resolve(Ok(promiseData))).catch((errorData) => resolve(Err(errorData)));
+		});
 	}
 
 	/**

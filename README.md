@@ -4,7 +4,7 @@ A clone of Rust's `std::result` with full typing support.
 
 Rust manages error handling with Results and i wanted to mimic this behavior.
 
-I also wanted the types to be preserved when wrapped and unwraped, and so I set
+I also wanted the types to be preserved when wrapped and unwrapped, and so I set
 out to create this project.
 
 The main goal of this project was to achieve as much feature parity with Rust's
@@ -22,7 +22,7 @@ as possible.
 
 The only ones I have skipped are the ones that deal directly with
 references of the contents, or that deal with the `Some` and `None` data types,
-as i have not implemented those.
+as I have not implemented those.
 
 This project is fully js-doc'ed with types, so it plays nicely with javascript
 as well as providing good documentation directly to the users of this package.
