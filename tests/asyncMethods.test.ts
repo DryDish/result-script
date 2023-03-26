@@ -156,6 +156,7 @@ describe("ResultAsync.map() Tests", () => {
 		console.log(result);
 
 		expect(result.isErr()).toBe(true);
+		expect(result.isErrAnd((err) => err instanceof Error)).toBe(true);
 	});
 
 	test("ResultAsync.map() should not await other promises after rejection.", async () => {

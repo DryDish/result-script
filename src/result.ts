@@ -732,25 +732,13 @@ class Result<T, E> implements IResult<T, E> {
 	}
 }
 
-// class Ok<T, E> extends Result<T, E> {
-// 	constructor(data: T) {
-// 		const okType: IOk<T> = { ok: data };
-// 		super(okType);
-// 	}
-// }
-
-// class Err<T, E> extends Result<T, E> {
-// 	constructor(err: E) {
-// 		const errObj: IErr<E> = { err: err };
-// 		super(errObj);
-// 	}
-// }
-
+// TODO: Add documentation for this
 const Ok = <T, E>(data: T): Result<T, E> => {
 	const okType: IOk<T> = { ok: data };
 	return new Result(okType);
 };
 
+// TODO: Add documentation for this
 const Err = <T, E>(err: E): Result<T, E> => {
 	const errObj: IErr<E> = { err: err };
 	return new Result(errObj);
