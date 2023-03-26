@@ -91,6 +91,9 @@ describe("Result.fromPromiseUnknown() tests", () => {
 });
 
 describe("ResultAsync.map() Tests", () => {
+	function causeError() {
+		throw new Error("Error was thrown!");
+	}
 	test("ResultAsync.map() should map two async functions.", async () => {
 		const result = await Result.fromPromise(getNumberDelayedResolve(3, 200)).map((x) =>
 			getNumberDelayedResolve(x + 3, 200)
@@ -137,6 +140,22 @@ describe("ResultAsync.map() Tests", () => {
 
 		expect(result.isErr()).toBe(true);
 		expect(result.unwrapErr()).toStrictEqual({ error: "Rejected!", detail: "First Reject" });
+	});
+
+	test("ResultAsync.map() should capture thrown errors into an Err object.", async () => {
+		const result = await Result.fromPromise(getNumberDelayedResolve(3, 100))
+			.map((x) => x * 2) // 6
+			.map((x) => getNumberDelayedResolve(x + 3, 100))
+			.map((x) => getNumberDelayedResolve(x + 3, 100))
+			.map((x) => {
+				causeError();
+				return x;
+			})
+			.map((x) => getNumberDelayedResolve(x + 3, 100));
+
+		console.log(result);
+
+		expect(result.isErr()).toBe(true);
 	});
 
 	test("ResultAsync.map() should not await other promises after rejection.", async () => {

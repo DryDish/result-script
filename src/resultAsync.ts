@@ -7,8 +7,6 @@ class ResultAsync<T extends Result<T["ok"], T["err"]>> extends Promise<T> {
 					const response = func(data.unwrap() as T["ok"]);
 					return Ok(response);
 				} catch (err) {
-					console.log("ERROR");
-
 					return Err(err as T["err"]);
 				}
 			} else {
