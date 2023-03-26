@@ -634,8 +634,11 @@ class Result<T, E> implements IResult<T, E> {
 		}
 	}
 
+	// TODO: Add information about ResultAsync
+
 	/**
-	 * Converts a {@link Promise} to a `Result`.
+	 * Wraps a {@link Promise} to {@link ResultAsync} which returns a
+	 * `Result<T, unknown>`
 	 *
 	 * NOTE: due to {@link Promise}'s implementation, only the resolution can be
 	 * typed. The rejection will always be untyped.
@@ -667,7 +670,7 @@ class Result<T, E> implements IResult<T, E> {
 	 * @static
 	 * @template T
 	 * @param {Promise<T>} promise
-	 * @returns {Promise<Result<T, unknown>>} Promise<Result<T, unknown>>
+	 * @returns {ResultAsync<Result<T, unknown>>} ResultAsync<Result<T, unknown>>
 	 * @memberof Result
 	 */
 	static fromPromise<T>(promise: Promise<T>): ResultAsync<Result<T, unknown>> {
@@ -676,8 +679,11 @@ class Result<T, E> implements IResult<T, E> {
 		});
 	}
 
+	// TODO: Add information about ResultAsync
+
 	/**
-	 * Converts a {@link Promise} to a `Result`.
+	 * Wraps a {@link Promise} to {@link ResultAsync} which returns a
+	 * `Result<T, unknown>`
 	 *
 	 * If used with a type, it will treat the resolved data type as that type,
 	 * otherwise the type will be `unknown`
@@ -685,14 +691,14 @@ class Result<T, E> implements IResult<T, E> {
 	 * ---
 	 * ### Warning:
 	 * This is a loosely typed function that treats the resolved type of the
-	 * {@link Promise} as the named type: <`T`>, regardless of what the actual type
-	 * of the data is.
+	 * {@link Promise} as the named type: <`T`>, regardless of what the actual
+	 * type of the data is.
 	 *
 	 * If the {@link Promise} being converted is typed, it is recommended to
 	 * instead use {@link fromPromise} as that function will enforce types.
 	 *
-	 * This is intended to be used when the {@link Promise} returns `unknown` or
-	 * `any`.
+	 * This is intended to be used when the {@link Promise} returns `unknown`
+	 * or `any`.
 	 *
 	 * ---
 	 * @example
@@ -716,17 +722,13 @@ class Result<T, E> implements IResult<T, E> {
 	 * @static
 	 * @template T
 	 * @param {(Promise<T | unknown>)} promise
-	 * @returns {Promise<Result<T, unknown>>} Promise<Result<T, unknown>>
+	 * @returns {ResultAsync<Result<T, unknown>>} ResultAsync<Result<T, unknown>>
 	 * @memberof Result
 	 */
-	static async fromPromiseUnknown<T>(promise: Promise<T | unknown>): Promise<Result<T, unknown>> {
-		return await promise
-			.then((value) => {
-				return Ok<T, unknown>(value as T);
-			})
-			.catch((err) => {
-				return Err<T, unknown>(err);
-			});
+	static fromPromiseUnknown<T>(promise: Promise<T | unknown>): ResultAsync<Result<T, unknown>> {
+		return new ResultAsync(async (resolve) => {
+			promise.then((promiseData) => resolve(Ok(promiseData as T))).catch((errorData) => resolve(Err(errorData)));
+		});
 	}
 }
 
