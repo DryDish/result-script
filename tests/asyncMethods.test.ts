@@ -1,4 +1,5 @@
 import { Result } from "../src/result";
+import { ErrAsync, OkAsync } from "../src/resultAsync";
 
 async function getNumberDelayedResolve(number: number, msWait: number) {
 	return new Promise<number>((res) => {
@@ -11,6 +12,70 @@ async function getNumberDelayedReject(detail: string, msWait: number) {
 		setTimeout(() => rej({ error: "Rejected!", detail: detail }), msWait);
 	});
 }
+
+describe("OkAsync() tests", () => {
+	test("OkASync should return an Ok Result after awaiting", async () => {
+		const result = await OkAsync(12);
+
+		expect(result.isOk()).toBe(true);
+		expect(result.isErr()).toBe(false);
+		expect(result.unwrap()).toBe(12);
+	});
+
+	test("OkASync should return an Ok Result after awaiting even when given an Error", async () => {
+		const result = await OkAsync(new Error("Why would you put this in an Ok?"));
+
+		expect(result.isOk()).toBe(true);
+		expect(result.isErr()).toBe(false);
+		expect(result.unwrap()).toStrictEqual(new Error("Why would you put this in an Ok?"));
+	});
+
+	test("OkASync should take any object", async () => {
+		const result = await OkAsync({ age: 12, name: "bob" });
+
+		expect(result.isOk()).toBe(true);
+		expect(result.isErr()).toBe(false);
+		expect(result.unwrap()).toStrictEqual({ age: 12, name: "bob" });
+	});
+
+	test("Awaited OkASync should take throw an error trying to unwrapErr()", async () => {
+		const result = await OkAsync({ age: 12, name: "bob" });
+
+		expect(result.isOk()).toBe(true);
+		expect(result.isErr()).toBe(false);
+		expect(() => {
+			result.unwrapErr();
+		}).toThrowError(new Error('Called Result.unwrapErr() on an Ok value: {"age":12,"name":"bob"}'));
+	});
+});
+
+describe("ErrAsync() tests", () => {
+	test("ErrAsync should return an Err Result after awaiting", async () => {
+		const result = await ErrAsync(12);
+
+		expect(result.isOk()).toBe(false);
+		expect(result.isErr()).toBe(true);
+		expect(result.unwrapErr()).toBe(12);
+	});
+
+	test("ErrAsync should take any object", async () => {
+		const result = await ErrAsync({ age: 12, name: "bob" });
+
+		expect(result.isOk()).toBe(false);
+		expect(result.isErr()).toBe(true);
+		expect(result.unwrapErr()).toStrictEqual({ age: 12, name: "bob" });
+	});
+
+	test("Awaited ErrAsync should take throw an error trying to unwrap()", async () => {
+		const result = await ErrAsync({ age: 12, name: "bob" });
+
+		expect(result.isOk()).toBe(false);
+		expect(result.isErr()).toBe(true);
+		expect(() => {
+			result.unwrap();
+		}).toThrowError(new Error('Called Result.unwrap() on an Err value: {"age":12,"name":"bob"}'));
+	});
+});
 
 describe("Result.fromPromise() tests", () => {
 	// -----------------UTILITY FUNCTIONS---------------------
