@@ -41,6 +41,7 @@ class ResultAsync<T extends Result<T["ok"], T["err"]>> extends Promise<T> {
 	}
 }
 
+// TODO: -MAYBE- update readme section to include this?
 /**
  * Takes in `value` of type `T` and wraps it inside a {@link ResultAsync}
  * promise that resolves to an `Ok` {@link Result}.
@@ -63,6 +64,7 @@ const OkAsync = <U, T extends Result<U, T["err"]>>(data: U): ResultAsync<T> => {
 	});
 };
 
+// TODO: -MAYBE- update readme section to include this?
 /**
  * Takes in `value` of type `T` and wraps it inside a {@link ResultAsync}
  * promise that resolves to an `Err` {@link Result}.

@@ -218,8 +218,6 @@ describe("ResultAsync.map() Tests", () => {
 			})
 			.map((x) => getNumberDelayedResolve(x + 3, 100));
 
-		console.log(result);
-
 		expect(result.isErr()).toBe(true);
 		expect(result.isErrAnd((err) => err instanceof Error)).toBe(true);
 	});
