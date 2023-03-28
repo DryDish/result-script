@@ -9,7 +9,7 @@ async function getNumberDelayedResolve(number: number, msWait: number) {
 
 async function getNumberDelayedReject(detail: string, msWait: number) {
 	return new Promise<number>((_res, rej) => {
-		setTimeout(() => rej({ error: "Rejected!", detail: detail }), msWait);
+		setTimeout(() => rej("Rejected!"), msWait);
 	});
 }
 
@@ -193,7 +193,7 @@ describe("ResultAsync.map() Tests", () => {
 			.map((x) => getNumberDelayedReject("reason", 200)); // Rejection
 
 		expect(result.isErr()).toBe(true);
-		expect(result.unwrapErr()).toStrictEqual({ error: "Rejected!", detail: "reason" });
+		expect(result.unwrapErr()).toBe("Rejected!");
 	});
 
 	test("ResultAsync.map() should return the first Err object without crashing on rejection.", async () => {
@@ -204,7 +204,7 @@ describe("ResultAsync.map() Tests", () => {
 			.map((_x) => getNumberDelayedReject("Second Reject", 200)); // Rejection 2
 
 		expect(result.isErr()).toBe(true);
-		expect(result.unwrapErr()).toStrictEqual({ error: "Rejected!", detail: "First Reject" });
+		expect(result.unwrapErr()).toStrictEqual("Rejected!");
 	});
 
 	test("ResultAsync.map() should capture thrown errors into an Err object.", async () => {
@@ -233,5 +233,27 @@ describe("ResultAsync.map() Tests", () => {
 
 		expect(result.isErr()).toBe(true);
 		expect(end - start).toBeLessThan(1000);
+	});
+});
+
+describe("ResultAsync.mapErr() Tests", () => {
+	test("ResultAsync.mapErr() should map two async functions.", async () => {
+		const result = await Result.fromPromise(getNumberDelayedReject("InvalidNumber", 200)).mapErr((err) => {
+			return { error: err, detail: "Failed to get number!" };
+		});
+
+		expect(result.isErr()).toBe(true);
+		expect(result.unwrapErr()).toEqual({ error: "Rejected!", detail: "Failed to get number!" });
+	});
+
+	test("ResultAsync.mapErr() should map two async functions.", async () => {
+		const result = await Result.fromPromise(getNumberDelayedReject("InvalidNumber", 200))
+			.mapErr((err) => {
+				return { error: err, detail: "Failed to get number!" };
+			})
+			.map((number) => number * number);
+
+		expect(result.isErr()).toBe(true);
+		expect(result.unwrapErr()).toEqual({ error: "Rejected!", detail: "Failed to get number!" });
 	});
 });

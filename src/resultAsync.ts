@@ -39,6 +39,47 @@ class ResultAsync<T extends Result<T["ok"], T["err"]>> extends Promise<T> {
 			});
 		});
 	}
+
+	// TODO: JSDOC and Readme docs
+	mapErr<E>(op: (err: T["err"]) => E): ResultAsync<Result<T["ok"], E>> {
+		// mapErr<F>(op: (err: E) => F): Result<T, F>
+		const wrappedPromise = this.then((data) => {
+			if (data.isErr()) {
+				try {
+					const response = op(data.unwrapErr() as T["err"]);
+					return Err(response);
+				} catch (err) {
+					return Err(err);
+				}
+			} else {
+				return data;
+			}
+		}).catch((err) => {
+			return Err(err);
+		});
+
+		return new ResultAsync<Result<T["ok"], E>>((resolve) => {
+			wrappedPromise.then((resultData) => {
+				const result = resultData as Result<T["ok"], E>;
+				if (result.isOk()) {
+					const data = result.unwrap();
+					if (data instanceof Promise) {
+						data
+							.then((data) => {
+								resolve(Ok(data));
+							})
+							.catch((err) => {
+								resolve(Err(err));
+							});
+					} else {
+						resolve(Ok(data));
+					}
+				} else {
+					resolve(Err(result.unwrapErr()));
+				}
+			});
+		});
+	}
 }
 
 // TODO: -MAYBE- update readme section to include this?
