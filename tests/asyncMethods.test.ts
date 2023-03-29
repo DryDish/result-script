@@ -13,6 +13,10 @@ async function getNumberDelayedReject(detail: string, msWait: number) {
 	});
 }
 
+function causeError() {
+	throw new Error("Error was thrown!");
+}
+
 describe("OkAsync() tests", () => {
 	test("OkASync should return an Ok Result after awaiting", async () => {
 		const result = await OkAsync(12);
@@ -156,9 +160,6 @@ describe("Result.fromPromiseUnknown() tests", () => {
 });
 
 describe("ResultAsync.map() Tests", () => {
-	function causeError() {
-		throw new Error("Error was thrown!");
-	}
 	test("ResultAsync.map() should map two async functions.", async () => {
 		const result = await Result.fromPromise(getNumberDelayedResolve(3, 200)).map((x) =>
 			getNumberDelayedResolve(x + 3, 200)
@@ -237,23 +238,69 @@ describe("ResultAsync.map() Tests", () => {
 });
 
 describe("ResultAsync.mapErr() Tests", () => {
-	test("ResultAsync.mapErr() should map two async functions.", async () => {
+	test("ResultAsync.mapErr() should be able to modify an error response.", async () => {
 		const result = await Result.fromPromise(getNumberDelayedReject("InvalidNumber", 200)).mapErr((err) => {
 			return { error: err, detail: "Failed to get number!" };
 		});
 
+		expect(result.isOk()).toBe(false);
 		expect(result.isErr()).toBe(true);
 		expect(result.unwrapErr()).toEqual({ error: "Rejected!", detail: "Failed to get number!" });
 	});
 
-	test("ResultAsync.mapErr() should map two async functions.", async () => {
+	test("ResultAsync.mapErr() should be able to modify an error response without affecting the Ok type.", async () => {
 		const result = await Result.fromPromise(getNumberDelayedReject("InvalidNumber", 200))
 			.mapErr((err) => {
 				return { error: err, detail: "Failed to get number!" };
 			})
 			.map((number) => number * number);
 
+		expect(result.isOk()).toBe(false);
 		expect(result.isErr()).toBe(true);
 		expect(result.unwrapErr()).toEqual({ error: "Rejected!", detail: "Failed to get number!" });
+	});
+
+	test("ResultAsync.mapErr() should be able to modify an error response without affecting the Ok return.", async () => {
+		const result = await Result.fromPromise(getNumberDelayedResolve(12, 200))
+			.mapErr((err) => {
+				return { error: err, detail: "Failed to get number!" };
+			})
+			.map((number) => number * number);
+
+		expect(result.isOk()).toBe(true);
+		expect(result.isErr()).toBe(false);
+		expect(result.unwrap()).toBe(144);
+	});
+
+	test("ResultAsync.mapErr() should be able to modify an error response without affecting the Ok return.", async () => {
+		const result = await Result.fromPromise(getNumberDelayedResolve(12, 200))
+			.mapErr((err) => {
+				return { error: err, detail: "Failed to get number!" };
+			})
+			.map((number) => number * number);
+
+		expect(result.isOk()).toBe(true);
+		expect(result.isErr()).toBe(false);
+		expect(result.unwrap()).toBe(144);
+	});
+
+	test("ResultAsync.mapErr() should return an error if the mapErr's function throws an error.", async () => {
+		const result = await Result.fromPromise(getNumberDelayedReject("InvalidNumber", 200))
+			.mapErr((err) => causeError())
+			.map((number) => number * number);
+
+		expect(result.isOk()).toBe(false);
+		expect(result.isErr()).toBe(true);
+		expect(result.unwrapErr()).toEqual(new Error("Error was thrown!"));
+	});
+
+	test("ResultAsync.mapErr() should not change the Ok return if the mapErr throws an Error.", async () => {
+		const result = await Result.fromPromise(getNumberDelayedResolve(12, 200))
+			.mapErr((err) => causeError())
+			.map((number) => number * number);
+
+		expect(result.isOk()).toBe(true);
+		expect(result.isErr()).toBe(false);
+		expect(result.unwrap()).toBe(144);
 	});
 });
