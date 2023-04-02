@@ -41,10 +41,9 @@ class ResultAsync<T extends Result<T["ok"], T["err"]>> extends Promise<T> {
 	}
 
 	// TODO: JSDOC and Readme docs
-	mapErr<E>(op: (err: T["err"]) => E): ResultAsync<Result<T["ok"], E>> {
+	mapErr<E>(op: (err: T["err"]) => E | Promise<E>): ResultAsync<Result<T["ok"], E>> {
 		// mapErr<F>(op: (err: E) => F): Result<T, F>
-		const wrappedPromise = this.then((data) => {
-			if (data.isErr()) {
+		const wrappedPromise = this.then((data) => {			if (data.isErr()) {
 				try {
 					const response = op(data.unwrapErr() as T["err"]);
 					return Err(response);
@@ -62,20 +61,20 @@ class ResultAsync<T extends Result<T["ok"], T["err"]>> extends Promise<T> {
 			wrappedPromise.then((resultData) => {
 				const result = resultData as Result<T["ok"], E>;
 				if (result.isOk()) {
-					const data = result.unwrap();
-					if (data instanceof Promise) {
-						data
+					resolve(Ok(result.unwrap()));
+				} else {
+					const error = result.unwrapErr();
+					if (error instanceof Promise) {
+						error
 							.then((data) => {
-								resolve(Ok(data));
+								resolve(Err(data));
 							})
 							.catch((err) => {
 								resolve(Err(err));
 							});
 					} else {
-						resolve(Ok(data));
+						resolve(Err(error));
 					}
-				} else {
-					resolve(Err(result.unwrapErr()));
 				}
 			});
 		});

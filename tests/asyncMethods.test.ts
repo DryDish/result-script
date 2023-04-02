@@ -7,14 +7,20 @@ async function getNumberDelayedResolve(number: number, msWait: number) {
 	});
 }
 
-async function getNumberDelayedReject(detail: string, msWait: number) {
-	return new Promise<number>((_res, rej) => {
-		setTimeout(() => rej("Rejected!"), msWait);
+async function getStringDelayedResolve(string: string, msWait: number) {
+	return new Promise((res) => {
+		setTimeout(() => res(string), msWait);
 	});
 }
 
-function causeError() {
-	throw new Error("Error was thrown!");
+async function getNumberDelayedReject(detail: string, msWait: number) {
+	return new Promise<number>((_res, rej) => {
+		setTimeout(() => rej(detail), msWait);
+	});
+}
+
+function causeError(error: unknown) {
+	throw new Error(`Issue occurred: ${error}`);
 }
 
 describe("OkAsync() tests", () => {
@@ -161,8 +167,8 @@ describe("Result.fromPromiseUnknown() tests", () => {
 
 describe("ResultAsync.map() Tests", () => {
 	test("ResultAsync.map() should map two async functions.", async () => {
-		const result = await Result.fromPromise(getNumberDelayedResolve(3, 200)).map((x) =>
-			getNumberDelayedResolve(x + 3, 200)
+		const result = await Result.fromPromise(getNumberDelayedResolve(3, 100)).map((x) =>
+			getNumberDelayedResolve(x + 3, 100)
 		);
 
 		expect(result.isOk()).toBe(true);
@@ -170,7 +176,7 @@ describe("ResultAsync.map() Tests", () => {
 	});
 
 	test("ResultAsync.map() should map async and regular functions in chain.", async () => {
-		const result = await Result.fromPromise(getNumberDelayedResolve(3, 200)).map((x) => x * 2);
+		const result = await Result.fromPromise(getNumberDelayedResolve(3, 100)).map((x) => x * 2);
 
 		expect(result.isOk()).toBe(true);
 		expect(result.unwrap()).toBe(6);
@@ -179,7 +185,7 @@ describe("ResultAsync.map() Tests", () => {
 	test("ResultAsync.map() should map async and regular functions repeatedly.", async () => {
 		const result = await Result.fromPromise(getNumberDelayedResolve(3, 100)) //3
 			.map((x) => x * 2) // 6
-			.map((x) => getNumberDelayedResolve(x + 3, 200)) // 9
+			.map((x) => getNumberDelayedResolve(x + 3, 100)) // 9
 			.map((x) => getNumberDelayedResolve(x + 3, 400)) // 12
 			.map((x) => x - 2) // 10
 			.map((x) => x - 9); // 1
@@ -191,21 +197,21 @@ describe("ResultAsync.map() Tests", () => {
 	test("ResultAsync.map() should return an Err object without crashing on rejection.", async () => {
 		const result = await Result.fromPromise(getNumberDelayedResolve(3, 100)) //3
 			.map((x) => x * 2) // 6
-			.map((x) => getNumberDelayedReject("reason", 200)); // Rejection
+			.map((x) => getNumberDelayedReject("reason", 100)); // Rejection
 
 		expect(result.isErr()).toBe(true);
-		expect(result.unwrapErr()).toBe("Rejected!");
+		expect(result.unwrapErr()).toBe("reason");
 	});
 
 	test("ResultAsync.map() should return the first Err object without crashing on rejection.", async () => {
 		const result = await Result.fromPromise(getNumberDelayedResolve(3, 100)) //3
 			.map((x) => x * 2) // 6
-			.map((_x) => getNumberDelayedReject("First Reject", 200)) // Rejection 1
+			.map((_x) => getNumberDelayedReject("First Reject", 100)) // Rejection 1
 			.map((x) => x * 2)
-			.map((_x) => getNumberDelayedReject("Second Reject", 200)); // Rejection 2
+			.map((_x) => getNumberDelayedReject("Second Reject", 100)); // Rejection 2
 
 		expect(result.isErr()).toBe(true);
-		expect(result.unwrapErr()).toStrictEqual("Rejected!");
+		expect(result.unwrapErr()).toStrictEqual("First Reject");
 	});
 
 	test("ResultAsync.map() should capture thrown errors into an Err object.", async () => {
@@ -214,7 +220,7 @@ describe("ResultAsync.map() Tests", () => {
 			.map((x) => getNumberDelayedResolve(x + 3, 100))
 			.map((x) => getNumberDelayedResolve(x + 3, 100))
 			.map((x) => {
-				causeError();
+				causeError(x);
 				return x;
 			})
 			.map((x) => getNumberDelayedResolve(x + 3, 100));
@@ -227,29 +233,30 @@ describe("ResultAsync.map() Tests", () => {
 		const start = performance.now();
 		const result = await Result.fromPromise(getNumberDelayedResolve(3, 100)) // 100 ms total
 			.map((x) => x * 2) // 6
-			.map((_x) => getNumberDelayedReject("First Reject", 100)) // 200 ms total
-			.map((_x) => getNumberDelayedReject("Second Reject", 1000)) // 1200 ms total
-			.map((_x) => getNumberDelayedReject("Third Reject", 1000)); //2200 ms total
+			.map((_x) => getNumberDelayedReject("First Reject", 100)) // 100 ms total
+			.map((_x) => getNumberDelayedReject("Second Reject", 1000)) // 1100 ms total
+			.map((_x) => getNumberDelayedReject("Third Reject", 1000)); //2100 ms total
 		const end = performance.now();
 
 		expect(result.isErr()).toBe(true);
+		expect(result.unwrapErr()).toBe("First Reject");
 		expect(end - start).toBeLessThan(1000);
 	});
 });
 
 describe("ResultAsync.mapErr() Tests", () => {
 	test("ResultAsync.mapErr() should be able to modify an error response.", async () => {
-		const result = await Result.fromPromise(getNumberDelayedReject("InvalidNumber", 200)).mapErr((err) => {
+		const result = await Result.fromPromise(getNumberDelayedReject("InvalidNumber", 100)).mapErr((err) => {
 			return { error: err, detail: "Failed to get number!" };
 		});
 
 		expect(result.isOk()).toBe(false);
 		expect(result.isErr()).toBe(true);
-		expect(result.unwrapErr()).toEqual({ error: "Rejected!", detail: "Failed to get number!" });
+		expect(result.unwrapErr()).toEqual({ error: "InvalidNumber", detail: "Failed to get number!" });
 	});
 
 	test("ResultAsync.mapErr() should be able to modify an error response without affecting the Ok type.", async () => {
-		const result = await Result.fromPromise(getNumberDelayedReject("InvalidNumber", 200))
+		const result = await Result.fromPromise(getNumberDelayedReject("InvalidNumber", 100))
 			.mapErr((err) => {
 				return { error: err, detail: "Failed to get number!" };
 			})
@@ -257,11 +264,11 @@ describe("ResultAsync.mapErr() Tests", () => {
 
 		expect(result.isOk()).toBe(false);
 		expect(result.isErr()).toBe(true);
-		expect(result.unwrapErr()).toEqual({ error: "Rejected!", detail: "Failed to get number!" });
+		expect(result.unwrapErr()).toEqual({ error: "InvalidNumber", detail: "Failed to get number!" });
 	});
 
 	test("ResultAsync.mapErr() should be able to modify an error response without affecting the Ok return.", async () => {
-		const result = await Result.fromPromise(getNumberDelayedResolve(12, 200))
+		const result = await Result.fromPromise(getNumberDelayedResolve(12, 100))
 			.mapErr((err) => {
 				return { error: err, detail: "Failed to get number!" };
 			})
@@ -273,7 +280,7 @@ describe("ResultAsync.mapErr() Tests", () => {
 	});
 
 	test("ResultAsync.mapErr() should be able to modify an error response without affecting the Ok return.", async () => {
-		const result = await Result.fromPromise(getNumberDelayedResolve(12, 200))
+		const result = await Result.fromPromise(getNumberDelayedResolve(12, 100))
 			.mapErr((err) => {
 				return { error: err, detail: "Failed to get number!" };
 			})
@@ -285,22 +292,51 @@ describe("ResultAsync.mapErr() Tests", () => {
 	});
 
 	test("ResultAsync.mapErr() should return an error if the mapErr's function throws an error.", async () => {
-		const result = await Result.fromPromise(getNumberDelayedReject("InvalidNumber", 200))
-			.mapErr((err) => causeError())
+		const result = await Result.fromPromise(getNumberDelayedReject("InvalidNumber", 100))
+			.mapErr((err) => causeError(err))
 			.map((number) => number * number);
 
 		expect(result.isOk()).toBe(false);
 		expect(result.isErr()).toBe(true);
-		expect(result.unwrapErr()).toEqual(new Error("Error was thrown!"));
+		expect(result.unwrapErr()).toEqual(new Error("Issue occurred: InvalidNumber"));
 	});
 
 	test("ResultAsync.mapErr() should not change the Ok return if the mapErr throws an Error.", async () => {
-		const result = await Result.fromPromise(getNumberDelayedResolve(12, 200))
-			.mapErr((err) => causeError())
+		const result = await Result.fromPromise(getNumberDelayedResolve(12, 100))
+			.mapErr((err) => causeError(err))
 			.map((number) => number * number);
 
 		expect(result.isOk()).toBe(true);
 		expect(result.isErr()).toBe(false);
 		expect(result.unwrap()).toBe(144);
+	});
+
+	test("ResultAsync.mapErr() should work even with a promise.", async () => {
+		const result = await Result.fromPromise(getNumberDelayedReject("issue", 100))
+			.mapErr((err) => getStringDelayedResolve(err as string, 100))
+			.mapErr((err) => {
+				return { error: "UnknownError", detail: err };
+			})
+			.map((number) => number * number);
+
+		expect(result.isOk()).toBe(false);
+		expect(result.isErr()).toBe(true);
+		expect(result.unwrapErr()).toEqual({ detail: "issue", error: "UnknownError" });
+	});
+
+	test("ResultAsync.mapErr() should work even with a promise and regular mapping promise.", async () => {
+		const result = await Result.fromPromise(getNumberDelayedResolve(12, 100))
+			.map((data) => getNumberDelayedResolve(10 + data, 100))
+			.map((data) => getNumberDelayedResolve(8 + data, 100))
+			.mapErr((err) => getStringDelayedResolve(err as string, 100))
+			.mapErr((err) => getStringDelayedResolve(err as string, 100))
+			.mapErr((err) => {
+				return { error: "UnknownError", detail: err };
+			})
+			.map((number) => number * number);
+
+		expect(result.isOk()).toBe(true);
+		expect(result.isErr()).toBe(false);
+		expect(result.unwrap()).toEqual(900);
 	});
 });
