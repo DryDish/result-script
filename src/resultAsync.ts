@@ -81,8 +81,8 @@ class ResultAsync<T extends Result<T["ok"], T["err"]>> extends Promise<T> {
 		});
 	}
 
-	andThen<U>(op: (value: T["ok"]) => Result<U, T["err"]>): ResultAsync<Result<U, T["err"]>> {
-		return new ResultAsync<Result<U, T["err"]>>((resolve) => {
+	andThen<U, E>(op: (value: T["ok"]) => Result<U, E>): ResultAsync<Result<U, E>> {
+		return new ResultAsync<Result<U, E>>((resolve) => {
 			this.then((resultData) => {
 				const result = resultData;
 				if (result.isOk()) {
@@ -93,7 +93,7 @@ class ResultAsync<T extends Result<T["ok"], T["err"]>> extends Promise<T> {
 						resolve(op(data));
 					}
 				} else {
-					resolve(Err(result.unwrapErr()));
+					resolve(Err(result.unwrapErr() as E));
 				}
 			});
 		});
