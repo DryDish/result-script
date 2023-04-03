@@ -1,4 +1,4 @@
-import { Result } from "../src/result";
+import { Err, Ok, Result } from "../src/result";
 import { ErrAsync, OkAsync } from "../src/resultAsync";
 
 async function getNumberDelayedResolve(number: number, msWait: number) {
@@ -8,7 +8,7 @@ async function getNumberDelayedResolve(number: number, msWait: number) {
 }
 
 async function getStringDelayedResolve(string: string, msWait: number) {
-	return new Promise((res) => {
+	return new Promise<string>((res) => {
 		setTimeout(() => res(string), msWait);
 	});
 }
@@ -338,5 +338,67 @@ describe("ResultAsync.mapErr() Tests", () => {
 		expect(result.isOk()).toBe(true);
 		expect(result.isErr()).toBe(false);
 		expect(result.unwrap()).toEqual(900);
+	});
+});
+
+describe("ResultAsync.andThen() Tests", () => {
+	// ----------- Helper functions -----------
+	interface ErrorDetail {
+		error: string;
+		detail: any;
+	}
+	const checkValidString = (data: string, correctData: string): Result<string, ErrorDetail> => {
+		if (data === correctData) {
+			return Ok(data);
+		}
+		return Err({ error: "IncorrectStringError", detail: `The passed string: ${data} did not match: ${correctData}` });
+	};
+	// ----------------------------------------
+
+	test("ResultAsync.andThen() should correctly map a ResultAsync.", async () => {
+		const result = await Result.fromPromise(getStringDelayedResolve("hello!", 0)).andThen((x) =>
+			checkValidString(x, "hello!")
+		);
+
+		expect(result.isOk()).toBe(true);
+		expect(result.unwrap()).toBe("hello!");
+	});
+
+	test("ResultAsync.andThen() should correctly map a ResultAsync two.", async () => {
+		const result = await Result.fromPromise(getStringDelayedResolve("hello!", 0))
+			.andThen((x) => checkValidString(x, "hello!"))
+			.map(() => "pancake")
+			.andThen((x) => checkValidString(x, "pancakes"))
+			.map((x) => x.length);
+
+		expect(result.isOk()).toBe(false);
+		expect(result.unwrapErr()).toEqual({
+			error: "IncorrectStringError",
+			detail: "The passed string: pancake did not match: pancakes",
+		});
+	});
+
+	test("ResultAsync.andThen() should correctly return as soon as an Err is returned.", async () => {
+		const result = await Result.fromPromise(getStringDelayedResolve("hello!", 0))
+			.andThen((x) => checkValidString(x, "wrong!"))
+			.map((x) => getStringDelayedResolve(x + " and chocolate", 1000));
+
+		expect(result.isOk()).toBe(false);
+		expect(result.unwrapErr()).toEqual({
+			error: "IncorrectStringError",
+			detail: "The passed string: hello! did not match: wrong!",
+		});
+	});
+
+	test("ResultAsync.andThen() should correctly if the data is a promise.", async () => {
+		const result = await Result.fromPromise(getStringDelayedResolve("pancakes", 0))
+			.andThen((x) => checkValidString(x, "pancakes"))
+			.map((x) => getStringDelayedResolve(x + " and chocolate", 0))
+			.andThen((x) => checkValidString(x, "pancakes and chocolate"));
+
+		console.log(result);
+
+		expect(result.isOk()).toBe(true);
+		expect(result.unwrap()).toEqual("pancakes and chocolate");
 	});
 });
