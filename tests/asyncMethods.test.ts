@@ -197,7 +197,7 @@ describe("ResultAsync.map() Tests", () => {
 	test("ResultAsync.map() should return an Err object without crashing on rejection.", async () => {
 		const result = await Result.fromPromise(getNumberDelayedResolve(3, 100)) //3
 			.map((x) => x * 2) // 6
-			.map((x) => getNumberDelayedReject("reason", 100)); // Rejection
+			.map(() => getNumberDelayedReject("reason", 100)); // Rejection
 
 		expect(result.isErr()).toBe(true);
 		expect(result.unwrapErr()).toBe("reason");
@@ -206,9 +206,9 @@ describe("ResultAsync.map() Tests", () => {
 	test("ResultAsync.map() should return the first Err object without crashing on rejection.", async () => {
 		const result = await Result.fromPromise(getNumberDelayedResolve(3, 100)) //3
 			.map((x) => x * 2) // 6
-			.map((_x) => getNumberDelayedReject("First Reject", 100)) // Rejection 1
+			.map(() => getNumberDelayedReject("First Reject", 100)) // Rejection 1
 			.map((x) => x * 2)
-			.map((_x) => getNumberDelayedReject("Second Reject", 100)); // Rejection 2
+			.map(() => getNumberDelayedReject("Second Reject", 100)); // Rejection 2
 
 		expect(result.isErr()).toBe(true);
 		expect(result.unwrapErr()).toStrictEqual("First Reject");
@@ -233,9 +233,9 @@ describe("ResultAsync.map() Tests", () => {
 		const start = performance.now();
 		const result = await Result.fromPromise(getNumberDelayedResolve(3, 100)) // 100 ms total
 			.map((x) => x * 2) // 6
-			.map((_x) => getNumberDelayedReject("First Reject", 100)) // 100 ms total
-			.map((_x) => getNumberDelayedReject("Second Reject", 1000)) // 1100 ms total
-			.map((_x) => getNumberDelayedReject("Third Reject", 1000)); //2100 ms total
+			.map(() => getNumberDelayedReject("First Reject", 100)) // 100 ms total
+			.map(() => getNumberDelayedReject("Second Reject", 1000)) // 1100 ms total
+			.map(() => getNumberDelayedReject("Third Reject", 1000)); //2100 ms total
 		const end = performance.now();
 
 		expect(result.isErr()).toBe(true);
@@ -345,7 +345,7 @@ describe("ResultAsync.andThen() Tests", () => {
 	// ----------- Helper functions -----------
 	interface ErrorDetail {
 		error: string;
-		detail: any;
+		detail: unknown;
 	}
 	const checkValidString = (data: string, correctData: string): Result<string, ErrorDetail> => {
 		if (data === correctData) {
