@@ -55,6 +55,8 @@ class ResultAsync<T extends Result<T["ok"], T["err"]>> extends Promise<T> {
 				} catch (err) {
 					resolve(Err(err as E));
 				}
+			}).catch((err) => {
+				resolve(Err(err));
 			});
 		});
 	}
