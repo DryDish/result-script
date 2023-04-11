@@ -367,7 +367,7 @@ describe("ResultAsync.andThen() Tests", () => {
 	test("ResultAsync.andThen() should correctly map a ResultAsync two.", async () => {
 		const result = await Result.fromPromise(getStringDelayedResolve("hello!", 0))
 			.andThen((x) => checkValidString(x, "hello!"))
-			.map(() => "pancake")
+			.map((x) => (x = "pancake"))
 			.andThen((x) => checkValidString(x, "pancakes"))
 			.map((x) => x.length);
 
