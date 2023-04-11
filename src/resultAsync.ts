@@ -35,16 +35,15 @@ import { Result, Ok, Err } from "./result";
  * @template T
  */
 class ResultAsync<T extends Result<T["ok"], T["err"]>> extends Promise<T> {
-	map<U>(func: (data: T["ok"]) => Promise<U> | U): ResultAsync<Result<U, unknown>> {
+	map<U>(func: (data: T["ok"]) => Promise<U> | U): ResultAsync<Result<U, T["err"]>> {
 		return new ResultAsync<Result<U, unknown>>((resolve) => {
 			this.then((resultData) => {
-				const result = resultData as Result<unknown, unknown>;
-				if (!result.isOk()) {
-					resolve(Err(result.unwrapErr()));
+				if (!resultData.isOk()) {
+					resolve(Err(resultData.unwrapErr()));
 				}
 
 				try {
-					const response = func(result.unwrap() as T["ok"]);
+					const response = func(resultData.unwrap() as T["ok"]);
 					if (response instanceof Promise) {
 						response
 							.then((data) => {

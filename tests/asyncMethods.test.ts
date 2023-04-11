@@ -19,7 +19,7 @@ async function getNumberDelayedReject(detail: string, msWait: number) {
 	});
 }
 
-function causeError(error: unknown) {
+function causeError<E>(error: E): E {
 	throw new Error(`Issue occurred: ${error}`);
 }
 
