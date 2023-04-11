@@ -193,12 +193,12 @@ class ResultAsync<T extends Result<T["ok"], T["err"]>> extends Promise<T> {
 	 * result.isOk();   // true
 	 * result.unwrap(); // 4.69
 	 *
-	 * const result = await Result.fromPromise(fetch("https://thisurldoesnotexist"))
+	 * const result = await Result.fromPromise(fetch("http://www.reddit.com/.rss")) // Xml response, not json
 	 *   .andThen(getResponseBody)
 	 *   .map((responseBody) => responseBody.rating);
 	 *
-	 * result.isOk();      // false
-	 * result.unwrapErr(); // TypeError: Failed to parse URL ...
+	 * console.log(result.isErr());     //true
+	 * console.log(result.unwrapErr()); // {error: 'FailedToParseBody', detail: SyntaxError: Unexpected token '<', ... }
 	 * @template U
 	 * @template E
 	 * @param {(value: T["ok"]) => Result<U, E>} op
