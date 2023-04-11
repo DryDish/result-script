@@ -139,6 +139,14 @@ class Result<T, E> implements IResult<T, E> {
 	 * This method can be used to compose the results of two or more functions.
 	 *
 	 * ---
+	 * #### NOTE
+	 * If an error is thrown by the passed function `op` it will not be caught.
+	 * This method is intended to me used only with functions that can not fail.
+	 *
+	 * Use {@link andThen} if you want to chain a function that can fail
+	 * instead as that allows you to properly handle the potential errors.
+	 *
+	 * ---
 	 * @example
 	 * const result: Result<string, string> = Ok("foo");
 	 * result.map((x) => x.length); // Ok(3)
