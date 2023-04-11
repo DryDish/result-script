@@ -35,6 +35,39 @@ import { Result, Ok, Err } from "./result";
  * @template T
  */
 class ResultAsync<T extends Result<T["ok"], T["err"]>> extends Promise<T> {
+	/**
+	 * Maps a `ResultAsync<Result<T, E>>` to `ResultAsync<Result<U, E>>` by
+	 * applying a function to the result's {@link Ok} value, leaving the
+	 * {@link Err} untouched.
+	 *
+	 * This method can be used to compose the results of two or more functions.
+	 *
+	 * ---
+	 * #### Note
+	 * If the passed function `func` throws an error, it will be caught and
+	 * wrapped into an {@link Err}. Preferably use {@link andThen} if you want
+	 * to chain a function that can fail instead, as that allows you to
+	 * better handle the potential errors.
+	 *
+	 * ---
+	 * @example
+	 * const getNumberDelayedResolve = async (number: number, msWait: number) => {
+	 *   return new Promise<number>((res) => {
+	 *     setTimeout(() => res(number), msWait);
+	 *   });
+	 * }
+	 *
+	 * const result = await Result.fromPromise(getNumberDelayedResolve(3, 100)) //3
+	 *   .map((x) => x * 2) // 6
+	 *   .map((x) => getNumberDelayedResolve(x + 3, 100)); // 9
+	 *
+	 * result.isOk();   // true
+	 * result.unwrap(); // 9
+	 * @template U
+	 * @param {((data: T["ok"]) => Promise<U> | U)} func
+	 * @returns {ResultAsync<Result<U, T["err"]>>} ResultAsync<Result<U, T["err"]>>
+	 * @memberof ResultAsync
+	 */
 	map<U>(func: (data: T["ok"]) => Promise<U> | U): ResultAsync<Result<U, T["err"]>> {
 		return new ResultAsync<Result<U, unknown>>((resolve) => {
 			this.then((resultData) => {
@@ -62,11 +95,48 @@ class ResultAsync<T extends Result<T["ok"], T["err"]>> extends Promise<T> {
 		});
 	}
 
-	// TODO: JSDOC and Readme docs
-	mapErr<E>(op: (err: T["err"]) => E | Promise<E>): ResultAsync<Result<T["ok"], E>> {
-		return new ResultAsync<Result<T["ok"], E>>((resolve) => {
+	/**
+	 * Maps a `ResultAsync<Result<T, E>>` to `ResultAsync<Result<T, F>>` by
+	 * applying a function to a results' {@link Err} value, leaving its
+	 * {@link Ok} value untouched.
+	 *
+	 * This function can be used to pass through a successful result while
+	 * handling an error.
+	 *
+	 * ---
+	 * #### Note
+	 * If the passed function `op` throws an error, it will be caught and
+	 * wrapped into an {@link Err} with the `unknown` type.
+	 * Preferably use {@link andThen} if you want to chain a function that can
+	 * fail instead, as that allows you to better handle the potential errors.
+	 *
+	 * ---
+	 * @example
+	 * const result = await Result.fromPromise(getNumberDelayedReject("InvalidNumber", 100))
+	 *     .mapErr((err) => {
+	 *       return { error: err, detail: "Failed to get number!" };
+	 *      })
+	 *
+	 * result.isErr();     // true
+	 * result.unwrapErr(); // { error: "InvalidNumber", detail: "Failed to get number!" }
+	 *
+	 * const result = await Result.fromPromise(getNumberDelayedResolve(4, 100))
+	 *     .mapErr((err) => {
+	 *       return { error: err, detail: "Failed to get number!" };
+	 *     })
+	 *     .map((number) => number * number); // 4 * 4
+	 *
+	 * result.isOk();   // true
+	 * result.unwrap(); // 16
+	 * @template F
+	 * @param {((err: T["err"]) => F | Promise<F>)} op
+	 * @returns {ResultAsync<Result<T["ok"], F>>} ResultAsync<Result<T["ok"], F>>
+	 * @memberof ResultAsync
+	 */
+	mapErr<F>(op: (err: T["err"]) => F | Promise<F>): ResultAsync<Result<T["ok"], F | unknown>> {
+		return new ResultAsync<Result<T["ok"], F | unknown>>((resolve) => {
 			this.then((resultData) => {
-				const result = resultData as Result<T["ok"], E>;
+				const result = resultData as Result<T["ok"], F>;
 				if (!result.isErr()) {
 					resolve(Ok(result.unwrap()));
 				}
@@ -85,7 +155,7 @@ class ResultAsync<T extends Result<T["ok"], T["err"]>> extends Promise<T> {
 						resolve(Err(error));
 					}
 				} catch (err) {
-					resolve(Err(err as E));
+					resolve(Err(err));
 				}
 			}).catch((err) => {
 				resolve(Err(err));
@@ -93,6 +163,48 @@ class ResultAsync<T extends Result<T["ok"], T["err"]>> extends Promise<T> {
 		});
 	}
 
+	/**
+	 * Calls the passed function `op` if the result is {@link Ok}, otherwise
+	 * returns the {@link Err} value of 'this' Result.
+	 *
+	 * This function can be used for control flow based on `Result` values.
+	 *
+	 * ---
+	 * @example
+	 * const getResponseBody = async (response: Response): Promise<Result<DummyProduct, ErrorMessage>> => {
+	 *   if (response.status === 200) {
+	 *     try {
+	 *       const body = await response.json();
+	 *       return Ok(body);
+	 *     } catch (err) {
+	 *       return Err({ error: "FailedToParseBody", detail: err });
+	 *     }
+	 *   }
+	 *   return Err({
+	 *     error: `StatusCode${response.status}`,
+	 *     detail: "Non 200 status code returned",
+	 *   });
+	 * };
+	 *
+	 * const result = await Result.fromPromise(fetch("https://dummyjson.com/products/1"))
+	 *   .andThen(getResponseBody)
+	 *   .map((responseBody) => responseBody.rating);
+	 *
+	 * result.isOk();   // true
+	 * result.unwrap(); // 4.69
+	 *
+	 * const result = await Result.fromPromise(fetch("https://thisurldoesnotexist"))
+	 *   .andThen(getResponseBody)
+	 *   .map((responseBody) => responseBody.rating);
+	 *
+	 * result.isOk();      // false
+	 * result.unwrapErr(); // TypeError: Failed to parse URL ...
+	 * @template U
+	 * @template E
+	 * @param {(value: T["ok"]) => Result<U, E>} op
+	 * @returns {ResultAsync<Result<U, E>>} ResultAsync<Result<U, E>>
+	 * @memberof ResultAsync
+	 */
 	andThen<U, E>(op: (value: T["ok"]) => Result<U, E>): ResultAsync<Result<U, E>> {
 		return new ResultAsync<Result<U, E>>((resolve) => {
 			this.then((resultData) => {
@@ -112,7 +224,6 @@ class ResultAsync<T extends Result<T["ok"], T["err"]>> extends Promise<T> {
 	}
 }
 
-// TODO: -MAYBE- update readme section to include this?
 /**
  * Takes in `value` of type `T` and wraps it inside a {@link ResultAsync}
  * promise that resolves to an `Ok` {@link Result}.
@@ -121,11 +232,11 @@ class ResultAsync<T extends Result<T["ok"], T["err"]>> extends Promise<T> {
  * @example
  * const result = await OkAsync(12);
  *
- * result.isOk(); // true
- * result.isErr(); // false;
+ * result.isOk();   // true
+ * result.isErr();  // false;
  * result.unwrap(); // 12
  * @template U
- * @template T `Result<U, unknown>`
+ * @template T `Result<U, T["err"]>`
  * @param {U} data
  * @returns {ResultAsync<T>} ResultAsync<T>
  */
@@ -135,7 +246,6 @@ const OkAsync = <U, T extends Result<U, T["err"]>>(data: U): ResultAsync<T> => {
 	});
 };
 
-// TODO: -MAYBE- update readme section to include this?
 /**
  * Takes in `value` of type `T` and wraps it inside a {@link ResultAsync}
  * promise that resolves to an `Err` {@link Result}.
@@ -144,11 +254,11 @@ const OkAsync = <U, T extends Result<U, T["err"]>>(data: U): ResultAsync<T> => {
  * @example
  * const result = await ErrAsync({ age: 12, name: "bob" });
  *
- * result.isOk(); // false;
- * result.isErr(); // true;
+ * result.isOk();      // false;
+ * result.isErr();     // true;
  * result.unwrapErr(); // { age: 12, name: "bob" });
  * @template U
- * @template T `Result<unknown, U>`
+ * @template T `Result<T["ok"], U>`
  * @param {U} data
  * @returns {ResultAsync<T>} ResultAsync<T>
  */
