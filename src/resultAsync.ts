@@ -256,7 +256,7 @@ const OkAsync = <U, T extends Result<U, T["err"]>>(data: U): ResultAsync<T> => {
  *
  * result.isOk();      // false;
  * result.isErr();     // true;
- * result.unwrapErr(); // { age: 12, name: "bob" });
+ * result.unwrapErr(); // { age: 12, name: "bob" };
  * @template U
  * @template T `Result<T["ok"], U>`
  * @param {U} data
