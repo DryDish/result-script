@@ -2,6 +2,17 @@ import { IErr, IOk, IResult } from "./interfaces";
 import { isDeepStrictEqual } from "node:util";
 import { ResultAsync } from "./resultAsync";
 
+/**
+ * `Result<T, E>` is the type used for returning and propagating errors. It is
+ * a class with the variants, {@link Ok}`<T>`, representing the success state and
+ * containing a value, and {@link Err}`<E>`, representing an error and containing
+ * an error value.
+ * ---
+ * @class Result
+ * @implements {IResult<T, E>}
+ * @template T
+ * @template E
+ */
 class Result<T, E> implements IResult<T, E> {
 	ok!: T;
 	err!: E;
@@ -634,14 +645,16 @@ class Result<T, E> implements IResult<T, E> {
 		}
 	}
 
-	// TODO: Add information about ResultAsync
-
 	/**
 	 * Wraps a {@link Promise} to {@link ResultAsync} which returns a
-	 * `Result<T, unknown>`
+	 * `Result<T, unknown>`.
 	 *
-	 * NOTE: due to {@link Promise}'s implementation, only the resolution can be
-	 * typed. The rejection will always be untyped.
+	 * This wraps a resolved promise in an {@link Ok} and a rejected promise
+	 * in an {@link Err}. Any error thrown during the promise will be caught
+	 * and placed inside an {@link Err}
+	 *
+	 * NOTE: due to {@link Promise}'s implementation, only the resolution can
+	 * be typed. The rejection will always be untyped.
 	 *
 	 * ---
 	 * @example
@@ -679,19 +692,20 @@ class Result<T, E> implements IResult<T, E> {
 		});
 	}
 
-	// TODO: Add information about ResultAsync
-
 	/**
 	 * Wraps a {@link Promise} to {@link ResultAsync} which returns a
-	 * `Result<T, unknown>`
+	 * `Result<T, unknown>`.
+	 *
+	 * This wraps a resolved promise in an {@link Ok} and a rejected promise
+	 * in an {@link Err}. Any error thrown during the promise will be caught
+	 * and placed inside an {@link Err}.
 	 *
 	 * If used with a type, it will treat the resolved data type as that type,
 	 * otherwise the type will be `unknown`
 	 *
-	 * ---
 	 * ### Warning:
 	 * This is a loosely typed function that treats the resolved type of the
-	 * {@link Promise} as the named type: <`T`>, regardless of what the actual
+	 * {@link Promise} as the named type: `<T>`, regardless of what the actual
 	 * type of the data is.
 	 *
 	 * If the {@link Promise} being converted is typed, it is recommended to
@@ -732,13 +746,66 @@ class Result<T, E> implements IResult<T, E> {
 	}
 }
 
-// TODO: Add documentation for this
+/**
+ * Creates a {@link Result}`<T, E>` as an `Ok<T>`.
+ *
+ * This is intended to be used when returning from a function to indicate a
+ * success scenario.
+ *
+ * ---
+ * @example
+ * const MIN_SIZE = 10;
+ * const validateNumberSize = (number: number): Result<number, string> => {
+ *   if (number >= MIN_SIZE) {
+ *     return Ok(number);
+ *   }
+ *   return Err("Number is too small!");
+ * };
+ * const result = validateNumberSize(100);
+ * result;        // Ok(100)
+ * result.isOk(); // true
+ *
+ * const result = validateNumberSize(-12);
+ * result;        // Err("Number is too small!")
+ * result.isOk(); // false
+ * @template T
+ * @template E
+ * @param {T} data
+ * @returns {Result<T, E>} Result<T, E>
+ */
 const Ok = <T, E>(data: T): Result<T, E> => {
 	const okType: IOk<T> = { ok: data };
 	return new Result(okType);
 };
 
-// TODO: Add documentation for this
+/**
+ * Creates a {@link Result}`<T, E>` as an `Err<E>`.
+ *
+ * This is intended to be used when returning from a function to indicate a
+ * failure scenario.
+ *
+ * ---
+ * @example
+ * const MIN_SIZE = 10;
+ * const validateNumberSize = (number: number): Result<number, string> => {
+ *   if (number >= MIN_SIZE) {
+ *     return Ok(number);
+ *   }
+ *   return Err("Number is too small!");
+ * };
+ *
+ * const result = validateNumberSize(2);
+ * result;         // Err("Number is too small!")
+ * result.isErr(); // true
+ *
+ * const result = validateNumberSize(100);
+ * result;         // Ok(100)
+ * result.isErr(); // false
+ * @template T
+ * @template E
+ * @param {E} err
+ * @returns {*}  {Result<T, E>}
+ */
 const Err = <T, E>(err: E): Result<T, E> => {
 	const errObj: IErr<E> = { err: err };
 	return new Result(errObj);
