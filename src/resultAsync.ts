@@ -153,7 +153,7 @@ const OkAsync = <U, T extends Result<U, T["err"]>>(data: U): ResultAsync<T> => {
  * @param {U} data
  * @returns {ResultAsync<T>} ResultAsync<T>
  */
-const ErrAsync = <U, T extends Result<unknown, U>>(data: U): ResultAsync<T> => {
+const ErrAsync = <U, T extends Result<T["ok"], U>>(data: U): ResultAsync<T> => {
 	return new ResultAsync<T>(async (resolve) => {
 		resolve(Err(data) as T);
 	});
