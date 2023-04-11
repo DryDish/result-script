@@ -7,6 +7,7 @@ import { ResultAsync } from "./resultAsync";
  * a class with the variants, {@link Ok}`<T>`, representing the success state and
  * containing a value, and {@link Err}`<E>`, representing an error and containing
  * an error value.
+ *
  * ---
  * @class Result
  * @implements {IResult<T, E>}

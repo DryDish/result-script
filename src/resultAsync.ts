@@ -1,6 +1,39 @@
 import { Result, Ok, Err } from "./result";
 
-// TODO: Add documentation and JSDoc
+/**
+ * Async implementation of the {@link Result} type.
+ *
+ * It extends {@link Promise} by adding some core {@link Result} methods to
+ * allow chaining logic to occur in Promises without having to await on every
+ * step.
+ *
+ * ---
+ * @example
+ * const getResponseBody = async (response: Response): Promise<Result<DummyProduct, ErrorMessage>> => {
+ *   if (response.status === 200) {
+ *     try {
+ *       const body = await response.json();
+ *       return Ok(body);
+ *     } catch (err) {
+ *       return Err({ error: "FailedToParseBody", detail: err });
+ *     }
+ *   }
+ *   return Err({
+ *     error: `StatusCode${response.status}`,
+ *     detail: "Non 200 status code returned",
+ *   });
+ * };
+ *
+ * const result = await Result.fromPromise(fetch("https://dummyjson.com/products/1"))
+ *   .andThen(getResponseBody)
+ *   .map((responseBody) => responseBody.rating);
+ *
+ * result.isOk();   //true
+ * result.unwrap(); // 4.69
+ * @class ResultAsync
+ * @extends {Promise<T>}
+ * @template T
+ */
 class ResultAsync<T extends Result<T["ok"], T["err"]>> extends Promise<T> {
 	map<U>(func: (data: T["ok"]) => Promise<U> | U): ResultAsync<Result<U, unknown>> {
 		return new ResultAsync<Result<U, unknown>>((resolve) => {
