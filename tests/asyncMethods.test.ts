@@ -396,8 +396,6 @@ describe("ResultAsync.andThen() Tests", () => {
 			.map((x) => getStringDelayedResolve(x + " and chocolate", 0))
 			.andThen((x) => checkValidString(x, "pancakes and chocolate"));
 
-		console.log(result);
-
 		expect(result.isOk()).toBe(true);
 		expect(result.unwrap()).toEqual("pancakes and chocolate");
 	});
