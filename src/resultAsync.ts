@@ -202,7 +202,7 @@ class ResultAsync<T extends Result<T["ok"], T["err"]>> extends Promise<T> {
 	 * @template U
 	 * @template E
 	 * @param {(value: T["ok"]) => Result<U, E>} op
-	 * @returns {ResultAsync<Result<U, E>>} ResultAsync<Result<U, E>>
+	 * @returns {ResultAsync<Result<U, E> Promise<Result<U, E>>} ResultAsync<Result<U, E>>
 	 * @memberof ResultAsync
 	 */
 	andThen<U, E>(op: (value: T["ok"]) => Result<U, E> | Promise<Result<U, E>>): ResultAsync<Result<U, E>> {
