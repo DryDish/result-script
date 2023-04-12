@@ -1,4 +1,4 @@
-import { Result, Ok, Err } from "./result";
+import { Result, Ok, Err } from "./result.js";
 
 /**
  * Async implementation of the {@link Result} type.

@@ -1,6 +1,6 @@
 import { IErr, IOk, IResult } from "./interfaces";
 import { isDeepStrictEqual } from "node:util";
-import { ResultAsync } from "./resultAsync";
+import { ResultAsync } from "./resultAsync.js";
 
 /**
  * `Result<T, E>` is the type used for returning and propagating errors. It is
