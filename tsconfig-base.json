@@ -17,9 +17,10 @@
 		"skipLibCheck": true,
 		"strict": true,
 		"traceResolution": false,
-		"types": ["node", "jest"]
+		"noUnusedLocals": true,
+		"types": ["node"]
 	},
 	"compileOnSave": false,
-	"exclude": ["node_modules", "lib"],
+	"exclude": ["node_modules", "lib", "test"],
 	"include": ["src"]
 }
