@@ -1,5 +1,5 @@
 {
-	"name": "ts-result",
+	"name": "result-ts",
 	"version": "0.0.1",
 	"description": "Typescript implementation of Rust's Result",
 	"main": "lib/cjs/index.js",
