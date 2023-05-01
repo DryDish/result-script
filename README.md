@@ -1,4 +1,4 @@
-# result-ts
+# result-script
 
 A clone of Rust's `std::result` with full typing support.
 
@@ -13,7 +13,7 @@ types behaved as expected, both in declaration and usage.
 
 # Installation
 
-> npm install result-ts
+> npm install result-script
 
 # Introduction
 
@@ -32,7 +32,7 @@ as well as providing good documentation directly to the users of this package.
 ### Function declaration
 
 ```typescript
-import { Err, Ok, Result } from "result-ts";
+import { Err, Ok, Result } from "result-script";
 
 const getEnv = (envName: string): Result<string, string> => {
   const env = process.env[envName];
