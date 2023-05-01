@@ -42,6 +42,10 @@ const getEnv = (envName: string): Result<string, string> => {
 
 // Exit with expect message if return is not Ok
 const connectionString: string = getEnv("SECRET_CONNECTION_STRING").expect("SECRET_CONNECTION_STRING should have been set by dotenv");
+
+// OR - provide default
+ const stringResult: string = getEnv("SECRET_CONNECTION_STRING").unwrapOr("<DEFAULT URL>")
+
 // OR - process manually
 const stringResult: Result<string, string> = getEnv("SECRET_CONNECTION_STRING");
 if (stringResult.isErr()) {
