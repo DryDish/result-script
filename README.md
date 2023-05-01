@@ -27,6 +27,30 @@ as I have not implemented those.
 This project is fully js-doc'ed with types, so it plays nicely with javascript
 as well as providing good documentation directly to the users of this package.
 
+# Usage
+
+```typescript
+import { Err, Ok, Result } from "ts-result";
+
+const getEnv = (envName: string): Result<string, string> => {
+  const env = process.env["envName"];
+  if (env) {
+    return Ok(env);
+  }
+  return Err(`The env: ${envName} is not set!`);
+};
+
+// Exit with expect message if return is not Ok
+const connectionString: string = getEnv("SECRET_CONNECTION_STRING").expect("SECRET_CONNECTION_STRING should have been set by dotenv");
+// OR - process manually
+const stringResult: Result<string, string> = getEnv("SECRET_CONNECTION_STRING");
+if (stringResult.isErr()) {
+  log.error("SECRET_CONNECTION_STRING is not set!");
+  process.exit(-1);
+}
+const connectionString: string = stringResult.unwrap();
+```
+
 # Methods
 
 This is a list of all the methods that have been implemented along with a brief explanation for how to use them.
