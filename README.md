@@ -35,7 +35,7 @@ as well as providing good documentation directly to the users of this package.
 import { Err, Ok, Result } from "ts-result";
 
 const getEnv = (envName: string): Result<string, string> => {
-  const env = process.env["envName"];
+  const env = process.env[envName];
   if (env) {
     return Ok(env);
   }
@@ -45,26 +45,24 @@ const getEnv = (envName: string): Result<string, string> => {
 
 ### Variable usage
 
-Exit on error
-
 ```Typescript
-const connectionString: string = getEnv("SECRET_CONNECTION_STRING").expect("SECRET_CONNECTION_STRING should have been set by dotenv");
-```
+// Throw a descriptive error if it an Err
+const connectionString: string = getEnv("JDBC_URL").expect("JDBC_URL should have been set by dotenv");
 
-Alternative value
+// ----- OR -----
 
-```typescript
-const stringResult: string = getEnv("SECRET_CONNECTION_STRING").unwrapOr("<DEFAULT URL>");
-```
+// Use an alternative value if it is an Err
+const connectionString: string = getEnv("JDBC_URL").unwrapOr("<DEFAULT URL>");
 
-Manual processing
+// ----- OR -----
 
-```typescript
-const stringResult: Result<string, string> = getEnv("SECRET_CONNECTION_STRING");
+// Handle the Err it manually
+const stringResult: Result<string, string> = getEnv("JDBC_URL");
 if (stringResult.isErr()) {
   console.error(stringResult.unwrapErr());
   process.exit(-1);
 }
+// Only call unwrap() when you are certain that your Result is Ok
 const connectionString: string = stringResult.unwrap();
 ```
 
