@@ -143,15 +143,14 @@ result.map((x) => x.toString()); // Ok("12")
 const result: Result<string, number> = Err(-1);
 result.map((x) => x.length); // Err(-1)
 
-// TODO: FIX SPACING
 
-const result = Ok(5) // Ok(5)
-  .map((x) => x * x) // Ok(25)
-  .map((x) => x.toString()) // Ok("25")
+const result = Ok(5)                    // Ok(5)
+  .map((x) => x * x)                    // Ok(25)
+  .map((x) => x.toString())             // Ok("25")
   .map((x) => " Number is: " + x + " ") // Ok(" Number is: 25 ")
-  .map((x) => x.trim()); // Ok("Number is: 25")
+  .map((x) => x.trim());                // Ok("Number is: 25")
 
-console.log(result); // Ok("Number is: 25")
+console.log(result);                    // Ok("Number is: 25")
 ```
 
 ## mapOr()
@@ -317,9 +316,6 @@ x.and(y); // Ok("Different Result Type")
 ```
 
 ## andThen()
-
-TODO: BETTER EXAMPLE CODE
-
 Calls `op` if the result is `Ok`, otherwise returns the `Err` value of 'this'.
 
 This function can be used for control flow based on `Result` values.
@@ -368,11 +364,9 @@ This function can be used for control flow based on result values.
 const sq = (x: number): Result<number, number> => Ok(x * x);
 const err = (x: number): Result<number, number> => Err(x);
 
-TODO: FIX SPACING
-
-Ok<number, number>(2).orElse(sq).orElse(sq); // Ok(2)
-Ok<number, number>(2).orElse(err).orElse(sq); // Ok(2)
-Err<number, number>(3).orElse(sq).orElse(err); // Ok(9)
+Ok<number, number>(2).orElse(sq).orElse(sq);    // Ok(2)
+Ok<number, number>(2).orElse(err).orElse(sq);   // Ok(2)
+Err<number, number>(3).orElse(sq).orElse(err);  // Ok(9)
 Err<number, number>(3).orElse(err).orElse(err); // Err(3)
 ```
 
@@ -449,14 +443,6 @@ NOTE: due to `Promise`'s implementation, only the resolution can be typed.
 The rejection will always be untyped.
 
 ```typescript
-TODO: UPDATE THE INTERFACES TO BE MORE CLEAR
-interface promiseResolve<T> {
-  (variable: T): Promise<T>;
-}
-interface promiseReject<T> {
-  (_: T): Promise<T>;
-}
-
 // Type: Result<number, unknown> - inferred type
 const result = await Result.fromPromise(promiseResolve(10));
 result.isOk(); // true
