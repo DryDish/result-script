@@ -14,13 +14,13 @@
 		"pretty": true,
 		"resolveJsonModule": true,
 		"rootDir": "src",
-		"skipLibCheck": true,
+		"skipLibCheck": false,
 		"strict": true,
 		"traceResolution": false,
 		"noUnusedLocals": true,
-		"types": ["node"]
+		"types": ["node", "jest"]
 	},
 	"compileOnSave": false,
 	"exclude": ["node_modules", "lib", "test"],
-	"include": ["src"]
+	"include": ["src/**/*.ts"]
 }
