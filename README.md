@@ -29,6 +29,8 @@ as well as providing good documentation directly to the users of this package.
 
 # Usage
 
+### Function declaration
+
 ```typescript
 import { Err, Ok, Result } from "ts-result";
 
@@ -39,17 +41,28 @@ const getEnv = (envName: string): Result<string, string> => {
   }
   return Err(`The env: ${envName} is not set!`);
 };
+```
 
-// Exit with expect message if return is not Ok
+### Variable usage
+
+Exit on error
+
+```Typescript
 const connectionString: string = getEnv("SECRET_CONNECTION_STRING").expect("SECRET_CONNECTION_STRING should have been set by dotenv");
+```
 
-// OR - provide default
- const stringResult: string = getEnv("SECRET_CONNECTION_STRING").unwrapOr("<DEFAULT URL>")
+Alternative value
 
-// OR - process manually
+```typescript
+const stringResult: string = getEnv("SECRET_CONNECTION_STRING").unwrapOr("<DEFAULT URL>");
+```
+
+Manual processing
+
+```typescript
 const stringResult: Result<string, string> = getEnv("SECRET_CONNECTION_STRING");
 if (stringResult.isErr()) {
-  log.error("SECRET_CONNECTION_STRING is not set!");
+  console.error(stringResult.unwrapErr());
   process.exit(-1);
 }
 const connectionString: string = stringResult.unwrap();
