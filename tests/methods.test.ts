@@ -170,8 +170,10 @@ describe("Result.mapErr() Tests", () => {
 	// ---------------UTILITY FUNCTIONS END-------------------
 
 	test("Result.mapErr() should do modify a E to an F without modifying the T", () => {
-		const result: Result<number, number> = Ok(2);
-		expect(result.mapErr(stringify)).toStrictEqual(Ok(2));
+		const result = Ok<number, number>(2)
+			.mapErr((err) => stringify(err))
+			.map((x) => x * 2);
+		expect(result).toStrictEqual(Ok(4));
 	});
 
 	test("Result.mapErr() should do modify a E to an F without modifying the T", () => {

@@ -133,8 +133,8 @@ class ResultAsync<T extends Result<T["ok"], T["err"]>> extends Promise<T> {
 	 * @returns {ResultAsync<Result<T["ok"], F>>} ResultAsync<Result<T["ok"], F>>
 	 * @memberof ResultAsync
 	 */
-	mapErr<F>(op: (err: T["err"]) => F | Promise<F>): ResultAsync<Result<T["ok"], F | unknown>> {
-		return new ResultAsync<Result<T["ok"], F | unknown>>((resolve) => {
+	mapErr<F>(op: (err: T["err"]) => F | Promise<F>): ResultAsync<Result<T["ok"], F>> {
+		return new ResultAsync<Result<T["ok"], F>>((resolve) => {
 			this.then((resultData) => {
 				const result = resultData as Result<T["ok"], F>;
 				if (!result.isErr()) {
@@ -155,7 +155,7 @@ class ResultAsync<T extends Result<T["ok"], T["err"]>> extends Promise<T> {
 						resolve(Err(error));
 					}
 				} catch (err) {
-					resolve(Err(err));
+					resolve(Err(err as F));
 				}
 			}).catch((err) => {
 				resolve(Err(err));
