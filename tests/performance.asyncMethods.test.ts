@@ -7,7 +7,6 @@ describe("Testing execution time", () => {
 		const startTime = performance.now();
 
 		for (let i = 0; i < numberOfTests; i++) {
-			// Call your function here
 			await OkAsync(123);
 		}
 
@@ -23,10 +22,7 @@ describe("Testing execution time", () => {
 		const startTime = performance.now();
 
 		for (let i = 0; i < numberOfTests; i++) {
-			// Call your function here
-			await new Promise((resolve) => {
-				resolve(123);
-			});
+			await Promise.resolve(123);
 		}
 
 		const endTime = performance.now();
