@@ -239,10 +239,9 @@ class Option<T> {
 		}
 	}
 
-	// TODO: figure out types
-	unzip() {
+	unzip<A, B>(this: Option<[A, B]>): [Option<A>, Option<B>] {
 		if (this.isSome() && Array.isArray(this._value) && this._value.length === 2) {
-			return [Some(this._value[0]), this._value[1]];
+			return [Some(this._value[0]), Some(this._value[1])];
 		} else {
 			return [None(), None()];
 		}
