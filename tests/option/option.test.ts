@@ -113,7 +113,6 @@ describe("Option method tests", () => {
 		});
 	});
 
-
 	describe("Option.mapOr()", () => {
 		test("Some(2).mapOr(3, (x) => x * 2) should return 4", () => {
 			expect(Some(2).mapOr(3, (x) => x * 2)).toBe(4);
@@ -371,6 +370,44 @@ describe("Option method tests", () => {
 
 			expect(option).toEqual(Some(5));
 			expect(oldOption).toEqual(None());
+		});
+	});
+
+	describe("Option.zip()", () => {
+		test("Some(2).zip(Some(3)) should return Some([2, 3])", () => {
+			const option1 = Some(2);
+			const option2 = Some(3);
+			const zippedOption = option1.zip(option2);
+
+			expect(zippedOption).toEqual(Some([2, 3]));
+		});
+		test("Some(2).zip('2') should return Some([2, '2'])", () => {
+			const option1 = Some(2);
+			const option2 = Some("2");
+			const zippedOption = option1.zip(option2);
+
+			expect(zippedOption).toEqual(Some([2, "2"]));
+		});
+		test("Some(2).zip(None()) should return None()", () => {
+			const option1 = Some(2);
+			const option2 = None<number>();
+			const zippedOption = option1.zip(option2);
+
+			expect(zippedOption).toEqual(None());
+		});
+		test("None().zip(Some(3)) should return None()", () => {
+			const option1 = None<number>();
+			const option2 = Some(3);
+			const zippedOption = option1.zip(option2);
+
+			expect(zippedOption).toEqual(None());
+		});
+		test("None().zip(None()) should return None()", () => {
+			const option1 = None<number>();
+			const option2 = None<number>();
+			const zippedOption = option1.zip(option2);
+
+			expect(zippedOption).toEqual(None());
 		});
 	});
 });
