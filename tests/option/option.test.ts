@@ -410,4 +410,61 @@ describe("Option method tests", () => {
 			expect(zippedOption).toEqual(None());
 		});
 	});
+
+	describe("Option.zipWith()", () => {
+		test("Some(2).zipWith(Some(3), (a, b) => a + b) should return Some(5)", () => {
+			const option1 = Some(2);
+			const option2 = Some(3);
+			const zipFunction = (a: number, b: number) => a + b;
+
+			const zippedOption = option1.zipWith(option2, zipFunction);
+
+			expect(zippedOption).toEqual(Some(5));
+		});
+		test("Some(2).zipWith(Some('3'), (a,b) => a.toString() + b) should return Some('23')", () => {
+			const option1 = Some(2);
+			const option2 = Some("3");
+			const zipFunction = (a: number, b: string) => a.toString() + b;
+
+			const zippedOption = option1.zipWith(option2, zipFunction);
+
+			expect(zippedOption).toEqual(Some("23"));
+		});
+		test("Some('age').zipWith(Some(21), (a, b) => {'key': a, 'value': b}) should return Some({key: 'age' value: 21})", () => {
+			const option1 = Some("age");
+			const option2 = Some(21);
+			const zipFunction = (a: string, b: number) => ({ key: a, value: b });
+
+			const zippedOption = option1.zipWith(option2, zipFunction);
+
+			expect(zippedOption).toEqual(Some({ key: 2, value: 4 }));
+		});
+		test("Some(2).zipWith(None(), (a, b) => a + b) should return None()", () => {
+			const option1 = Some(2);
+			const option2 = None<number>();
+			const zipFunction = (a: number, b: number) => a + b;
+
+			const zippedOption = option1.zipWith(option2, zipFunction);
+
+			expect(zippedOption).toEqual(None());
+		});
+		test("None().zipWith(Some(3), (a, b) => a + b) should return None()", () => {
+			const option1 = None<number>();
+			const option2 = Some(3);
+			const zipFunction = (a: number, b: number) => a + b;
+
+			const zippedOption = option1.zipWith(option2, zipFunction);
+
+			expect(zippedOption).toEqual(None());
+		});
+		test("None().zipWith(None(), (a, b) => a + b) should return None()", () => {
+			const option1 = None<number>();
+			const option2 = None<number>();
+			const zipFunction = (a: number, b: number) => a + b;
+
+			const zippedOption = option1.zipWith(option2, zipFunction);
+
+			expect(zippedOption).toEqual(None());
+		});
+	});
 });
