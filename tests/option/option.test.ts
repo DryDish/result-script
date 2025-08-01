@@ -437,7 +437,7 @@ describe("Option method tests", () => {
 
 			const zippedOption = option1.zipWith(option2, zipFunction);
 
-			expect(zippedOption).toEqual(Some({ key: 2, value: 4 }));
+			expect(zippedOption).toEqual(Some({ key: "age", value: 21 }));
 		});
 		test("Some(2).zipWith(None(), (a, b) => a + b) should return None()", () => {
 			const option1 = Some(2);
@@ -465,6 +465,56 @@ describe("Option method tests", () => {
 			const zippedOption = option1.zipWith(option2, zipFunction);
 
 			expect(zippedOption).toEqual(None());
+		});
+	});
+
+	describe("Option.unzip()", () => {
+		test("Some([2, 3]).unzip() should return [Some(2), Some(3)]", () => {
+			const option = Some(2);
+			const option2 = Some(3);
+			const zippedOption = option.zip(option2);
+			const [first, second] = zippedOption.unzip();
+
+			expect(first).toEqual(Some(2));
+			expect(second).toEqual(Some(3));
+		});
+		test("Some([2, 3]).unzip() should return [Some(2), Some('3')]", () => {
+			const option = Some(2);
+			const option2 = Some("3");
+			const zippedOption = option.zip(option2);
+			const [first, second] = zippedOption.unzip();
+
+			expect(first).toEqual(Some(2));
+			expect(second).toEqual(Some("3"));
+		});
+		test("Some([2, '3']).unzip() should return [Some(2), Some('3')]", () => {
+			const option = Some([2, "3"] as [number, string]);
+			const [first, second] = option.unzip();
+
+			expect(first).toEqual(Some(2));
+			expect(second).toEqual(Some("3"));
+		});
+		test("Some(['a', 1]).unzip() should return [Some('a'), Some(1)]", () => {
+			const option = Some(["a", 1] as [string, number]);
+			const [first, second] = option.unzip();
+
+			expect(first).toEqual(Some("a"));
+			expect(second).toEqual(Some(1));
+		});
+		test("None().unzip() should return [None(), None()]", () => {
+			const option = None<[number, string]>();
+			const [first, second] = option.unzip();
+
+			expect(first).toEqual(None());
+			expect(second).toEqual(None());
+		});
+		test("Some([1, 2, 3] should return [None(), None()]", () => {
+			const option = Some([1, 2, 3]);
+			// @ts-ignore-next-line: Testing invalid case
+			const [first, second] = option.unzip();
+
+			expect(first).toEqual(None());
+			expect(second).toEqual(None());
 		});
 	});
 });
