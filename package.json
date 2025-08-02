@@ -6,6 +6,7 @@
 	"module": "lib/mjs/index.js",
 	"exports": {
 		".": {
+			"types": "./lib/types/index.d.ts",
 			"import": "./lib/mjs/index.js",
 			"require": "./lib/cjs/index.js"
 		}
@@ -14,11 +15,15 @@
 		"lib"
 	],
 	"scripts": {
-		"start": "ts-node -O '{\"module\": \"commonjs\"}' main.ts",
-		"start-js": "nodemon main.js",
-		"build": "rm -fr lib/* && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json && ./fixup.sh",
-		"test": "jest",
-		"test:watch": "jest --watch"
+		"build": "rm -fr lib && bun run build:mjs && bun run build:cjs && bun run build:types && bun run fixup",
+		"fixup": "echo '{\"type\": \"commonjs\"}' > lib/cjs/package.json && echo '{\"type\": \"module\"}' > lib/mjs/package.json",
+		"build:mjs": "bun build ./src/index.ts --outdir ./lib/mjs --target node --format esm --splitting",
+		"build:cjs": "bun build ./src/index.ts --outdir ./lib/cjs --target node --format cjs --splitting",
+		"lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\"",
+		"lint:fix": "eslint \"src/**/*.ts\" \"tests/**/*.ts\" --fix",
+		"build:types": "tsc -p tsconfig-types.json",
+		"test": "bun test",
+		"test:watch": "bun test --watch"
 	},
 	"repository": {
 		"type": "git",
@@ -36,16 +41,10 @@
 	},
 	"homepage": "https://github.com/DryDish/typescript-result#readme",
 	"devDependencies": {
-		"@types/jest": "^29.2.5",
-		"@types/node": "^18.14.6",
-		"@typescript-eslint/eslint-plugin": "^5.48.0",
-		"@typescript-eslint/parser": "^5.48.0",
-		"eslint": "^8.31.0",
-		"jest": "^29.3.1",
-		"nodemon": "^2.0.21",
-		"ts-jest": "^29.0.3",
-		"ts-jest-resolver": "^2.0.1",
-		"ts-node": "^10.9.1",
-		"typescript": "^4.9.4"
+		"@types/bun": "^1.2",
+		"@typescript-eslint/eslint-plugin": "^8",
+		"@typescript-eslint/parser": "^8",
+		"eslint": "^8",
+		"typescript": "^5"
 	}
 }

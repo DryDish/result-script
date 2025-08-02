@@ -1,5 +1,6 @@
 import { Some, None, Option } from "../../src/option/option";
 import { Ok, Err } from "../../src/result/result";
+import { describe, test, expect } from "bun:test";
 
 describe("Option method tests", () => {
 	describe("Option.isSome()", () => {
@@ -510,7 +511,7 @@ describe("Option method tests", () => {
 		});
 		test("Some([1, 2, 3] should return [None(), None()]", () => {
 			const option = Some([1, 2, 3]);
-			// @ts-ignore-next-line: Testing invalid case
+			// @ts-expect-error: Testing invalid case
 			const [first, second] = option.unzip();
 
 			expect(first).toEqual(None());

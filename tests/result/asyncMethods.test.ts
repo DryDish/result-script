@@ -1,5 +1,6 @@
 import { Err, Ok, Result } from "../../src/result/result";
 import { ErrAsync, OkAsync } from "../../src/result/resultAsync";
+import { describe, test, expect } from "bun:test";
 
 async function getNumberDelayedResolve(number: number, msWait: number) {
 	return new Promise<number>((res) => {
@@ -367,7 +368,7 @@ describe("ResultAsync.andThen() Tests", () => {
 	test("ResultAsync.andThen() should correctly map a ResultAsync two.", async () => {
 		const result = await Result.fromPromise(getStringDelayedResolve("hello!", 0))
 			.andThen((x) => checkValidString(x, "hello!"))
-			.map((x) => (x = "pancake"))
+			.map(() => "pancake")
 			.andThen((x) => checkValidString(x, "pancakes"))
 			.map((x) => x.length);
 
