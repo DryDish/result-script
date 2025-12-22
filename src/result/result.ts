@@ -770,9 +770,12 @@ class Result<T, E> implements IResult<T, E> {
  * @param {T} data
  * @returns {Result<T, E>} Result<T, E>
  */
-const Ok = <T, E>(data: T): Result<T, E> => {
+function Ok<T>(data: T): Result<T, never>;
+function Ok<T, E>(data: T): Result<T, E>;
+
+function Ok<T, E>(data: T): Result<T, E> {
 	return new Result<T, E>(data, ResultType.Ok);
-};
+}
 
 /**
  * Creates a {@link Result}`<T, E>` as an `Err<E>`.
@@ -802,8 +805,11 @@ const Ok = <T, E>(data: T): Result<T, E> => {
  * @param {E} err
  * @returns {*}  {Result<T, E>}
  */
-const Err = <T, E>(err: E): Result<T, E> => {
-	return new Result<T, E>(err, ResultType.Err);
-};
+function Err<E>(err: E): Result<never, E>;
+function Err<T, E>(err: E): Result<T, E>;
 
-export { Result, Ok, Err };
+function Err<T, E>(err: E): Result<T, E> {
+	return new Result<T, E>(err, ResultType.Err);
+}
+
+export { Ok, Err, Result, ResultType };

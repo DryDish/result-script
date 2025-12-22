@@ -1,4 +1,4 @@
-import { Result, Ok, Err } from "./result.js";
+import { Result, Ok, Err, ResultType } from "./result";
 
 /**
  * Async implementation of the {@link Result} type.
@@ -238,11 +238,14 @@ class ResultAsync<T extends Result<T["ok"], T["err"]>> extends Promise<T> {
  * @param {U} data
  * @returns {ResultAsync<T>} ResultAsync<T>
  */
-const OkAsync = <U, T extends Result<U, T["err"]>>(data: U): ResultAsync<T> => {
+function OkAsync<U, T extends Result<U, never>>(data: U): ResultAsync<T>;
+function OkAsync<U, T extends Result<U, T["err"]>>(data: U): ResultAsync<T>;
+
+function OkAsync<U, T extends Result<U, T["err"]>>(data: U): ResultAsync<T> {
 	return new ResultAsync<T>(async (resolve) => {
-		resolve(Ok(data) as T);
+		resolve(new Result<U, T["err"]>(data, ResultType.Ok) as T);
 	});
-};
+}
 
 /**
  * Takes in `value` of type `T` and wraps it inside a {@link ResultAsync}
@@ -260,10 +263,13 @@ const OkAsync = <U, T extends Result<U, T["err"]>>(data: U): ResultAsync<T> => {
  * @param {U} data
  * @returns {ResultAsync<T>} ResultAsync<T>
  */
-const ErrAsync = <U, T extends Result<T["ok"], U>>(data: U): ResultAsync<T> => {
+function ErrAsync<U, T extends Result<never, U>>(data: U): ResultAsync<T>;
+function ErrAsync<U, T extends Result<T["ok"], U>>(data: U): ResultAsync<T>;
+
+function ErrAsync<U, T extends Result<T["ok"], U>>(data: U): ResultAsync<T> {
 	return new ResultAsync<T>(async (resolve) => {
-		resolve(Err(data) as T);
+		resolve(new Result<T, U>(data, ResultType.Err) as T);
 	});
-};
+}
 
 export { ResultAsync, OkAsync, ErrAsync };
