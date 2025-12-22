@@ -1,0 +1,12 @@
+{
+	"extends": "./tsconfig-types.json",
+	"include": ["src/**/*.ts", "tests/**/*.ts"],
+	"compilerOptions": {
+		"types": ["vitest/globals", "node"],
+		"rootDir": ".",
+		"baseUrl": ".",
+		"noEmit": true,
+		"moduleResolution": "nodenext",
+		"module": "nodenext"
+	}
+}

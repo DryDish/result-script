@@ -1,6 +1,6 @@
 import { Some, None, Option } from "../../src/option/option";
 import { Ok, Err } from "../../src/result/result";
-import { describe, test, expect } from "bun:test";
+import { describe, test, expect } from "vitest";
 
 describe("Option method tests", () => {
 	describe("Option.isSome()", () => {

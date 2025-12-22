@@ -22,8 +22,8 @@
 		"lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\"",
 		"lint:fix": "eslint \"src/**/*.ts\" \"tests/**/*.ts\" --fix",
 		"build:types": "tsc -p tsconfig-types.json",
-		"test": "bun test",
-		"test:watch": "bun test --watch"
+		"test": "vitest --run --bail 1",
+		"test:watch": "vitest"
 	},
 	"repository": {
 		"type": "git",
@@ -45,6 +45,7 @@
 		"@typescript-eslint/eslint-plugin": "^8",
 		"@typescript-eslint/parser": "^8",
 		"eslint": "^8",
-		"typescript": "^5"
+		"typescript": "^5",
+		"vitest": "^4.0.16"
 	}
 }

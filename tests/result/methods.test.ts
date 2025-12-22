@@ -1,5 +1,5 @@
 import { Result, Ok, Err } from "../../src/result/result";
-import { describe, test, expect } from "bun:test";
+import { describe, test, expect } from "vitest";
 
 interface ErrorMessage<E, T> {
 	error: E;
