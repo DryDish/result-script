@@ -200,6 +200,42 @@ describe("Result type tests", () => {
 	});
 
 	describe("Result method tests", () => {
+		interface ValidationError {
+			error: string;
+			detail: string;
+		}
+
+		interface HttpError {
+			error: string;
+			detail: string;
+			httpCode: number;
+		}
+
+		describe("Result.unwrap() tests", () => {
+			test("Result<number, never>.unwrap() should return a T: number", () => {
+				const unwrappedResult = Ok(5).unwrap();
+				expectTypeOf(unwrappedResult).toEqualTypeOf<number>();
+			});
+
+			test("Result<number, string>.unwrap() should return a T: number", () => {
+				// In actual runtime, this would throw an error.
+				const unwrappedResult = Err<number, string>("Invalid").unwrap();
+				expectTypeOf(unwrappedResult).toEqualTypeOf<number>();
+			});
+		});
+
+		describe("Result.unwrapOr() tests", () => {
+			test("Result<number, never>.unwrapOr() should return a T: number", () => {
+				const unwrappedResult = Ok(5).unwrapOr(0);
+				expectTypeOf(unwrappedResult).toEqualTypeOf<number>();
+			});
+
+			test("Result<number, string>.unwrapOr() should return a T: number", () => {
+				const unwrappedResult = Err<number, string>("Invalid").unwrapOr(0);
+				expectTypeOf(unwrappedResult).toEqualTypeOf<number>();
+			});
+		});
+
 		describe("Result.map() tests", () => {
 			test("Result<number, never>.map() should modify a T: number to a U: string result", () => {
 				const result = Ok(5).map((x) => x.toString());
@@ -228,16 +264,117 @@ describe("Result type tests", () => {
 
 				expectTypeOf(result).toEqualTypeOf<string>();
 			});
+			test("Result<number, string>.mapOr() should modify a T: number to a U: number result", () => {
+				const result = Err<number, string>("Invalid").mapOr(15, (x) => x * 3);
+
+				expectTypeOf(result).toEqualTypeOf<number>();
+			});
 		});
 
-		describe("Result.mapOrElse() tests", () => {});
+		describe("Result.mapOrElse() tests", () => {
+			test("Result<number, HttpError>.mapOrElse() should modify a T: number or E: HttpError to a U: string", () => {
+				const result = Ok<number, HttpError>(5).mapOrElse(
+					(error) => error.httpCode.toString(),
+					(number) => number.toString()
+				);
+				expectTypeOf(result).toEqualTypeOf<string>();
+			});
+		});
 
-		describe("Result.mapErr() tests", () => {});
+		describe("Result.mapErr() tests", () => {
+			test("Result<number, number>.mapErr() should modify a E: number to a F: string", () => {
+				const result = Ok<number, number>(5).mapErr((x) => x.toString());
+				expectTypeOf(result).toEqualTypeOf<Result<number, string>>();
+			});
+			test("Result<number, number>.mapErr() should modify a E: number to a F: number", () => {
+				const result = Err<number, number>(5).mapErr((x) => x * 2);
+				expectTypeOf(result).toEqualTypeOf<Result<number, number>>();
+			});
+		});
 
-		describe("Result.andThen() tests", () => {});
+		describe("Result.andThen() tests", () => {
+			const validateString = (maybeString: unknown): Result<string, ValidationError> => {
+				if (typeof maybeString === "string") {
+					return Ok(maybeString);
+				} else {
+					return Err({
+						error: "InvalidDataType",
+						detail: `The datatype provided was supposed to be 'string' but was given: '${typeof maybeString}'`,
+					});
+				}
+			};
 
-		describe("Result.or() tests", () => {});
+			const validateBananaString = (maybeBanana: string): Result<string, ValidationError> => {
+				if (maybeBanana === "banana") {
+					return Ok(maybeBanana);
+				} else {
+					return Err({
+						error: "InvalidCharSequenceError",
+						detail: `Was expecting the char sequence: 'banana' but got: '${maybeBanana}'`,
+					});
+				}
+			};
 
-		describe("Result.orElse() tests", () => {});
+			test("Result<unknown, ValidationError>.andThen(validateString).andThen(validateBananaString) should return a Result<string, ValidationError>", () => {
+				const result = Ok<unknown, ValidationError>(5).andThen(validateString).andThen(validateBananaString);
+				expectTypeOf(result).toEqualTypeOf<Result<string, ValidationError>>();
+			});
+
+			test("Result<string, ValidationError>.andThen(validateBananaString) should return a Result<string, ValidationError>", () => {
+				const result = Ok<string, ValidationError>("5").andThen(validateBananaString);
+				expectTypeOf(result).toEqualTypeOf<Result<string, ValidationError>>();
+			});
+		});
+
+		describe("Result.or() tests", () => {
+			test("Result<number, never>.or(Result<number, never>) should return a Result<number, never>", () => {
+				const result = Ok(5).or(Ok(5));
+				expectTypeOf(result).toEqualTypeOf<Result<number, never>>();
+			});
+
+			test("Result<number, string>.or(Result<number, never>) should return a Result<number, string>", () => {
+				const result = Err<number, string>("Invalid").or(Ok(5));
+				expectTypeOf(result).toEqualTypeOf<Result<number, string>>();
+			});
+
+			test("Result<number, string>.or(Result<number, number>) should show a type error", () => {
+				// @ts-expect-error: .or() should only accept a Result with the same types
+				Err<number, string>("Invalid").or(Ok<number, number>(5));
+			});
+
+			test("Result<number, string>.or(Result<number, string>).or(Result<number, string>).or(Result<number, string>) should return a Result<number, string>", () => {
+				const a = Err<number, string>("Error 1");
+				const b = Err<number, string>("Error 2");
+				const c = Err<number, string>("Error 3");
+				const d = Ok<number, string>(1234);
+
+				const result = a.or(b).or(c).or(d);
+
+				expectTypeOf(result).toEqualTypeOf<Result<number, string>>();
+			});
+		});
+
+		describe("Result.orElse() tests", () => {
+			const getEnv = (key: string): Result<string, string> => {
+				if (process.env[key]) {
+					return Ok(process.env[key]);
+				} else {
+					return Err(`Environment variable '${key}' not found`);
+				}
+			};
+			test("Result.orElse() should be able to override the E return type", () => {
+				const result = getEnv("SOME_ENV_VAR").orElse(() => Ok("1234"));
+				expectTypeOf(result).toEqualTypeOf<Result<string, never>>();
+			});
+
+			test("Result.orElse() should call the provided function", () => {
+				const result = getEnv("SOME_ENV_VAR").orElse((err) => {
+					console.error(err);
+					return getEnv("OTHER_ENV_VAR");
+				});
+
+				expectTypeOf(result).toEqualTypeOf<Result<string, string>>();
+			});
+		});
 	});
 });
