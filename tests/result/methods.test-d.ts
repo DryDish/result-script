@@ -239,9 +239,6 @@ describe("Result type tests", () => {
 		describe("Result.map() tests", () => {
 			test("Result<number, never>.map() should modify a T: number to a U: string result", () => {
 				const result = Ok(5).map((x) => x.toString());
-
-				console.log(result.ok);
-
 				expectTypeOf(result).toEqualTypeOf<Result<string, never>>();
 			});
 			test("Result<number, never>.map() should modify a T: number to a U: string back to a V: number result", () => {
