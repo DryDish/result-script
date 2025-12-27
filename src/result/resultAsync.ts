@@ -238,15 +238,11 @@ class ResultAsync<T extends Result<T["ok"], T["err"]>> extends Promise<T> {
  * @param {U} data
  * @returns {ResultAsync<T>} ResultAsync<T>
  */
-function OkAsync<U, T extends Result<U, never>>(data: U): ResultAsync<T>;
-function OkAsync<U, T extends Result<U, T["err"]>>(data: U): ResultAsync<T>;
-
-function OkAsync<U, T extends Result<U, T["err"]>>(data: U): ResultAsync<T> {
+function OkAsync<U, E = never, T extends Result<U, E> = Result<U, E>>(data: U | Promise<U>): ResultAsync<T> {
 	return new ResultAsync<T>(async (resolve) => {
-		resolve(new Result<U, T["err"]>(data, ResultType.Ok) as T);
+		resolve(new Result<U, E>(data as U, ResultType.Ok) as T);
 	});
 }
-
 /**
  * Takes in `value` of type `T` and wraps it inside a {@link ResultAsync}
  * promise that resolves to an `Err` {@link Result}.
@@ -263,12 +259,12 @@ function OkAsync<U, T extends Result<U, T["err"]>>(data: U): ResultAsync<T> {
  * @param {U} data
  * @returns {ResultAsync<T>} ResultAsync<T>
  */
-function ErrAsync<U, T extends Result<never, U>>(data: U): ResultAsync<T>;
-function ErrAsync<U, T extends Result<T["ok"], U>>(data: U): ResultAsync<T>;
+function ErrAsync<E>(data: E | Promise<E>): ResultAsync<Result<never, E>>;
+function ErrAsync<T, E>(data: E | Promise<E>): ResultAsync<Result<T, E>>;
 
-function ErrAsync<U, T extends Result<T["ok"], U>>(data: U): ResultAsync<T> {
-	return new ResultAsync<T>(async (resolve) => {
-		resolve(new Result<T, U>(data, ResultType.Err) as T);
+function ErrAsync<T, E>(data: E | Promise<E>): ResultAsync<Result<T, E>> {
+	return new ResultAsync<Result<T, E>>(async (resolve) => {
+		resolve(new Result<T, E>(data as E, ResultType.Err));
 	});
 }
 
