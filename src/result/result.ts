@@ -1,10 +1,10 @@
-import { IResult } from "../interfaces.js";
+import { IResult } from "../interfaces";
 import { isDeepStrictEqual } from "node:util";
-import { ResultAsync } from "./resultAsync.js";
+import { ResultAsync } from "./resultAsync";
 
 enum ResultType {
-	Ok,
-	Err,
+	Ok = "Ok",
+	Err = "Err",
 }
 
 /**
@@ -20,21 +20,21 @@ enum ResultType {
  * @template E
  */
 class Result<T, E> implements IResult<T, E> {
-	ok!: T;
-	err!: E;
+	data: T | E;
 	#type: ResultType;
 
 	/**
 	 * Creates an instance of Result.
-	 * @param {({"ok": T} | {"err": E})} data
+	 * @param {T | E} data
+	 * @param {ResultType} type
 	 * @memberof Result
 	 */
 	constructor(data: T | E, type: ResultType) {
 		if (type === ResultType.Ok) {
-			this.ok = data as T;
+			this.data = data as T;
 			this.#type = ResultType.Ok;
 		} else {
-			this.err = data as E;
+			this.data = data as E;
 			this.#type = ResultType.Err;
 		}
 	}
@@ -78,12 +78,10 @@ class Result<T, E> implements IResult<T, E> {
 	 * @memberof Result
 	 */
 	isOkAnd(f: (x: T) => boolean): boolean {
-		if (this.isOk()) {
-			return f(this.ok);
-		} else if ("err" in this) {
-			return false;
+		if (this.#type === ResultType.Ok) {
+			return f(this.data as T);
 		} else {
-			throw Error("Something is deeply wrong with the Result object");
+			return false;
 		}
 	}
 
@@ -126,12 +124,10 @@ class Result<T, E> implements IResult<T, E> {
 	 * @memberof Result
 	 */
 	isErrAnd(f: (x: E) => boolean): boolean {
-		if (this.isOk()) {
+		if (this.#type === ResultType.Ok) {
 			return false;
-		} else if (this.isErr()) {
-			return f(this.err);
 		} else {
-			throw Error("Something is deeply wrong with the Result object");
+			return f(this.data as E);
 		}
 	}
 
@@ -174,12 +170,10 @@ class Result<T, E> implements IResult<T, E> {
 	 *
 	 */
 	map<U>(op: (value: T) => U): Result<U, E> {
-		if (this.isOk()) {
-			return Ok<U, E>(op(this.ok));
-		} else if (this.isErr()) {
-			return Err<U, E>(this.err);
+		if (this.#type === ResultType.Ok) {
+			return Ok<U, E>(op(this.data as T));
 		} else {
-			throw Error("Something is deeply wrong with the Result object");
+			return Err<U, E>(this.data as E);
 		}
 	}
 
@@ -201,12 +195,10 @@ class Result<T, E> implements IResult<T, E> {
 	 * @memberof Result
 	 */
 	mapOr<U>(alternative: U, f: (value: T) => U): U {
-		if (this.isOk()) {
-			return f(this.ok);
-		} else if (this.isErr()) {
-			return alternative;
+		if (this.#type === ResultType.Ok) {
+			return f(this.data as T);
 		} else {
-			throw Error("Something is deeply wrong with the Result object");
+			return alternative;
 		}
 	}
 
@@ -243,12 +235,10 @@ class Result<T, E> implements IResult<T, E> {
 	 * @memberof Result
 	 */
 	mapOrElse<U>(altF: (err: E) => U, f: (value: T) => U): U {
-		if (this.isOk()) {
-			return f(this.ok);
-		} else if (this.isErr()) {
-			return altF(this.err);
+		if (this.#type === ResultType.Ok) {
+			return f(this.data as T);
 		} else {
-			throw Error("Something is deeply wrong with the Result object");
+			return altF(this.data as E);
 		}
 	}
 
@@ -274,12 +264,10 @@ class Result<T, E> implements IResult<T, E> {
 	 * @memberof Result
 	 */
 	mapErr<F>(op: (err: E) => F): Result<T, F> {
-		if (this.isOk()) {
-			return Ok(this.ok);
-		} else if (this.isErr()) {
-			return Err(op(this.err));
+		if (this.#type === ResultType.Ok) {
+			return Ok(this.data as T);
 		} else {
-			throw Error("Something is deeply wrong with the Result object");
+			return Err(op(this.data as E));
 		}
 	}
 
@@ -314,15 +302,14 @@ class Result<T, E> implements IResult<T, E> {
 	 * @throws {Error} `Error` with text: `${msg} :` + the contents of the `Err`.
 	 * @param {string} msg
 	 * @returns {T} T
+	 * @throws {Error}
 	 * @memberof Result
 	 */
 	expect(msg: string): T {
-		if (this.isOk()) {
-			return this.ok;
-		} else if (this.isErr()) {
-			throw Error(msg + ": " + JSON.stringify(this.err));
+		if (this.#type === ResultType.Ok) {
+			return this.data as T;
 		} else {
-			throw Error("Something is deeply wrong with the Result object");
+			throw Error(msg + ": " + JSON.stringify(this.data as E));
 		}
 	}
 
@@ -343,13 +330,14 @@ class Result<T, E> implements IResult<T, E> {
 	 * result.unwrap(); // Throws Error 'Called Result.unwrap() on an Err value: "emergency failure"'
 	 *
 	 * @returns {T} T
+	 * @throws {Error}
 	 * @memberof Result
 	 */
 	unwrap(): T {
-		if (this.isOk()) {
-			return this.ok;
+		if (this.#type === ResultType.Ok) {
+			return this.data as T;
 		} else {
-			throw Error("Called Result.unwrap() on an Err value: " + JSON.stringify(this.err));
+			throw Error("Called Result.unwrap() on an Err value: " + JSON.stringify(this.data as E));
 		}
 	}
 
@@ -369,13 +357,14 @@ class Result<T, E> implements IResult<T, E> {
 	 * result.expectErr("Testing expectErr"); // "Some Error"
 	 * @param {string} msg
 	 * @returns {E} E
+	 * @throws {Error}
 	 * @memberof Result
 	 */
 	expectErr(msg: string): E {
-		if (this.isErr()) {
-			return this.err;
+		if (this.#type === ResultType.Err) {
+			return this.data as E;
 		} else {
-			throw Error(msg + ": " + JSON.stringify(this.ok));
+			throw Error(msg + ": " + JSON.stringify(this.data as T));
 		}
 	}
 
@@ -392,13 +381,14 @@ class Result<T, E> implements IResult<T, E> {
 	 * result.unwrapErr(); // "emergency failure"
 	 *
 	 * @returns {E} E
+	 * @throws {Error}
 	 * @memberof Result
 	 */
 	unwrapErr(): E {
-		if (this.isErr()) {
-			return this.err;
+		if (this.#type === ResultType.Err) {
+			return this.data as E;
 		} else {
-			throw Error("Called Result.unwrapErr() on an Ok value: " + JSON.stringify(this.ok));
+			throw Error("Called Result.unwrapErr() on an Ok value: " + JSON.stringify(this.data as T));
 		}
 	}
 
@@ -430,12 +420,12 @@ class Result<T, E> implements IResult<T, E> {
 	 * @memberof Result
 	 */
 	and<U>(res: Result<U, E>): Result<U, E> {
-		if (this.isErr()) {
-			return Err<U, E>(this.err);
+		if (this.#type === ResultType.Err) {
+			return Err<U, E>(this.data as E);
 		} else if (res.isOk()) {
 			return res;
 		} else if (res.isErr()) {
-			return Err<U, E>(res.err);
+			return Err<U, E>(res.unwrapErr());
 		} else {
 			throw Error("Something is deeply wrong with the Result object");
 		}
@@ -463,10 +453,10 @@ class Result<T, E> implements IResult<T, E> {
 	 * @memberof Result
 	 */
 	andThen<U>(op: (value: T) => Result<U, E>): Result<U, E> {
-		if (this.isOk()) {
-			return op(this.ok);
+		if (this.#type === ResultType.Ok) {
+			return op(this.data as T);
 		} else {
-			return Err(this.err);
+			return Err(this.data as E);
 		}
 	}
 
@@ -497,7 +487,7 @@ class Result<T, E> implements IResult<T, E> {
 	 * @memberof Result
 	 */
 	or(res: Result<T, E>): Result<T, E> {
-		if (this.isErr()) {
+		if (this.#type === ResultType.Err) {
 			return res;
 		} else {
 			return this;
@@ -526,10 +516,10 @@ class Result<T, E> implements IResult<T, E> {
 	 * @memberof Result
 	 */
 	orElse<F>(op: (err: E) => Result<T, F>): Result<T, F> {
-		if (this.isOk()) {
-			return Ok(this.ok);
+		if (this.#type === ResultType.Ok) {
+			return Ok(this.data as T);
 		} else {
-			return op(this.err);
+			return op(this.data as E);
 		}
 	}
 
@@ -550,8 +540,8 @@ class Result<T, E> implements IResult<T, E> {
 	 * @memberof Result
 	 */
 	unwrapOr(alternative: T): T {
-		if (this.isOk()) {
-			return this.ok;
+		if (this.#type === ResultType.Ok) {
+			return this.data as T;
 		} else {
 			return alternative;
 		}
@@ -575,10 +565,10 @@ class Result<T, E> implements IResult<T, E> {
 	 * @memberof Result
 	 */
 	unwrapOrElse(op: (err: E) => T): T {
-		if (this.isOk()) {
-			return this.ok;
+		if (this.#type === ResultType.Ok) {
+			return this.data as T;
 		} else {
-			return op(this.err);
+			return op(this.data as E);
 		}
 	}
 
@@ -605,8 +595,8 @@ class Result<T, E> implements IResult<T, E> {
 	 * @memberof Result
 	 */
 	contains<U extends T>(x: U): boolean {
-		if (this.isOk()) {
-			return isDeepStrictEqual(this.ok, x);
+		if (this.#type === ResultType.Ok) {
+			return isDeepStrictEqual(this.data as T, x);
 		} else {
 			return false;
 		}
@@ -635,8 +625,8 @@ class Result<T, E> implements IResult<T, E> {
 	 * @memberof Result
 	 */
 	containsErr<F extends E>(x: F): boolean {
-		if (this.isErr()) {
-			return isDeepStrictEqual(this.err, x);
+		if (this.#type === ResultType.Err) {
+			return isDeepStrictEqual(this.data as E, x);
 		} else {
 			return false;
 		}
@@ -803,7 +793,7 @@ function Ok<T, E>(data: T): Result<T, E> {
  * @template T
  * @template E
  * @param {E} err
- * @returns {*}  {Result<T, E>}
+ * @returns {Result<T, E>} Result<T, E>
  */
 function Err<E>(err: E): Result<never, E>;
 function Err<T, E>(err: E): Result<T, E>;
