@@ -1,32 +1,19 @@
 import { Err, Ok } from "../result/result";
 import type { Result } from "../result/result";
+import { ExpectError, UnwrapError } from "../util";
 
 enum OptionType {
-	Some,
-	None,
-}
-
-class UnwrapError extends Error {
-	constructor(message: string) {
-		super(message);
-		this.name = "UnwrapError";
-	}
-}
-
-class ExpectError extends Error {
-	constructor(message: string) {
-		super(message);
-		this.name = "ExpectError";
-	}
+	Some = "Some",
+	None = "None",
 }
 
 class Option<T> {
 	#type: OptionType;
-	private _value: T;
+	#value: T;
 
 	constructor(value: T, type: OptionType) {
+		this.#value = value;
 		this.#type = type;
-		this._value = value;
 	}
 
 	isSome(): boolean {
@@ -35,7 +22,7 @@ class Option<T> {
 
 	isSomeAnd(predicate: (value: T) => boolean): boolean {
 		if (this.isSome()) {
-			return predicate(this._value);
+			return predicate(this.#value);
 		} else {
 			return false;
 		}
@@ -47,7 +34,7 @@ class Option<T> {
 
 	expect(message: string): T {
 		if (this.isSome()) {
-			return this._value;
+			return this.#value;
 		} else {
 			throw new ExpectError(message);
 		}
@@ -55,7 +42,7 @@ class Option<T> {
 
 	unwrap(): T {
 		if (this.isSome()) {
-			return this._value;
+			return this.#value;
 		} else {
 			throw new UnwrapError("Called Option.unwrap() on a 'None' value");
 		}
@@ -63,7 +50,7 @@ class Option<T> {
 
 	unwrapOr(defaultValue: T): T {
 		if (this.isSome()) {
-			return this._value;
+			return this.#value;
 		} else {
 			return defaultValue;
 		}
@@ -71,7 +58,7 @@ class Option<T> {
 
 	unwrapOrElse(callback: () => T): T {
 		if (this.isSome()) {
-			return this._value;
+			return this.#value;
 		} else {
 			return callback();
 		}
@@ -79,7 +66,7 @@ class Option<T> {
 
 	map<U>(executor: (value: T) => U): Option<U> {
 		if (this.isSome()) {
-			return Some(executor(this._value));
+			return Some(executor(this.#value));
 		} else {
 			return None();
 		}
@@ -88,7 +75,7 @@ class Option<T> {
 	inspect(callback: (value: T) => void): Option<T> {
 		if (this.isSome()) {
 			// Cloning the value to prevent mutation of the original in callback
-			const clonedValue = structuredClone(this._value);
+			const clonedValue = structuredClone(this.#value);
 			callback(clonedValue);
 		}
 		return this;
@@ -96,7 +83,7 @@ class Option<T> {
 
 	mapOr<U>(defaultValue: U, executor: (value: T) => U): U {
 		if (this.isSome()) {
-			return executor(this._value);
+			return executor(this.#value);
 		} else {
 			return defaultValue;
 		}
@@ -104,7 +91,7 @@ class Option<T> {
 
 	mapOrElse<U>(defaultCallback: () => U, executor: (value: T) => U): U {
 		if (this.isSome()) {
-			return executor(this._value);
+			return executor(this.#value);
 		} else {
 			return defaultCallback();
 		}
@@ -112,7 +99,7 @@ class Option<T> {
 
 	okOr<E>(err: E): Result<T, E> {
 		if (this.isSome()) {
-			return Ok(this._value);
+			return Ok(this.#value);
 		} else {
 			return Err(err);
 		}
@@ -120,7 +107,7 @@ class Option<T> {
 
 	okOrElse<E>(errorCallback: () => E): Result<T, E> {
 		if (this.isSome()) {
-			return Ok(this._value);
+			return Ok(this.#value);
 		} else {
 			return Err(errorCallback());
 		}
@@ -136,14 +123,14 @@ class Option<T> {
 
 	andThen<U>(optionCallback: (value: T) => Option<U>): Option<U> {
 		if (this.isSome()) {
-			return optionCallback(this._value);
+			return optionCallback(this.#value);
 		} else {
 			return None();
 		}
 	}
 
 	filter(predicate: (value: T) => boolean): Option<T> {
-		if (this.isSome() && predicate(this._value)) {
+		if (this.isSome() && predicate(this.#value)) {
 			return this;
 		} else {
 			return None();
@@ -167,35 +154,35 @@ class Option<T> {
 	}
 
 	insert(value: T): T {
-		this._value = value;
+		this.#value = value;
 		this.#type = OptionType.Some;
-		return this._value;
+		return this.#value;
 	}
 
 	getOrInsert(altValue: T): T {
 		if (this.isSome()) {
-			return this._value;
+			return this.#value;
 		} else {
-			this._value = altValue;
+			this.#value = altValue;
 			this.#type = OptionType.Some;
-			return this._value;
+			return this.#value;
 		}
 	}
 
 	getOrInsertWith(callback: () => T): T {
 		if (this.isSome()) {
-			return this._value;
+			return this.#value;
 		} else {
-			this._value = callback();
+			this.#value = callback();
 			this.#type = OptionType.Some;
-			return this._value;
+			return this.#value;
 		}
 	}
 
 	take(): Option<T> {
 		if (this.isSome()) {
-			const oldValue = structuredClone(this._value);
-			this._value = undefined as T;
+			const oldValue = structuredClone(this.#value);
+			this.#value = undefined as T;
 			this.#type = OptionType.None;
 			return Some(oldValue);
 		} else {
@@ -204,7 +191,7 @@ class Option<T> {
 	}
 
 	takeIf(predicate: (value: T) => boolean): Option<T> {
-		if (this.isSome() && predicate(this._value)) {
+		if (this.isSome() && predicate(this.#value)) {
 			return this.take();
 		} else {
 			return None();
@@ -213,11 +200,11 @@ class Option<T> {
 
 	replace(value: T): Option<T> {
 		if (this.isSome()) {
-			const oldValue = structuredClone(this._value);
-			this._value = value;
+			const oldValue = structuredClone(this.#value);
+			this.#value = value;
 			return Some(oldValue);
 		} else {
-			this._value = value;
+			this.#value = value;
 			this.#type = OptionType.Some;
 			return None();
 		}
@@ -225,7 +212,7 @@ class Option<T> {
 
 	zip<U>(other: Option<U>): Option<[T, U]> {
 		if (this.isSome() && other.isSome()) {
-			return Some([this._value, other._value]);
+			return Some([this.#value, other.#value]);
 		} else {
 			return None();
 		}
@@ -233,15 +220,15 @@ class Option<T> {
 
 	zipWith<U, V>(other: Option<U>, zipFunction: (a: T, b: U) => V): Option<V> {
 		if (this.isSome() && other.isSome()) {
-			return Some(zipFunction(this._value, other._value));
+			return Some(zipFunction(this.#value, other.#value));
 		} else {
 			return None();
 		}
 	}
 
 	unzip<A, B>(this: Option<[A, B]>): [Option<A>, Option<B>] {
-		if (this.isSome() && Array.isArray(this._value) && this._value.length === 2) {
-			return [Some(this._value[0]), Some(this._value[1])];
+		if (this.isSome() && Array.isArray(this.#value) && this.#value.length === 2) {
+			return [Some(this.#value[0]), Some(this.#value[1])];
 		} else {
 			return [None(), None()];
 		}
