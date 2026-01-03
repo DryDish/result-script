@@ -4,6 +4,11 @@ import { describe, test, expectTypeOf } from "vitest";
 
 describe("ResultAsync type tests", () => {
 	describe("OkAsync type tests", () => {
+		test("OkAsync / ResultAsync should be assignable to Promise<Result<T, E>>", () => {
+			const result: Promise<Result<number, never>> = OkAsync(5);
+			expectTypeOf(result).toEqualTypeOf<Promise<Result<number, never>>>();
+		});
+
 		test("A not awaited OkAsync should return a ResultAsync<Result<number, never>>", () => {
 			const result = OkAsync(12);
 			expectTypeOf(result).toEqualTypeOf<ResultAsync<Result<number, never>>>();
@@ -35,6 +40,11 @@ describe("ResultAsync type tests", () => {
 		});
 	});
 	describe("ErrAsync type tests", () => {
+		test("ErrAsync / ResultAsync should be assignable to Promise<Result<T, E>>", () => {
+			const result: Promise<Result<never, string>> = ErrAsync("error");
+			expectTypeOf(result).toEqualTypeOf<Promise<Result<never, string>>>();
+		});
+
 		test("A not awaited ErrAsync should return a ResultAsync<Result<never, string>>", () => {
 			const result = ErrAsync("error");
 			expectTypeOf(result).toEqualTypeOf<ResultAsync<Result<never, string>>>();
