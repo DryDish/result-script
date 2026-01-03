@@ -356,6 +356,17 @@ describe("ResultAsync.andThen() Tests", () => {
 	};
 	// ----------------------------------------
 
+	test("ResultAsync.andThen() should not call op when Result is Err", async () => {
+		let called = false;
+
+		await Result.fromPromise(getNumberDelayedReject("pancakes", 0)).andThen((x) => {
+			called = true;
+			return Ok(x);
+		});
+
+		expect(called).toBe(false);
+	});
+
 	test("ResultAsync.andThen() should correctly map a ResultAsync.", async () => {
 		const result = await Result.fromPromise(getStringDelayedResolve("hello!", 0)).andThen((x) =>
 			checkValidString(x, "hello!")
