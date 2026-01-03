@@ -1,5 +1,6 @@
 import { Result, Ok, Err } from "../../src/result/result";
 import { describe, test, expect } from "vitest";
+import { ExpectError } from "../../src/util";
 
 interface ErrorMessage<E, T> {
 	error: E;
@@ -186,7 +187,7 @@ describe("Result.mapErr() Tests", () => {
 describe("Result.expect() Tests", () => {
 	test("Result.expect() should throw an error when called on an Err", () => {
 		const result: Result<number, string> = Err("emergency failure");
-		expect(() => result.expect("Testing expect")).toThrowError(Error('Testing expect: "emergency failure"'));
+		expect(() => result.expect("Testing expect")).toThrowError(new ExpectError('Testing expect: "emergency failure"'));
 	});
 
 	test("Result.expect() should return T when called on Ok", () => {
@@ -224,13 +225,13 @@ describe("Result.unwrap() Tests", () => {
 describe("Result.expectErr() Tests", () => {
 	test("Result.expectErr() should throw an error when called on an Ok", () => {
 		const result: Result<number, string> = Ok(10);
-		expect(() => result.expectErr("Testing expectErr")).toThrowError(Error("Testing expectErr: 10"));
+		expect(() => result.expectErr("Testing expectErr")).toThrowError(new ExpectError("Testing expectErr: 10"));
 	});
 
 	test("Result.expectErr() should throw an error when called on an Ok", () => {
 		const result: Result<object, string> = Ok({ name: "bob", age: 12 });
 		expect(() => result.expectErr("Testing expectErr")).toThrowError(
-			Error('Testing expectErr: {"name":"bob","age":12}')
+			new ExpectError('Testing expectErr: {"name":"bob","age":12}')
 		);
 	});
 

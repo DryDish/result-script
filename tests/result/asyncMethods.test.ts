@@ -1,6 +1,7 @@
 import { Err, Ok, Result } from "../../src/result/result";
 import { ErrAsync, OkAsync } from "../../src/result/resultAsync";
 import { describe, test, expect } from "vitest";
+import { UnwrapError } from "../../src/util";
 
 async function getNumberDelayedResolve(number: number, msWait: number) {
 	return new Promise<number>((res) => {
@@ -56,7 +57,7 @@ describe("OkAsync() tests", () => {
 		expect(result.isErr()).toBe(false);
 		expect(() => {
 			result.unwrapErr();
-		}).toThrowError(new Error('Called Result.unwrapErr() on an Ok value: {"age":12,"name":"bob"}'));
+		}).toThrowError(new UnwrapError('Called Result.unwrapErr() on an Ok value: {"age":12,"name":"bob"}'));
 	});
 });
 
@@ -84,7 +85,7 @@ describe("ErrAsync() tests", () => {
 		expect(result.isErr()).toBe(true);
 		expect(() => {
 			result.unwrap();
-		}).toThrowError(new Error('Called Result.unwrap() on an Err value: {"age":12,"name":"bob"}'));
+		}).toThrowError(new UnwrapError('Called Result.unwrap() on an Err value: {"age":12,"name":"bob"}'));
 	});
 });
 
