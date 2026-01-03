@@ -1,5 +1,7 @@
-import { Result, Ok, Err, ResultType } from "./result";
+import { Result, Ok, Err } from "./result";
 
+type GetOk<R> = R extends Result<infer T, unknown> ? T : never;
+type GetErr<R> = R extends Result<unknown, infer E> ? E : never;
 /**
  * Async implementation of the {@link Result} type.
  *
@@ -31,10 +33,10 @@ import { Result, Ok, Err, ResultType } from "./result";
  * result.isOk();   //true
  * result.unwrap(); // 4.69
  * @class ResultAsync
- * @extends {Promise<T>}
- * @template T
+ * @extends {Promise<R>}
+ * @template R The specific Result type being wrapped (e.g. Result<number, Error>).
  */
-class ResultAsync<T extends Result<T["ok"], T["err"]>> extends Promise<T> {
+class ResultAsync<R extends Result<unknown, unknown>> extends Promise<R> {
 	/**
 	 * Maps a `ResultAsync<Result<T, E>>` to `ResultAsync<Result<U, E>>` by
 	 * applying a function to the result's {@link Ok} value, leaving the
@@ -63,32 +65,29 @@ class ResultAsync<T extends Result<T["ok"], T["err"]>> extends Promise<T> {
 	 *
 	 * result.isOk();   // true
 	 * result.unwrap(); // 9
-	 * @template U
-	 * @param {((data: T["ok"]) => Promise<U> | U)} func
-	 * @returns {ResultAsync<Result<U, T["err"]>>} ResultAsync<Result<U, T["err"]>>
+	 * @template U The new success type.
+	 * @param {(data: GetOk<R>) => Promise<U> | U} func Transformation function for the success value.
+	 * @returns {ResultAsync<Result<U, GetErr<R>>>} A new ResultAsync with the transformed success type.
 	 * @memberof ResultAsync
 	 */
-	map<U>(func: (data: T["ok"]) => Promise<U> | U): ResultAsync<Result<U, T["err"]>> {
-		return new ResultAsync<Result<U, unknown>>((resolve) => {
+	map<U>(func: (data: GetOk<R>) => Promise<U> | U): ResultAsync<Result<U, GetErr<R>>> {
+		return new ResultAsync<Result<U, GetErr<R>>>((resolve) => {
 			this.then((resultData) => {
-				if (resultData.isErr()) {
-					return resolve(Err(resultData.err));
+				const result = resultData as Result<GetOk<R>, GetErr<R>>;
+				if (result.isErr()) {
+					return resolve(Err(result.unwrapErr()));
 				}
 				try {
-					const response = func(resultData.ok as T["ok"]);
-					if (response instanceof Promise) {
-						response
-							.then((data) => {
-								resolve(Ok(data));
-							})
-							.catch((err) => {
-								resolve(Err(err));
-							});
-					} else {
-						resolve(Ok(response));
-					}
-				} catch (err) {
-					resolve(Err(err as T["err"]));
+					const response = func(result.unwrap());
+					Promise.resolve(response)
+						.then((data) => {
+							resolve(Ok(data));
+						})
+						.catch((err) => {
+							resolve(Err(err));
+						});
+				} catch (err: unknown) {
+					resolve(Err(err as GetErr<R>));
 				}
 			});
 		});
@@ -127,36 +126,32 @@ class ResultAsync<T extends Result<T["ok"], T["err"]>> extends Promise<T> {
 	 *
 	 * result.isOk();   // true
 	 * result.unwrap(); // 16
-	 * @template F
-	 * @param {((err: T["err"]) => F | Promise<F>)} op
-	 * @returns {ResultAsync<Result<T["ok"], F>>} ResultAsync<Result<T["ok"], F>>
+	 * @template F The new error type.
+	 * @param {(err: GetErr<R>) => F | Promise<F>} op Transformation function for the error value.
+	 * @returns {ResultAsync<Result<GetOk<R>, F>>} A new ResultAsync with the transformed error type.
 	 * @memberof ResultAsync
 	 */
-	mapErr<F>(op: (err: T["err"]) => F | Promise<F>): ResultAsync<Result<T["ok"], F>> {
-		return new ResultAsync<Result<T["ok"], F>>((resolve) => {
+	mapErr<F>(op: (err: GetErr<R>) => F | Promise<F>): ResultAsync<Result<GetOk<R>, F>> {
+		return new ResultAsync<Result<GetOk<R>, F>>((resolve) => {
 			this.then((resultData) => {
-				const result = resultData as Result<T["ok"], F>;
-				if (!result.isErr()) {
-					resolve(Ok(result.ok));
+				const result = resultData as Result<GetOk<R>, GetErr<R>>;
+				if (result.isOk()) {
+					return resolve(Ok(result.unwrap()));
 				}
 				try {
-					const error = op(result.err);
-					if (error instanceof Promise) {
-						error
-							.then((data) => {
-								resolve(Err(data));
-							})
-							.catch((err) => {
-								resolve(Err(err));
-							});
-					} else {
-						resolve(Err(error));
-					}
-				} catch (err) {
+					const error = op(result.unwrapErr());
+					Promise.resolve(error)
+						.then((data) => {
+							resolve(Err(data));
+						})
+						.catch((err) => {
+							resolve(Err(err));
+						});
+				} catch (err: unknown) {
 					resolve(Err(err as F));
 				}
 			}).catch((err) => {
-				resolve(Err(err));
+				resolve(Err(err as F));
 			});
 		});
 	}
@@ -197,25 +192,22 @@ class ResultAsync<T extends Result<T["ok"], T["err"]>> extends Promise<T> {
 	 *
 	 * console.log(result.isErr());     //true
 	 * console.log(result.unwrapErr()); // {error: 'FailedToParseBody', detail: SyntaxError: Unexpected token '<', ... }
-	 * @template U
-	 * @template E
-	 * @param {(value: T["ok"]) => Result<U, E>} op
-	 * @returns {ResultAsync<Result<U, E> Promise<Result<U, E>>} ResultAsync<Result<U, E>>
+	 * @template U The new success type.
+	 * @template E The new error type.
+	 * @param {(value: GetOk<R>) => Result<U, E> | Promise<Result<U, E>>} op
+	 * @returns {ResultAsync<Result<U, E>>}
 	 * @memberof ResultAsync
 	 */
-	andThen<U, E>(op: (value: T["ok"]) => Result<U, E> | Promise<Result<U, E>>): ResultAsync<Result<U, E>> {
+	andThen<U, E>(op: (value: GetOk<R>) => Result<U, E> | Promise<Result<U, E>>): ResultAsync<Result<U, E>> {
 		return new ResultAsync<Result<U, E>>((resolve) => {
 			this.then((resultData) => {
-				const result = resultData;
+				const result = resultData as Result<GetOk<R>, GetErr<R>>;
 				if (result.isOk()) {
-					const data = result.ok;
-					if (data instanceof Promise) {
-						data.then((data) => resolve(op(data))).catch((err) => resolve(Err(err)));
-					} else {
-						resolve(op(data));
-					}
+					Promise.resolve(op(result.unwrap()))
+						.then(resolve)
+						.catch((err: unknown) => resolve(Err(err as E)));
 				} else {
-					resolve(Err(result.err as E));
+					resolve(Err(result.unwrapErr() as E));
 				}
 			});
 		});
@@ -233,14 +225,15 @@ class ResultAsync<T extends Result<T["ok"], T["err"]>> extends Promise<T> {
  * result.isOk();   // true
  * result.isErr();  // false;
  * result.unwrap(); // 12
- * @template U
- * @template T `Result<U, T["err"]>`
- * @param {U} data
- * @returns {ResultAsync<T>} ResultAsync<T>
+ * @template T Success type.
+ * @template E Error type (defaults to never).
+ * @param {T | Promise<T>} data The value or promise to wrap.
+ * @returns {ResultAsync<Result<T, E>>}
  */
-function OkAsync<U, E = never, T extends Result<U, E> = Result<U, E>>(data: U | Promise<U>): ResultAsync<T> {
-	return new ResultAsync<T>(async (resolve) => {
-		resolve(new Result<U, E>(data as U, ResultType.Ok) as T);
+function OkAsync<T, E = never>(data: T | Promise<T>): ResultAsync<Result<T, E>> {
+	return new ResultAsync<Result<T, E>>(async (resolve) => {
+		const val = await data;
+		resolve(Ok<T, E>(val));
 	});
 }
 /**
@@ -254,17 +247,18 @@ function OkAsync<U, E = never, T extends Result<U, E> = Result<U, E>>(data: U | 
  * result.isOk();      // false;
  * result.isErr();     // true;
  * result.unwrapErr(); // { age: 12, name: "bob" };
- * @template U
- * @template T `Result<T["ok"], U>`
- * @param {U} data
- * @returns {ResultAsync<T>} ResultAsync<T>
+ * @template T Success type.
+ * @template E Error type.
+ * @param {E | Promise<E>} data The error value or promise to wrap.
+ * @returns {ResultAsync<Result<T, E>>}
  */
 function ErrAsync<E>(data: E | Promise<E>): ResultAsync<Result<never, E>>;
 function ErrAsync<T, E>(data: E | Promise<E>): ResultAsync<Result<T, E>>;
 
 function ErrAsync<T, E>(data: E | Promise<E>): ResultAsync<Result<T, E>> {
 	return new ResultAsync<Result<T, E>>(async (resolve) => {
-		resolve(new Result<T, E>(data as E, ResultType.Err));
+		const err = await data;
+		resolve(Err<T, E>(err));
 	});
 }
 
