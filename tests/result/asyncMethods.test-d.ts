@@ -13,6 +13,26 @@ describe("ResultAsync type tests", () => {
 			const result = await OkAsync(12);
 			expectTypeOf(result).toEqualTypeOf<Result<number, never>>();
 		});
+
+		test("Explicitly typed OkAsync<T> should return ResultAsync<Result<T, never>>", () => {
+			const result = OkAsync<number>(12);
+			expectTypeOf(result).toEqualTypeOf<ResultAsync<Result<number, never>>>();
+		});
+
+		test("An awaited explicitly typed OkAsync<T> should return Result<T, never>", async () => {
+			const result = await OkAsync<number>(12);
+			expectTypeOf(result).toEqualTypeOf<Result<number, never>>();
+		});
+
+		test("Explicitly typed OkAsync<T, E> should return ResultAsync<Result<T, E>>", () => {
+			const result = OkAsync<string, Error>("test");
+			expectTypeOf(result).toEqualTypeOf<ResultAsync<Result<string, Error>>>();
+		});
+
+		test("An awaited explicitly typed OkAsync<T, E> should return Result<T, E>", async () => {
+			const result = await OkAsync<string, Error>("test");
+			expectTypeOf(result).toEqualTypeOf<Result<string, Error>>();
+		});
 	});
 	describe("ErrAsync type tests", () => {
 		test("A not awaited ErrAsync should return a ResultAsync<Result<never, string>>", () => {
@@ -23,6 +43,26 @@ describe("ResultAsync type tests", () => {
 		test("An awaited ErrAsync should return a Result<never, string>", async () => {
 			const result = await ErrAsync("error");
 			expectTypeOf(result).toEqualTypeOf<Result<never, string>>();
+		});
+
+		test("Explicitly typed ErrAsync<E> should return ResultAsync<Result<never, E>>", () => {
+			const result = ErrAsync<Error>(new Error("error"));
+			expectTypeOf(result).toEqualTypeOf<ResultAsync<Result<never, Error>>>();
+		});
+
+		test("An awaited explicitly typed ErrAsync<E> should return Result<never, E>", async () => {
+			const result = await ErrAsync<Error>(new Error("error"));
+			expectTypeOf(result).toEqualTypeOf<Result<never, Error>>();
+		});
+
+		test("Explicitly typed ErrAsync<T, E> should return ResultAsync<Result<T, E>>", () => {
+			const result = ErrAsync<number, Error>(new Error("error"));
+			expectTypeOf(result).toEqualTypeOf<ResultAsync<Result<number, Error>>>();
+		});
+
+		test("An awaited explicitly typed ErrAsync<T, E> should return Result<T, E>", async () => {
+			const result = await ErrAsync<number, Error>(new Error("error"));
+			expectTypeOf(result).toEqualTypeOf<Result<number, Error>>();
 		});
 	});
 	describe("Method type tests", () => {
