@@ -300,10 +300,10 @@ class Result<T, E> implements IResult<T, E> {
 	 *
 	 * const result: Result<number, string> = Ok(123);
 	 * result.expect("Testing expect"); // 123;
-	 * @throws {Error} `Error` with text: `${msg} :` + the contents of the `Err`.
+	 * @throws {ExpectError} `ExpectError` with text: `${msg} :` + the contents of the `Err`.
 	 * @param {string} msg
 	 * @returns {T} T
-	 * @throws {Error}
+	 * @throws {ExpectError}
 	 * @memberof Result
 	 */
 	expect(msg: string): T {
