@@ -1,6 +1,7 @@
 import { IResult } from "../interfaces";
 import { isDeepStrictEqual } from "node:util";
 import { ResultAsync } from "./resultAsync";
+import { ExpectError, UnwrapError } from "../util";
 
 enum ResultType {
 	Ok = "Ok",
@@ -309,7 +310,7 @@ class Result<T, E> implements IResult<T, E> {
 		if (this.#type === ResultType.Ok) {
 			return this.data as T;
 		} else {
-			throw Error(msg + ": " + JSON.stringify(this.data as E));
+			throw new ExpectError(msg + ": " + JSON.stringify(this.data as E));
 		}
 	}
 
@@ -337,7 +338,7 @@ class Result<T, E> implements IResult<T, E> {
 		if (this.#type === ResultType.Ok) {
 			return this.data as T;
 		} else {
-			throw Error("Called Result.unwrap() on an Err value: " + JSON.stringify(this.data as E));
+			throw new UnwrapError("Called Result.unwrap() on an Err value: " + JSON.stringify(this.data as E));
 		}
 	}
 
@@ -364,7 +365,7 @@ class Result<T, E> implements IResult<T, E> {
 		if (this.#type === ResultType.Err) {
 			return this.data as E;
 		} else {
-			throw Error(msg + ": " + JSON.stringify(this.data as T));
+			throw new ExpectError(msg + ": " + JSON.stringify(this.data as T));
 		}
 	}
 
@@ -388,7 +389,7 @@ class Result<T, E> implements IResult<T, E> {
 		if (this.#type === ResultType.Err) {
 			return this.data as E;
 		} else {
-			throw Error("Called Result.unwrapErr() on an Ok value: " + JSON.stringify(this.data as T));
+			throw new UnwrapError("Called Result.unwrapErr() on an Ok value: " + JSON.stringify(this.data as T));
 		}
 	}
 
