@@ -218,8 +218,7 @@ describe("Result type tests", () => {
 			});
 
 			test("Result<number, string>.unwrap() should return a T: number", () => {
-				// In actual runtime, this would throw an error.
-				const unwrappedResult = Err<number, string>("Invalid").unwrap();
+				const unwrappedResult = Ok<number, string>(123).unwrap();
 				expectTypeOf(unwrappedResult).toEqualTypeOf<number>();
 			});
 		});
