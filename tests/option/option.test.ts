@@ -16,6 +16,7 @@ describe("Option method tests", () => {
 
 	describe("Option.isSomeAnd()", () => {
 		const someOption: Option<number> = Some(2);
+		const noneOption: Option<number> = None<number>();
 
 		test("Some(2).isSomeAnd((x) => x === 2) should return true", () => {
 			expect(someOption.isSomeAnd((x) => x === 2)).toBe(true);
@@ -25,6 +26,9 @@ describe("Option method tests", () => {
 		});
 		test("Some(2).isSomeAnd((x) => x < 2) should return false", () => {
 			expect(someOption.isSomeAnd((x) => x < 2)).toBe(false);
+		});
+		test("None().isSomeAnd((x) => x === 2) should return false", () => {
+			expect(noneOption.isSomeAnd((x) => x === 2)).toBe(false);
 		});
 	});
 
