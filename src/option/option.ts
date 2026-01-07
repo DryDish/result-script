@@ -235,7 +235,7 @@ class Option<T> {
 	 * @returns {Option<U>} Option<U>
 	 */
 	map<U>(f: (x: T) => U): Option<U> {
-		if (this.isSome()) {
+		if (this.#type === OptionType.Some) {
 			return Some(f(this.#value));
 		} else {
 			return None();
@@ -330,8 +330,8 @@ class Option<T> {
 	}
 
 	/**
-	 * Transforms the `Option<T>` into a `Result<T, E>`, mapping `Some(v)` to
-	 *  `Ok(v)` and `None` to `Err(err)`.
+	 * Transforms the {@link Option} into a {@link Result}, mapping `Some<T>(v)` to
+	 *  `Ok<T>(v)` and `None` to `Err<E>(err)`.
 	 *
 	 * ---
 	 * @example
@@ -351,82 +351,379 @@ class Option<T> {
 		}
 	}
 
-	okOrElse<E>(errorCallback: () => E): Result<T, E> {
-		if (this.isSome()) {
+	/**
+	 * Transforms the {@link Option} into a {@link Result}, mapping `Some<T>(v)`
+	 *  to `Ok<T>(v)` and `None` to `Err<E>(errorCallback())`.
+	 *
+	 * ---
+	 * @example
+	 * const x = some<string>("foo");
+	 * x.okOrElse(() => -1); // Ok<string, number>("foo");
+	 *
+	 * const x = None<string>();
+	 * x.okOrElse(() => -1); // Err<string, number>(-1);
+	 * @param errCallback The function to compute the error value if the option is None
+	 * @returns {Result<T, E>} The Result with the `Some` value in `T` and the `errCallback()` value in `E`
+	 */
+	okOrElse<E>(errCallback: () => E): Result<T, E> {
+		if (this.#type === OptionType.Some) {
 			return Ok(this.#value);
 		} else {
-			return Err(errorCallback());
+			return Err(errCallback());
 		}
 	}
 
-	and<U>(otherOption: Option<U>): Option<U> {
-		if (this.isSome() && otherOption.isSome()) {
-			return otherOption;
+	/**
+	 * Returns {@link None} if the option is {@link None}, otherwise returns
+	 *  `optb`.
+	 *
+	 * ---
+	 * @example
+	 * const x: Option<number> = Some(2);
+	 * const y: Option<string> = None<string>();
+	 * x.and(y); // None();
+	 *
+	 * const x: Option<number> = None();
+	 * const y: Option<string> = Some("foo");
+	 * x.and(y); // None();
+	 *
+	 * const x: Option<number> = Some(2);
+	 * const y: Option<string> = Some("foo");
+	 * x.and(y); // Some("foo");
+	 *
+	 * const x: Option<number> = None();
+	 * const y: Option<string> = None();
+	 * x.and(y); // None();
+	 *
+	 * @template U The type of `optb`
+	 * @param {Option<U>} optb The option to return
+	 * @returns {Option<U>}  The option `optb`
+	 */
+	and<U>(optb: Option<U>): Option<U> {
+		if (this.#type === OptionType.Some) {
+			return optb;
 		} else {
 			return None();
 		}
 	}
 
-	andThen<U>(optionCallback: (value: T) => Option<U>): Option<U> {
-		if (this.isSome()) {
-			return optionCallback(this.#value);
+	/**
+	 * Returns {@link None} if the option is {@link None}, otherwise calls `f`
+	 *  with the wrapped value and returns the result.
+	 *
+	 * Some languages call this operation flatmap.
+	 *
+	 * Often used to chain together falliable operations that may return {@link None}.
+	 *
+	 * ---
+	 * @example
+	 * const findSquareRoot = (x: number) => {
+	 *   if (x < 0) {
+	 * 	  return None();
+	 *   }
+	 *   return Some(Math.sqrt(x));
+	 * }
+	 *
+	 * const numberToString = (x: number) => {
+	 *   return Some(x.toString());
+	 * }
+	 *
+	 * Some<number>(4)
+	 *   .andThen(findSquareRoot)  // Some<number>(2)
+	 *   .andThen(numberToString); // Some<string>("2")
+	 *
+	 * None<number>()
+	 *   .andThen(findSquareRoot)  // Won't be called
+	 *   .andThen(numberToString); // Won't be called
+	 *
+	 * Some<number>(-1)
+	 *   .andThen(findSquareRoot)  // None<number>()
+	 *   .andThen(numberToString); // won't be called
+	 *
+	 * Some<number>(4)
+	 *   .andThen(findSquareRoot)  // Some<number>(2)
+	 *   .map((x) => -x);          // Some<number>(-2)
+	 *   .andThen(findSquareRoot)  // None<number>()
+	 *   .andThen(numberToString); // won't be called
+	 *
+	 * @param {(value: T) => Option<U>} f
+	 * @returns {Option<U>}
+	 *
+	 */
+	andThen<U>(f: (value: T) => Option<U>): Option<U> {
+		if (this.#type === OptionType.Some) {
+			return f(this.#value);
 		} else {
 			return None();
 		}
 	}
 
+	/**
+	 * Returns {@link None} if the option is {@link None}, otherwise calls
+	 *  `predicate` with the wrapped value and returns:
+	 *  - {@link Some} if `predicate` returns `true`
+	 *  - {@link None} if `predicate` returns `false`
+	 *
+	 * This function works similar to Array.prototype.filter(). You can imagine
+	 *  the `Option<T>` being an iterator over one or zero elements. `filter()`
+	 *  lets you decide which elements to keep.
+	 *
+	 * ---
+	 * @example
+	 * const isEven = (x: number) => x % 2 === 0;
+	 *
+	 * Some(2).filter(isEven); // Some(2)
+	 * Some(1).filter(isEven); // None()
+	 * None<number>().filter(isEven); // None()
+	 * @param {(value: T) => boolean} predicate
+	 * @returns {Option<T>} The option that satisfies the predicate
+	 */
 	filter(predicate: (value: T) => boolean): Option<T> {
-		if (this.isSome() && predicate(this.#value)) {
+		if (this.#type === OptionType.Some && predicate(this.#value) === true) {
 			return this;
 		} else {
 			return None();
 		}
 	}
 
-	or(otherOption: Option<T>): Option<T> {
-		if (this.isSome()) {
+	/**
+	 * Returns the option if it contains a value, otherwise returns `optb`.
+	 *
+	 * ---
+	 * @example
+	 * const x = Some(2);
+	 * const y = None();
+	 *
+	 * x.or(y); // Some(2)
+	 *
+	 * cosnt x = None();
+	 * const y = Some(100);\
+	 *
+	 * x.or(y); // Some(100)
+	 *
+	 * const x = Some(2);
+	 * const y = Some(100);
+	 *
+	 * x.or(y); // Some(2)
+	 *
+	 * const x = None<number>();
+	 * const y = None<number>();
+	 *
+	 * x.or(y); // None()
+	 * @param {Option<T>} optb The option to return
+	 * @returns {Option<T>} The option
+	 */
+	or(optb: Option<T>): Option<T> {
+		if (this.#type === OptionType.Some) {
 			return this;
 		} else {
-			return otherOption;
+			return optb;
 		}
 	}
 
-	orElse(callback: () => Option<T>): Option<T> {
-		if (this.isSome()) {
+	/**
+	 * Returns the option if it contains a value, otherwise calls `f` and
+	 * returns the result.
+	 *
+	 * ---
+	 * @example
+	 * const nobody = (): Option<string> => None();
+	 * const vikings = (): Option<string> => Some("vikings");
+	 *
+	 * Some("Barbarians").orElse(vikings); // Some("Barbarians")
+	 * None<string>().orElse(vikings); // Some("vikings")
+	 * None<string>().orElse(nobody); // None()
+	 * @param {() => Option<T>} f
+	 * @returns {Option<T>}
+	 */
+	orElse(f: () => Option<T>): Option<T> {
+		if (this.#type === OptionType.Some) {
 			return this;
 		} else {
-			return callback();
+			return f();
 		}
 	}
 
+	/**
+	 * Returns {@link Some} if exactly one of `this` or `optb` is {@link Some},
+	 *  otherwise returns {@link None}.
+	 *
+	 * ---
+	 * @example
+	 * const x = Some(2);
+	 * const y = None<number>();
+	 * x.xor(y); // Some(2);
+	 *
+	 * cosnt x = None<number>();
+	 * const y = Some(2);
+	 * x.xor(y); // Some(2);
+	 *
+	 * const x = Some(2);
+	 * const y = Some(2);
+	 * x.xor(y); // None();
+	 *
+	 * const x = None<number>();
+	 * const y = None<number>();
+	 * x.xor(y); // None();
+	 * @param {Option<T>} optb The second option to evaluate
+	 * @returns {Option<T>} The only option of the two that is {@link Some}
+	 */
+	xor(optb: Option<T>): Option<T> {
+		if (this.#type === OptionType.Some && optb.#type === OptionType.None) {
+			return this;
+		} else if (this.#type === OptionType.None && optb.#type === OptionType.Some) {
+			return optb;
+		}
+		// if both are Some or both are None
+		return None();
+	}
+
+	// TODO: test to ensure this works as expected.
+	/**
+	 * Inserts `value` into the option, then returns the option's value.
+	 *
+	 * If the option already contains a value, the old value is overwritten.
+	 *
+	 * See also {@link getOrInsert}, which doesn't update the value if the
+	 *  option already contains {@link Some}.
+	 *
+	 * > **NOTE**: In Rust, it also returns a mutable reference to the value.
+	 *  In Javascript / Typescript, primitives cannot be returned as references,
+	 *  so this function returns the value instead. However, non-primitives can
+	 *  and are returned as mutable references.
+	 * ---
+	 * @example
+	 * // Primitives
+	 * const opt = None<number>();
+	 * const val = opt.insert(1);
+	 *
+	 * val; // 1
+	 * opt.unwrap(); // 1
+	 * const val2 = opt.insert(2);
+	 *
+	 * val2; // 2
+	 * val2 = 3;
+	 *
+	 * opt.unwrap(); // 2 not 3, since number is primitive.
+	 *
+	 * // Non-primitives
+	 * const opt = None<{name: string}>();
+	 * const val = opt.insert({name: "bob"});
+	 *
+	 * val.name = "bobbert";
+	 * opt.unwrap(); // {name: "bobbert"} // updated the object inside, since non-primitives are returned as references
+	 * @param {T} value The value to insert
+	 * @returns {T} The inserted value from the option
+	 */
 	insert(value: T): T {
 		this.#value = value;
 		this.#type = OptionType.Some;
 		return this.#value;
 	}
 
-	getOrInsert(altValue: T): T {
-		if (this.isSome()) {
+	// TODO: test to ensure this works as expected.
+	/**
+	 * Inserts `value` into the option if it is {@link None}, then returns the
+	 *  option's value, as a reference when possible.
+	 *
+	 * > **NOTE**: In Rust, it also returns a mutable reference to the value.
+	 *  In Javascript / Typescript, primitives cannot be returned as references,
+	 *  so this function returns the value instead. However, non-primitives can
+	 *  and are returned as mutable references.
+	 *
+	 * ---
+	 * @example
+	 * // Primitives
+	 * const x = None<number>();
+	 * const y = x.getOrInsert(5);
+	 *
+	 * y; // 5
+	 * x.unwrap(); // 5
+	 *
+	 * y = 7;
+	 * x.unwrap(); // 5 not 7, since number is primitive.
+	 *
+	 * // Non-primitives
+	 * const x = None<{name: string}>();
+	 * const y = x.getOrInsert({name: "bob"});
+	 *
+	 * y.name = "bobbert";
+	 * x.unwrap(); // {name: "bobbert"}; // updated the object inside, since non-primitives are returned as references
+	 * @param {T} value The value to insert, if the option is {@link None}
+	 * @returns {T} The inserted value from the option, or the option's value if it is {@link Some}
+	 */
+	getOrInsert(value: T): T {
+		if (this.#type === OptionType.Some) {
 			return this.#value;
 		} else {
-			this.#value = altValue;
+			this.#value = value;
 			this.#type = OptionType.Some;
 			return this.#value;
 		}
 	}
 
-	getOrInsertWith(callback: () => T): T {
-		if (this.isSome()) {
+	// TODO: test to ensure this works as expected.
+	/**
+	 * Inserts a value computed from `f` into the option if it is {@link None},
+	 *  then returns the option's value, as a reference when possible.
+	 *
+	 * > **NOTE**: In Rust, it also returns a mutable reference to the value.
+	 *  In Javascript / Typescript, primitives cannot be returned as references,
+	 *  so this function returns the value instead. However, non-primitives can
+	 *  and are returned as mutable references.
+	 *
+	 * ---
+	 * @example
+	 * // Primitives
+	 * const x = None<number>();
+	 * const y = x.getOrInsertWith(() => 5);
+	 *
+	 * y; // 5
+	 * x.unwrap(); // 5
+	 *
+	 * y = 7;
+	 * x.unwrap(); // 5 not 7, since number is primitive.
+	 *
+	 * // Non-primitives
+	 * const x = None<{name: string}>();
+	 * const y = x.getOrInsertWith(() => ({name: "bob"}));
+	 *
+	 * y.name = "bobbert";
+	 * x.unwrap(); // {name: "bobbert"}; // updated the object inside, since non-primitives are returned as references
+	 * @param {() => T} f The function to compute the value to insert, if the option is {@link None}
+	 * @returns {T} The inserted value from the option, or the option's value if it is {@link Some}
+	 */
+	getOrInsertWith(f: () => T): T {
+		if (this.#type === OptionType.Some) {
 			return this.#value;
 		} else {
-			this.#value = callback();
+			this.#value = f();
 			this.#type = OptionType.Some;
 			return this.#value;
 		}
 	}
 
+	/**
+	 * Takes the value out of the option, leaving a {@link None} in its place.
+	 *
+	 * ---
+	 * @example
+	 * const x = Some(2);
+	 * const y = x.take();
+	 *
+	 * x; // None()
+	 * y; // Some(2)
+	 *
+	 * const x = None();
+	 * const y = x.take();
+	 *
+	 * x; // None()
+	 * y; // None()
+	 *
+	 * @returns {Option<T>} The taken value, or {@link None} if the option is {@link None}
+	 */
 	take(): Option<T> {
-		if (this.isSome()) {
+		if (this.#type === OptionType.Some) {
 			const oldValue = structuredClone(this.#value);
 			this.#value = undefined as T;
 			this.#type = OptionType.None;
@@ -436,8 +733,58 @@ class Option<T> {
 		}
 	}
 
+	// TODO: test to ensure this works as expected.
+	/**
+	 * Takes the value out of the option, but only if the predicate evaluates to `true`.
+	 *
+	 * In other words, replaces `this` with {@link None} if the predicate returns `true`.
+	 * This method operates similar to {@link take} but conditional.
+	 *
+	 * > **NOTE**: In Rust, a mutable reference to the value is passed to the predicate.
+	 *  In Javascript / Typescript, primitives cannot be returned as references,
+	 *  so this function passes a copy of the value instead. However, non-primitives can
+	 *  and are passed as mutable references by default.
+	 * ---
+	 * @example
+	 *
+	 * // Primitives
+	 * const x = Some(42);
+	 * const prev = x.takeIf((x) => {
+	 *   x += 1; // This is only updated in this local scope
+	 *   if (x === 42) {
+	 *     return false;
+	 *   } else {
+	 *     return false;
+	 *   }
+	 * });
+	 *
+	 * x; Some(42);
+	 * prev; None();
+	 *
+	 * const prev = x.takeIf((x) => x === 42);
+	 * x; // None();
+	 * prev; // Some(42);
+	 *
+	 * // Non-primitives
+	 * const x = Some({name: "bob"});
+	 * const prev = x.takeIf((x) => {
+	 *   x.name = "bobbert"; // This will update the option's value, since non-primitives are passed by reference
+	 *   return false;
+	 * });
+	 *
+	 * x; // Some({name: "bobbert"});
+	 * prev; // None();
+	 *
+	 * const prev = x.takeIf((x) => x.name === "bobbert");
+	 * x; // None();
+	 * prev; // Some({name: "bobbert"});
+	 *
+	 *
+	 * @param {(value: T) => boolean} predicate The predicate to check
+	 * @returns {Option<T>} The taken value, {@link None} if the option is {@link None} or the predicate does not match
+	 */
 	takeIf(predicate: (value: T) => boolean): Option<T> {
-		if (this.isSome() && predicate(this.#value)) {
+		if (this.#type === OptionType.Some && predicate(this.#value)) {
 			return this.take();
 		} else {
 			return None();
